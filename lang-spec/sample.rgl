@@ -1,0 +1,288 @@
+func byValue(:string arg) {
+    print(^arg);  // Pass by const reference to print, may not change
+}
+
+func byRef(&string arg) {
+    print(&arg);  // Pass by reference to print, may change
+}
+
+func byConstRef(^string arg) {
+    print(:arg);  // Create a local copy and pass to print, destructor is called after this line
+}
+
+func byRvalueRef(@string arg) {
+    print(:arg);  // arg is owned by the function and will cease to exist when the function exits,
+    // it is passed by const reference to print, therefore print cannot modify it but now copy is
+    // made during the call to print
+}
+
+// Take two string arrays by const reference and return an int32 
+func main(&[]string args, envp) => i32 {
+    var mutableString = "This string is mutable";
+    let constString = "This string is a constant";
+
+    byValue(:mutableString);
+    byRef(&mutableString);
+    byConstRef(^mutableString);
+
+    byValue(:constString);
+    // byRef(&constString); This cannot be done since constString was declared using let and is
+    // therefore a constant and can either be copied (passed by value) or passed by const reference
+    byConstRef(^constString);
+
+    byRvalueRef("This is an rvalue reference");  // Since the argument is a literal, it is passed
+    // as an rvalue reference by default. Built in types such as numerals are always passed by
+    // value unless specified otherwise. String literals are classes and therefore are passed as
+    // rvalue reference when they are an rvalue and as const reference when they are an lvalue,
+    // the const reference can be changed if specified so. Specifying a ^ before the argument will
+    // cause it to be passed as a const reference and may be used to either show that the value is
+    // passed as const reference or to make an rvalue reference a const reference 
+    byRvalueRef(@constString);  // This will pass constString by rvalue reference and therefore
+    // after this line constString is no longer valid, any access to it after this line will cause
+    // and error during compilation
+
+    // This will not compile since if mutableString is accessed after the if statement, there is no
+    // way to know if it is still valid without a runtime check. Also, there is no way to know if
+    // mutableString's destructor should be called after this if which would either cause it to not
+    // be cleaned up properly if not called or to be cleaned up twice if called without a run time
+    // check
+    if (input() == "hello") {
+        byRvalueRef(@mutableString);
+    }
+
+    let success, statusString = if args.Length == 3 { 
+        yield True, ""; 
+    } else {
+        yield False, "Expected 2 command line arguments";
+    } 
+
+    if not success {
+        print(statusString);  // When the way to pass the variable is not given implicitly, lvalues
+        // are passed as const reference by default and rvalues as rvalue references
+        return -1;
+    }
+
+    // Check whether the two arguments are the same, conditional, loops and switches can all be
+    // used as expressions but all paths must yield a value or the default is yielded and when
+    // there is no such default value, a compilation error occurs. A path may also yield an error
+    // type which would case the underlying type of the variable to be of an error type
+    let same = if args[1].Length != args[2].Length {
+        yield False;
+    } else {
+        for a, b in zip(args[2:]) {
+            if a != b {
+                yield False;
+            }
+        }
+        yield True;
+    }
+
+    // Since switch statemtns use the => separator between the condition and the case, single line
+    // cases can skip the {}. When the code in the case is executed, the next case is not executed.
+    // The _ case can be used as a default case, the evaluation order is done from top to bottom
+    switch same {
+        True => print("The two strings are the same");
+        False => {
+            print("The two strings are not the same");
+            return -1;
+        }
+        _ => print("Unknown value for same");
+    }
+
+    // Define hexRegex which is a regex that matches a hex number from 0x0 to 0xff. The switch
+    // takes in a string. For each case, the == operator is called where the switch argument is the
+    // right operand and the case value is left operand. The case values have two prefixes, the $
+    // and the f prefix. An f prefix before a string makes it a format string, therefore when it
+    // encounteres a {}, it evalues the value and then calles the ToString function to convert it
+    // it to a string and places it in the string. The $ prefix cases a string literal to be a
+    // regex object. Therefore the == which is being called is the == operator of regex class which
+    // takes in a string and tries to match to it. In the first case, the result of the == operator
+    // is assigned to a local variable accessible only inside the case called match. In the second
+    // case, there is no name to give the result of the == operator so it is implicitly assigned to
+    // _ and is only accessible during the case. To check whether the case matched, the ToBool
+    // convertor method of the regex match class is called and if it returns True, the case is
+    // taken. This means that to implement a class that interacts well with the switch statement,
+    // it simply has to implement the == operator and the result must be convertible to bool. There
+    // is also the : Regex after the argument to the switch statement that defines that unless the
+    // case argument is already of the type Regex, it should be converted to Regex, and if no such
+    // conversion exists, there is a compilation error. In the last case, the # variable is used,
+    // which is bound to the argument to the switch. Just like when invoking a function, &, ^, :
+    // and @ may be used before the switch argument and the defaults are the same as when passing
+    // an argument to a function
+    let hexRegex = "0[xX][\da-fA-F]{1-2}";
+    let switchArgument = "Write command 0x5";
+    switch switchArgument : Regex {
+        $f"Read command \:value\:({hexRegex})" as match => print(f"Found a read command {match["value"]}");
+        f"Write command value:({hexRegex})" => print(f"Found a Write command {_["value"]}");
+        _ => print($"Unknown command \"{#}\"");
+    }
+
+    // All of these declarations are the same
+    var implicitI32 = 0;
+    var explicitI321 = 0i;
+    var explicitI322 = 0I;
+    var explicitI323 = 0i32;
+    var explicitI324 : i32 = 0;
+
+    errorHandling();
+
+    switch Random.RandInt() % 100 as remainder {
+        // Complex conditions may also be formed for switch cases, the a < b < c may be used as a
+        // shorthand for a < b and b < c. The < may also be replaced with >, <= or >=
+        0 < remainder < 10 or # % 10 == 0 => {
+          print("The remainder is either less then 10 or a multiple of 10");
+        }
+        // The 50..100:2 is a Range literal where the lowest value is 50, the highest is 98 and the
+        // step between each two values is 2. This invokes the == operator of range with the int
+        // overload which actually functions like the in operator for Range and therefore this case
+        // condition is valid
+        50..100:2 => print("The remainer is in the range 50 <= remainder < 100 and is even");
+    }
+
+    // There is no return statement, implicitly return 0 since this is the default value for i32.
+    // All types have a default value unless they are a user defined type that does not define a
+    // default value
+}
+
+// The function may either use => void or just not specify a return type to indicate it does not
+// have a return value
+func errorHandling() {
+    // The return value of getMessage() is string!. Using the ? operator, a check is performed
+    // whether an error has occured or not, if not, the returned string is assigned to message. In
+    // case an error has occured, the switch is taken and the error object is bound to the name
+    // error (can be anything) and is only valid inside the switch expression's context. In case
+    // an ErrorCode1 has occured, the first case is taken and the switch returns an empty string
+    // explicitly (using the yield keyword). In case the error is not an ErrorCode1, the default
+    // case is taken and the message associated with the error object is accessed using the error
+    // alias for the error object. An empty string is implicitly yielded since it is the default
+    // value for a string. In case no default value is available for the type, a compilation error
+    // occurs
+    let message = getMessage() ? switch as error {
+        Errors::ErrorCode1 => {
+            print("Encountered ErrorCode1");
+            yield "";
+        }
+        _ => print(f"Encountered an error which is not ErrorCode1: {error.Message}");
+    }
+
+    // It is now safe to access message, which is either one of the valid messages or an empty
+    // string
+    print(f"The message is: \"message\"");
+    
+    //doWorkMayFail();  This will not compile since doWorkMayFail() might fail and we just ignore
+    // whether it failed or not, we cannot do that implicitly and must explicitly silence the error
+    doWorkMayFail() ?;
+
+    doWorkMayFail() ? switch {
+        // In case no name is assigned to the error, it can be accessed like any switch argument
+        // using the # locally bound name
+        _ => print(#.Message);
+    };
+
+    // The ? operator returns True only if the value is not Null (or 0). The ? operator may also be
+    // omitted here since an implicit conversion to bool would be performed and act the same way
+    // but the ? operator makes it a bit more clear. The ? operator may also be overriden to act in
+    // a different way than the bool conversion operator which could lead to different meanings
+    var strLen = 0;
+    for var i = 0; str[i]?; i++ {
+        strLen++;
+    }
+
+    // Since ReadLine() may fail, the ?= operator may be used to check if the call failed, the
+    // currLine variable is not modified and the condition is evaluated to False, otherwise, the
+    // condition is evaluated to True and the currLine variable is modified. This code effectively
+    // reads one line at a time, never loading more than one line into memory. The loop stops when
+    // a line that does not start with the "Command" string is found and due to the structure of
+    // the and complex condition, the right hand side of the and will only be executed if the left
+    // hand side returned True, therefore ReadLine() did not throw an error. This code effectively
+    // silences the error from ReadLine() and the only way to not silence it would be to use the
+    // expr ? switch ... as name pattern rather than the current condition. This can get out of
+    // hand quite fast and therefore, complex error handling should be separated to functions 
+    var currLine : string;
+    while currLine ?= file.ReadLine() and currLine.StartsWith("Command") {
+        print(f"currLine = \"{currLine}\"");
+    }
+
+    var socket = // ... some socket initialization code ...
+    // This code uses the socket object and calls the RecvPacket() method which returns a []u8?
+    // object. The ?. syntax simply checks whether a buffer was received, if so, the ToString()
+    // of the []u8 object (no ? since the ?. served as the validity check) is called, otherwise,
+    // the check returns False and the rest of the condition is not evaluated. When calling the
+    // ToString() method, it may fail if the encoding is not the valid (default is ascii) and
+    // threfore, the comparison is done using the ?== operator which is shorthand for "If the left
+    // hand side of the comparison operator is an error, return False, otherwise perform the
+    // comparison and return the evaluated result". The ?== operator may also be switch with any of
+    // ?!=, ?>, ?<, ?>= and ?<= operators
+    if socket.RecvPacket()?.ToString() ?== Commands::Quit {
+        print("Received quit packet");
+    }
+
+    // Since command is actually a string?, we have the ? case which is used to catch a case where
+    // command is an error and we assign it the name error to make the rest of the code more clear.
+    // Even though the cases are normally evaluated from top to bottom, when a ? case is present,
+    // it is always evaluated first, no matter its position in the switch expression. This means
+    // that the other cases will receive a string rather than a string?. In case a ? case does not
+    // exist, the _ case takes in a string? and is evaluated first and all the other cases take in
+    // a string. If neither a ? nor a _ case are present, a compilation error is thrown due to an
+    // attempt to implicitly silence a possible error, which is not allowed
+    switch socket.RecvPacket()?.ToString() as command {
+        Commands::Quit => print("Received a quit command");
+        Commands::Login => print("Recevied a login command");
+        _ => print("The command is an unknown command");
+        ? as error => print("The ToString() method failed");
+    }
+}
+
+// The function returns a string! which means it may fail. To access the returned value, a check
+// must be performed to determine if the value is good or not
+func getMessage() => string! {
+    return switch Random.RandInt() % 5 as remainder {
+        // In case the remainder is either 0 or 1, a string is yielded using the yield keyword to
+        // indicate it is the value to return from the switch statement which is ultimately
+        // returned from the function
+        0 => yield "Hello World";
+        1 => yield "Goodbye";
+        // If the remainder is 2, an error is thrown and the message "The remained is 2!" is
+        // with it. The message can be accessed from the error object when checking if an error has
+        // occured
+        2 => Throw(Errors::ErrorCode1, "The remainder is 2!");
+        // In case the remained is either 3 or 4, ErrorCode2 is thrown. This usage also displays
+        // the posibility to bind the switch argument to a name, using the as keyword
+        _ => Throw(Errors::ErrorCode2, f"The remainder is {remainder}!");
+    }
+}
+
+// The function is supposed to return void but it may fail so it defines its return type as !,
+// which is the same as void!
+func doWorkMayFail() => ! {
+    // This switch argument showcases how to capture parts for later use, the constant rand (since
+    // the let keyword is used) is only available during the context of the switch expression.
+    // The argument to the switch is passed as const reference or by value, depending on the type
+    // to the compare functions. In case the value should be passed as a normal reference, the name
+    // it is captured as should be annotated using & (i.e. &remainer). The name can also be
+    // annotated using the : or ^ marks in case we want the value to be copied for each case
+    // comparison or explicitly mark it to be passed by const reference (or make a value type be
+    // passed by const reference). Passing a value by reference is dangerous since if one of the
+    // case comparisons changes the value but does not return True, the next case will work on a
+    // different value than the one entered into the switch, but this may also be used to do some
+    // interesting patterns. The switch argument may only be annoted using @ (rvalue reference) in
+    // case there is only one case comparison (the default case does not count). This means that
+    // the argument may not be accessed inside the case itself, since it was consumed during the
+    // case comparison but it may be accessed inside the default case since it does not have a
+    // comparison that consumes the object, but just like any other rvalue reference, it may only
+    // be accessed once (as an rvalue reference), though using the :, & and ^ markings it may be
+    // used more than once, just not used after a usage as @
+    return switch (let rand = Random.RandInt()) % 3 as remainder {
+        1 => Throw(Errors::ErrorCode1, f"{rand} % 3 is {remainder}");
+        // Since this switch statement is used to yield a value, a default case is automatically
+        // created which basically does nothing, it yields void, this switch implicitly has the
+        // following case:
+        // _ => ;
+        // Which may also be written as:
+        // _ => {}
+        // Or:
+        // _ => yield;
+        // Or:
+        // _ => { yield; }
+    }
+}

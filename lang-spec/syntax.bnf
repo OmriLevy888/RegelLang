@@ -1,0 +1,88 @@
+# Creation Date: 18/9/2020
+# Last Modified Date: 18/9/2020
+#
+# Description:
+#   This file defines the syntax of the language. It is simply meant to be used
+#   as a reference and nothing more. Maybe in the future there will be some
+#   automatic lexing/parsing code for it.
+
+# Expressions
+
+# Loop expressions
+
+# If expression
+
+# Assignment expression
+
+# Switch expression
+
+# Operator expressions
+
+# Binary operators
+
+# Unary operators
+
+# Real numbers
+real_literal              ::= double_literal | float_literal
+float_literal             ::= real_number ['f' | 'f32' | 'F' | 'F32']
+double_literal            ::= real_number
+real_number               ::= '-'? decimal_number '.' decimal_number? |
+                              '-'? decimal_number? '.' decimal_number
+
+# Integer literals
+integer_literal           ::= int_literal | uint_literal
+uint_literal              ::= uint8_literal | uint16_literal | uint32_literal |
+                              uint64_literal
+int_literal               ::= int8_literal | int16_literal | int32_literal |
+                              int64_literal
+uint64_literal            ::= whole_number ['u64' | 'U64']
+uint32_literal            ::= whole_number ['u' | 'U' | 'u32' | 'U32']
+uint16_literal            ::= whole_number ['u16' | 'U16']
+uint8_literal             ::= whole_number ['u8' | 'U8']
+int64_literal             ::= whole_number ['i64' | 'I64']
+int32_literal             ::= whole_number ['i' | 'I' | 'i32' | 'I32']?
+int16_literal             ::= whole_number ['i16' | 'I16']
+int8_literal              ::= whole_number ['i8' | 'I8']
+
+whole_number              ::= '-'? abs_number
+
+abs_number                ::= binary_number | octal_number | decimal_digit |
+                              hex_number
+hex_number                ::= hex_prefix hex_digit+
+decimal_number            ::= decimal_digit+
+octal_number              ::= octal_prefix octal_digit+
+binary_number             ::= binary_prefix binary_digit+
+hex_prefix                ::= "0x" | "0X"
+octal_prefix              ::= "0o" | "0O"
+binary_prefix             ::= "0b" | "0B"
+
+# Char and string literals
+string_literal            ::= simple_string_literal | no_escape_string_literal
+# TODO: Add format string literals
+no_escape_string_literal  ::= '@' string_delim char_value* string_delim
+simple_string_literal     ::= string_delim char_value* string_delim
+string_delim              ::= '\"'
+char_literal              ::= char_delim char_value char_delim
+char_delim                ::= '\'
+char_value                ::= alpha | decimal_digit | special_chars |
+                              escape_chars
+
+# Identifiers
+identifier                ::= simple_identifier | compound_identifier
+compound_identifier       ::= [simple_identifier '.']+ simple_identifier
+simple_identifier         ::= ['_' | alpha] ['_' | alpha | decimal_digit]*
+
+# Basic character groupings
+hex_digit                 ::= decimal_digit | 'a'..'f' | 'A'..'F'
+decimal_digit             ::= octal_digit | '8' | '9'
+octal_digit               ::= binary_digit | '2'..'7'
+binary_digit              ::= '0' | '1'
+alpha                     ::= lower | upper
+upper                     ::= 'A'..'Z'
+lower                     ::= 'a'..'z'
+special_chars             ::= ' ' | '!' | '#' | '$' | '%' | '&' | '(' | ')' |
+                              '*' | '+' | ',' | '-' | '.' | '/' | ':' | ';' | 
+                              '<' | '=' | '>' | '?' | '@' | '[' | ']' | '^' | 
+                              '_' | '`' | '{' | '|' | '}' | '~'
+escape_chars              ::= '\\' ['a' | 'b' | 'e' | 'f' | 'n' | 'r' | 't' |
+                              'v' | '\\' | '\'' | '\"' | '\?' | '\xhh']
