@@ -1,43 +1,31 @@
-CPPC=~/Installations/prebuild-llvm-10.0.0/llvm/bin/clang++
-CPPFLAGS=-I. -Ideps/include/
-#LDFLAGS=$(shell ~/Installations/prebuild-llvm-10.0.0/llvm/bin/llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native)
-LDFLAGS=$(shell ~/Installations/prebuild-llvm-10.0.0/llvm/bin/llvm-config --cxxflags --ldflags --libs core)
+LLVM_DIR=~/Installations/llvm/llvm-8.0.0-prebuilt/
+CPPC=$(LLVM_DIR)bin/clang++
+CPPFLAGS=-I. -Ideps/include/ -std=c++17 -c
+LDFLAGS=$(shell $(LLVM_DIR)bin/llvm-config --ldflags --libs) -lpthread -lncurses
 OBJDIR=obj/
 OUTDIR=bin/
-LLVMLIBS=	LLVMX86Disassembler LLVMX86AsmParser LLVMX86CodeGen LLVMCFGuard LLVMGlobalISel \
-			LLVMSelectionDAG LLVMAsmPrinter LLVMDebugInfoDWARF LLVMCodeGen LLVMScalarOpts \
-			LLVMInstCombine LLVMAggressiveInstCombine LLVMTransformUtils LLVMBitWriter LLVMX86Desc \
-			LLVMMCDisassembler LLVMX86Utils LLVMX86Info LLVMMCJIT LLVMExecutionEngine LLVMTarget \
-			LLVMAnalysis LLVMProfileData LLVMRuntimeDyld LLVMObject LLVMTextAPI LLVMMCParser \
-			LLVMBitReader LLVMMC LLVMDebugInfoCodeView LLVMDebugInfoMSF LLVMCore LLVMRemarks \
-			LLVMBitstreamReader LLVMBinaryFormat LLVMSupport LLVMDemangle 
-STDLIBS=z rt dl pthread m
-LIBS=$(patsubst %,-l%,$(LLVMLIBS)) $(patsubst %,-l%,$(STDLIBS))
-#LDFLAGS=-L/home/user/Installations/llvm/build/lib $(LIBS) -Ldeps/lib/llvm
-#-I/home/user/Installations/llvm/llvm/include 
-#-I/home/user/Installations/llvm/build/include 
-#-std=c++14   -fno-exceptions -fno-rtti  
 
 _SRCDIRS=codegen/ common/ lexer/ parser/
 _OBJS=$(shell find $(_SRCDIRS) -type f -name "*.cpp")
 OBJS=$(patsubst %.cpp, %.o, $(_OBJS))
 
-toy:
-	$(eval _CXXFLAGS := $(shell ~/Installations/prebuild-llvm-10.0.0/llvm/bin/llvm-config --cxxflags))
-	$(eval _LDFLAGS := $(shell ~/Installations/prebuild-llvm-10.0.0/llvm/bin/llvm-config --ldflags --libs --system-libs core))
-	~/Installations/prebuild-llvm-10.0.0/llvm/bin/clang++ -c $(_CXXFLAGS) rglc.cpp -o toy.o
-	~/Installations/prebuild-llvm-10.0.0/llvm/bin/clang++ toy.o $(_LDFLAGS)
-
 rglc: $(OBJS)
-	$(eval _OBJFILES := $(subst /,-,$^))
-	$(eval OBJFILES := $(patsubst %,$(OBJDIR)%,$(_OBJFILES)))
-	$(CPPC) -o $(OUTDIR)$@ $(OBJFILES) $(CPPFLAGS) $(LDFLAGS) $@.cpp
+	$(eval _CXXFLAGS := $(shell $(LLVM_DIR)bin/llvm-config --cxxflags))
+	$(eval MAINOBJ := $(OBJDIR)$@.o)
+	$(eval __OBJS := $(subst /,-,$(OBJS)))
+	$(eval _OBJS := $(patsubst %,$(OBJDIR)%,$(__OBJS)))
+
+	$(CPPC) $(_CXXFLAGS) $(CPPFLAGS) -o $(MAINOBJ) $@.cpp 
+	$(CPPC) $(LDFLAGS) -o $(OUTDIR)$@ $(_OBJS) $(MAINOBJ)
 
 %.o: %.cpp
 	$(eval OUTOBJ := $(subst /,-,$@))
 	$(CPPC) -c -o $(OBJDIR)$(OUTOBJ) $(CPPFLAGS) $<
 
-.PHONY: clean again
+.PHONY: init clean again
+
+init:
+	mkdir bin obj
 
 clean:
 	rm -rf $(OBJDIR)*
