@@ -1,0 +1,36 @@
+/home/user/Installations/llvm/llvm-8.0.0-prebuilt/bin/llvm-config: /usr/lib/libtinfo.so.5: no version information available (required by /home/user/Installations/llvm/llvm-8.0.0-prebuilt/bin/llvm-config)
+/home/user/Installations/llvm/llvm-8.0.0-prebuilt/bin/llvm-config: /usr/lib/libtinfo.so.5: no version information available (required by /home/user/Installations/llvm/llvm-8.0.0-prebuilt/bin/llvm-config)
+/home/user/Installations/llvm/llvm-8.0.0-prebuilt/bin/clang++: /usr/lib/libtinfo.so.5: no version information available (required by /home/user/Installations/llvm/llvm-8.0.0-prebuilt/bin/clang++)
+/home/user/Installations/llvm/llvm-8.0.0-prebuilt/bin/clang-8: /usr/lib/libtinfo.so.5: no version information available (required by /home/user/Installations/llvm/llvm-8.0.0-prebuilt/bin/clang-8)
+In file included from rglc.cpp:2:
+In file included from ./common/Core.h:4:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../include/c++/10.2.0/memory:83:
+/usr/lib64/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../include/c++/10.2.0/bits/unique_ptr.h:85:2: warning: delete called on 'rgl::ITokenGenerator' that is abstract but has non-virtual destructor [-Wdelete-abstract-non-virtual-dtor]
+        delete __ptr;
+        ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../include/c++/10.2.0/bits/unique_ptr.h:361:4: note: in instantiation of member function 'std::default_delete<rgl::ITokenGenerator>::operator()' requested here
+          get_deleter()(std::move(__ptr));
+          ^
+./lexer/TokenCollection.h:11:5: note: in instantiation of member function 'std::unique_ptr<rgl::ITokenGenerator, std::default_delete<rgl::ITokenGenerator> >::~unique_ptr' requested here
+    TokenCollection(std::unique_ptr<ITokenGenerator>&& tokenGenerator)
+    ^
+In file included from rglc.cpp:2:
+In file included from ./common/Core.h:4:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../include/c++/10.2.0/memory:83:
+/usr/lib64/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../include/c++/10.2.0/bits/unique_ptr.h:85:2: warning: delete called on 'rgl::ISourceStream' that is abstract but has non-virtual destructor [-Wdelete-abstract-non-virtual-dtor]
+        delete __ptr;
+        ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../include/c++/10.2.0/bits/unique_ptr.h:361:4: note: in instantiation of member function 'std::default_delete<rgl::ISourceStream>::operator()' requested here
+          get_deleter()(std::move(__ptr));
+          ^
+./lexer/Lexer.h:10:5: note: in instantiation of member function 'std::unique_ptr<rgl::ISourceStream, std::default_delete<rgl::ISourceStream> >::~unique_ptr' requested here
+    Lexer(std::unique_ptr<ISourceStream>&& sourceStream)
+    ^
+2 warnings generated.
+/home/user/Installations/llvm/llvm-8.0.0-prebuilt/bin/clang++: /usr/lib/libtinfo.so.5: no version information available (required by /home/user/Installations/llvm/llvm-8.0.0-prebuilt/bin/clang++)
+clang-8: error: no such file or directory: 'obj/common-Formatter.o'
+clang-8: error: no such file or directory: 'obj/common-Logger.o'
+clang-8: error: no such file or directory: 'obj/common-collections-source-stream-TextSourceStream.o'
+clang-8: error: no such file or directory: 'obj/common-collections-source-stream-FileSourceStream.o'
+clang-8: error: no such file or directory: 'obj/lexer-TokenCollection.o'
+make: *** [makefile:30: all] Error 1

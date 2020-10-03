@@ -1,31 +1,35 @@
 LLVM_DIR=~/Installations/llvm/llvm-8.0.0-prebuilt/
 CPPC=$(LLVM_DIR)bin/clang++
-CPPFLAGS=-I. -Ideps/include/ -std=c++17 -c
-LDFLAGS=$(shell $(LLVM_DIR)bin/llvm-config --ldflags --libs) -lpthread -lncurses
 OBJDIR=obj/
 OUTDIR=bin/
 
-_SRCDIRS=codegen/ common/ lexer/ parser/
-_OBJS=$(shell find $(_SRCDIRS) -type f -name "*.cpp")
-OBJS=$(patsubst %.cpp, %.o, $(_OBJS))
+rglc : _SRCDIRS=codegen/ common/ lexer/ parser/
+tests : _SRCDIRS=codegen/ common/ lexer/ parser/ tests/
+OBJS=$(patsubst %.cpp,$(OBJDIR)%.o,$(shell find $(_SRCDIRS) -type f -name "*.cpp"))
 
-rglc: $(OBJS)
+CPPFLAGS=-I. -Ideps/include/ -std=c++17 -c
+LDFLAGS=$(shell $(LLVM_DIR)bin/llvm-config --ldflags --libs) -lpthread -lncurses
+
+tests : TESTS_CPPFLAGS=-DRGL_TESTS -Itests/deps/include/
+tests : POSTFIX=-tests 
+
+.PHONY: clean again all rglc tests
+
+rglc: all
+
+tests: all
+
+all: $(OBJS)
 	$(eval _CXXFLAGS := $(shell $(LLVM_DIR)bin/llvm-config --cxxflags))
-	$(eval MAINOBJ := $(OBJDIR)$@.o)
-	$(eval __OBJS := $(subst /,-,$(OBJS)))
-	$(eval _OBJS := $(patsubst %,$(OBJDIR)%,$(__OBJS)))
+	$(eval MAINOBJ := $(OBJDIR)rglc.o)
 
-	$(CPPC) $(_CXXFLAGS) $(CPPFLAGS) -o $(MAINOBJ) $@.cpp 
-	$(CPPC) $(LDFLAGS) -o $(OUTDIR)$@ $(_OBJS) $(MAINOBJ)
+	$(CPPC) $(_CXXFLAGS) $(CPPFLAGS) $(TESTS_CPPFLAGS) -o $(MAINOBJ) rglc.cpp 
+	$(CPPC) $(LDFLAGS) -o $(OUTDIR)rglc$(POSTFIX) $(OBJS) $(MAINOBJ)
 
-%.o: %.cpp
-	$(eval OUTOBJ := $(subst /,-,$@))
-	$(CPPC) -c -o $(OBJDIR)$(OUTOBJ) $(CPPFLAGS) $<
-
-.PHONY: init clean again
-
-init:
-	mkdir bin obj
+$(OBJDIR)%.o: %.cpp
+	mkdir -p $(@D)
+	echo compiling object file
+	$(CPPC) -c -o $@ $(CPPFLAGS) $(TESTS_CPPFLAGS) $<
 
 clean:
 	rm -rf $(OBJDIR)*
