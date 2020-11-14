@@ -14,10 +14,11 @@ public:
 
     int peek() override;
     int read() override;
+    bool readLine(std::string &line) override;
     size_t tell() const override;
     size_t seek(off_t offset, std::ios_base::seekdir whence = std::ios_base::beg) override;
     inline bool eof() const override {
-        return m_pos >= m_end;
+        return m_pos > m_end;
     }
     inline bool isOpen() const override {
         return m_pos < m_end;

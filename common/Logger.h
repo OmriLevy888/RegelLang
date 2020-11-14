@@ -2,7 +2,8 @@
 #include <iostream>
 #include <ctime>
 
-#include "ILoggable.h"
+#include "common/ILoggable.h"
+#include "common/Formatter.h"
 
 namespace rgl {
 enum class LogLevel : uint8_t {
@@ -25,6 +26,15 @@ private:
     static void log(const std::string& loggable, LogLevel level, const std::string& type);
     static void log(std::string&& loggable, LogLevel level, const std::string& type);
 
+    template<typename _TSep, typename _TFirst, typename ..._TArgs>
+    static std::string join(_TSep sep, _TFirst first, _TArgs... args) {
+        return std::to_string(first) + std::to_string(sep) + Logger::join(sep, args...);
+    }
+    template<typename _TSep, typename _TArg>
+    static std::string join(_TSep sep, _TArg arg) {
+        return std::to_string(arg);
+    }
+
 public:
     static inline void setLogLevel(LogLevel level) { s_logLevel = level; }
     static inline LogLevel getLogLevel() { return s_logLevel; }
@@ -39,22 +49,25 @@ public:
         s_prefixDate = false;
     }
 
-    static void debug(const ILoggable& loggable);
-    static void info(const ILoggable& loggable);
-    static void warning(const ILoggable& loggable);
-    static void error(const ILoggable& loggable);
-    static void critical(const ILoggable& loggable);
-
-    static void debug(const std::string& message);
-    static void info(const std::string& message);
-    static void warning(const std::string& message);
-    static void error(const std::string& message);
-    static void critical(const std::string& message);
-
-    static void debug(std::string&& message);
-    static void info(std::string&& message);
-    static void warning(std::string&& message);
-    static void error(std::string&& message);
-    static void critical(std::string&& message);
+    template<typename ..._TArgs>
+    static void debug(_TArgs... args) {
+        log(Logger::join(' ', args...), LogLevel::debug, "Debug");
+    }
+    template<typename ..._TArgs>
+    static void info(_TArgs... args) {
+        log(Logger::join(' ', args...), LogLevel::info, "Info");
+    }
+    template<typename ..._TArgs>
+    static void warning(_TArgs... args) {
+        log(Logger::join(' ', args...), LogLevel::warning, "Warning");
+    }
+    template<typename ..._TArgs>
+    static void error(_TArgs... args) {
+        log(Logger::join(' ', args...), LogLevel::error, "Error");
+    }
+    template<typename ..._TArgs>
+    static void critical(_TArgs... args) {
+        log(Logger::join(' ', args...), LogLevel::critical, "Critical");
+    }
 };
 }  // namespace rgl

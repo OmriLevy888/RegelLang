@@ -1,11 +1,27 @@
 #include "TextSourceStream.h"
 
+#include <algorithm>
+
 namespace rgl {
 int TextSourceStream::peek() {
+    if (m_pos >= m_end) return EOF;
     return m_sourceText[m_pos];
 }
 int TextSourceStream::read() {
+    if (m_pos >= m_end) return EOF;
     return m_sourceText[m_pos++];
+}
+bool TextSourceStream::readLine(std::string &line) {
+    size_t line_end_index = m_sourceText.find('\n', m_pos);
+    if (line_end_index == std::string::npos) {
+        line = m_sourceText.substr(m_pos);
+        bool ret = m_pos != m_end;
+        m_pos = m_end;
+        return ret;
+    }
+    line = m_sourceText.substr(m_pos, line_end_index - m_pos);
+    m_pos = line_end_index + 1;
+    return true;
 }
 size_t TextSourceStream::tell() const {
     return m_pos;

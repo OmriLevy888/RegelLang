@@ -7,6 +7,9 @@ int FileSourceStream::peek() {
 int FileSourceStream::read() {
     return m_ifstream.get();
 }
+bool FileSourceStream::readLine(std::string &line) {
+    return static_cast<bool>(std::getline(m_ifstream, line));
+}
 size_t FileSourceStream::tell() const {
     return m_ifstream.tellg();
 }

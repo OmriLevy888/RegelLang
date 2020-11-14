@@ -16,26 +16,25 @@ size_t TokenCollection::peekAnchor() {
     return m_anchors.size() == 0 ? -1 : m_anchors.top();
 }
 Token TokenCollection::getNext() {
-    Token ret;
     if (!m_usingBacklog) {  // when not using the backlog
         m_actualIndex++;
-        ret = m_tokenGenerator->getNext();
+        Token ret = m_tokenGenerator->getNext();
 
         // after getting the next token, save it if there are any anchors
         if (m_anchors.size() != 0) {
             m_backlog.push_back(ret);
         }
+        return ret;
     } else {
         // using the backlog, the the current token from the backlog
-        ret = m_backlog[m_backlogIndex++];
+        Token ret = m_backlog[m_backlogIndex++];
         if (m_backlogIndex >= m_backlog.size()) {  // check if finished current anchor
             m_usingBacklog = false;
             if (m_anchors.size() == 0) {  // if finished all anchors, clear backlog
                 m_backlog.clear();
             }
         }
+        return ret;
     }
-
-    return ret;
 }
 }  // namespace rgl

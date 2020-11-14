@@ -11,9 +11,7 @@ public:
     : m_sourceStream(std::move(sourceStream))
     {}
 
-    Token getNext() override {
-        return Token();
-    }
+    Token getNext() override;
 
     std::string toString() const override {
         return "Lexer<sourceStream: " + m_sourceStream->toString() + ">";

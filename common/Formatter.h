@@ -6,6 +6,9 @@
 #include <charconv>
 
 namespace std {  // for overload matching when converting a formatter argument to stirng
+    std::string to_string(bool b);
+    std::string to_string(char c);
+    std::string to_string(const char *str);
     std::string to_string(const std::string& str);
     std::string to_string(std::string&& str);
     std::string to_string(const rgl::ILoggable& loggable);
@@ -13,10 +16,10 @@ namespace std {  // for overload matching when converting a formatter argument t
 }
 
 namespace rgl {
-template<typename ...TArgs>
+template<typename ..._TArgs>
 class Formatter : public ILoggable {
 public:
-    Formatter(std::string&& pattern, const TArgs&... args) {
+    Formatter(std::string&& pattern, const _TArgs&... args) {
         m_formatted = "";
         m_formatted.reserve(pattern.size());
 
@@ -56,6 +59,15 @@ public:
         }
     }
 
+    template<typename _TSep, typename _TFirst, typename ..._TRest>
+    static std::string join(_TSep sep, _TFirst first, _TRest... args) {
+        return std::to_string(first) + std::to_string(sep) + join(sep, args...);
+    }
+    template<typename _TSep, typename _TArg>
+    static std::string join(_TSep sep, _TArg arg) {
+        return std::to_string(arg);
+    }
+
     std::string toString() const override { return m_formatted; }
 
 private:
@@ -65,8 +77,8 @@ private:
     std::string getArg(size_t index, const _T& arg) {
         return std::to_string(arg);
     }
-    template<typename _T, typename ..._TArgs>
-    std::string getArg(size_t index, const _T& arg, const _TArgs&... args) {
+    template<typename _T, typename ..._TRest>
+    std::string getArg(size_t index, const _T& arg, const _TRest&... args) {
         if (index == 0) return std::to_string(arg);
         return getArg(index - 1, args...);
     }

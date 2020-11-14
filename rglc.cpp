@@ -13,39 +13,26 @@ int main(int argc, char **argv, char **envp) {
   rgl::Logger::setPrefixDate(true);
   rgl::Logger::setLogLevel(rgl::LogLevel::debug);
 
-  rgl::FileSourceStream fss("bin/test.bin");
-  rgl::Logger::debug(fss);
-  rgl::Logger::critical(fss);
-  rgl::Logger::setLogLevel(rgl::LogLevel::error);
-  rgl::Logger::debug(fss);
+  rgl::Logger::error("Something bad has happened :>");
+  std::string a = "hello world\nthis is some\n text";
+  rgl::Logger::info(a.find('\n', 0));
+  rgl::Logger::info(a.find('\n', 12));
+  rgl::Logger::info(a.find('\n', 25) == std::string::npos);
+  rgl::Logger::info("Some string");
+  rgl::Logger::info(5);
+  rgl::Logger::info('A');
+  rgl::Logger::info(rgl::Formatter("Format {}", "string"));
 
-  rgl::TextSourceStream tss("This is some source");
-  tss.seek(2);
-  rgl::Logger::error(tss);
-
-  rgl::Lexer lexer(std::make_unique<rgl::TextSourceStream>("This is some source code"));
-  rgl::Logger::init();
-  rgl::Logger::info(lexer);
-
-  rgl::TokenCollection tc(std::make_unique<rgl::DummyTokenGenerator>(std::vector<rgl::Token>
-    { rgl::Token{false},
-      rgl::Token{false},
-      rgl::Token{false},
-      rgl::Token{false},
-      rgl::Token{true}, 
-      rgl::Token{false},
-      rgl::Token{true}}));
-  rgl::Logger::info(tc);
-
-  rgl::Logger::warning(rgl::Formatter("{1} + {0} = {3}", 1, 2, 3, tc));
-
-  if (!fss.isOpen()) {
-    std::cout << "Failed to open fss" << std::endl;
+  rgl::TextSourceStream tss(
+    "This\nis a\ntest to see\nhow the\nTextSourceStream handles multiple lines");
+  std::string line;
+  while (tss.readLine(line)) {
+    rgl::Logger::warning(line);
   }
-  else {
-    for (int curr = fss.read(); !fss.eof(); curr = fss.read()) {
-      std::cout << (char)curr;
-    }
+
+  rgl::FileSourceStream fss("test.txt");
+  while (fss.readLine(line)) {
+    rgl::Logger::error(line);
   }
 
   return 0;

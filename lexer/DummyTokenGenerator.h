@@ -16,7 +16,7 @@ public:
 
     Token getNext() override {
         if (m_yieldedEOF || m_tokens.size() == 0) {
-            return Token(true);
+            return Token(TokenType::t_eof);
         }
 
         if (m_index + 1 >= m_tokens.size() || m_tokens[m_index].isEOF()) {
