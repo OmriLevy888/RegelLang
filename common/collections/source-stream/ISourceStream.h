@@ -11,5 +11,6 @@ public:
     virtual size_t seek(off_t offset, std::ios_base::seekdir = std::ios_base::beg) = 0;
     virtual bool eof() const = 0;
     virtual bool isOpen() const = 0;
+    virtual size_t getFileIndex() const = 0;
 };
 }  // namespace rgl

@@ -10,7 +10,7 @@ enum class TokenType : uint16_t {
 
     t_semicolon,  // ;
     t_underscore,  // _
-    t_comman,  // ,
+    t_comma,  // ,
     t_colon,  // :
     t_pound,  // #
     t_open_bracket,  // {
@@ -59,6 +59,8 @@ enum class TokenType : uint16_t {
     t_char_literal,
     t_string_literal,  // TODO: Add all string literal types
 
+    t_identifier,
+
     t_return,  // return
     t_yield,  // yield
 
@@ -89,6 +91,10 @@ enum class TokenType : uint16_t {
 
 class Token : public ILoggable {
 public:
+    std::string_view m_repr;
+    uint64_t m_token_id;
+    TokenType m_type;
+
     Token(TokenType type, uint64_t token_id=0, std::string_view repr=nullptr)
     : m_type(type), m_token_id(token_id), m_repr(repr)
     {}
@@ -100,17 +106,13 @@ public:
     }
 
 private:
-    std::string_view m_repr;
-    uint64_t m_token_id;
-    TokenType m_type;
-
     const std::string &token_type_to_string() const {
         static std::map<TokenType, std::string> token_types_repr{
             {TokenType::t_eof,                          "t_eof"},
 
             {TokenType::t_semicolon,                    "t_semicolon"},
             {TokenType::t_underscore,                   "t_underscore"},
-            {TokenType::t_comman,                       "t_comman"},
+            {TokenType::t_comma,                       "t_comma"},
             {TokenType::t_colon,                        "t_colon"},
             {TokenType::t_pound,                        "t_pound"},
             {TokenType::t_open_bracket,                 "t_open_bracket"},
@@ -158,6 +160,8 @@ private:
 
             {TokenType::t_char_literal,                 "t_char_literal"},
             {TokenType::t_string_literal,               "t_string_literal"},
+
+            {TokenType::t_identifier,                   "t_identifier"},
 
             {TokenType::t_return,                       "t_return"},
             {TokenType::t_yield,                        "t_yield"},

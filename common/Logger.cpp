@@ -1,4 +1,5 @@
 #include "Logger.h"
+
 #include <cstring>
 
 namespace rgl {
@@ -6,7 +7,6 @@ LogLevel Logger::s_logLevel;
 
 bool Logger::s_prefixType;
 bool Logger::s_prefixDate;
-
 
 bool Logger::doPrefixes(LogLevel level, const std::string& type) {
     if (static_cast<uint8_t>(s_logLevel) > static_cast<uint8_t>(level)) return false;

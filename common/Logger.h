@@ -1,9 +1,9 @@
 #pragma once
+
+#include "common/Core.h"
+
 #include <iostream>
 #include <ctime>
-
-#include "common/ILoggable.h"
-#include "common/Formatter.h"
 
 namespace rgl {
 enum class LogLevel : uint8_t {
