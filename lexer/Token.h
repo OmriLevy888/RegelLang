@@ -91,21 +91,78 @@ enum class TokenType : uint16_t {
 
 class Token : public ILoggable {
 public:
-    std::string_view m_repr;
-    uint64_t m_token_id;
-    TokenType m_type;
+    Token(TokenType type=TokenType::t_eof, uint32_t reprStartIdx=0, uint16_t reprLen=0, 
+        uint16_t fileNo=0, uint32_t lineNo=0, uint16_t tokenIdx=0)
+    : m_tokenIdx(tokenIdx), m_reprLen(reprLen)
+    {
+        setTokenType(type);
+        setFileNo(fileNo);
+        setLineNo(lineNo);
+        setReprStartIdx(reprStartIdx);
+    }
 
-    Token(TokenType type, uint64_t token_id=0, std::string_view repr=nullptr)
-    : m_type(type), m_token_id(token_id), m_repr(repr)
-    {}
-
-    inline bool isEOF() const noexcept { return m_type == TokenType::t_eof; }
+    inline bool isEOF() const noexcept { return getTokenType() == TokenType::t_eof; }
 
     std::string toString() const override {
         return "Token<>";
     }
 
+    void setLineNo(uint32_t val) noexcept { 
+        m_meta1 &= 0xfff;
+        m_meta1 |= val << 12;
+    }
+    void setReprStartIdx(uint32_t val) noexcept {
+        m_meta1 &= 0xfffff000;
+        m_meta1 |= (val & 0xfff00) >> 8;
+        m_meta2 &= 0x00ffffff;
+        m_meta2 |= (val & 0xff) << 24;
+    }
+    void setFileNo(uint16_t val) noexcept {
+        m_meta2 &= 0xff0003ff;
+        m_meta2 |= (val & 0x3fff) << 10;
+    }
+    void setTokenType(TokenType val) noexcept {
+        m_meta2 &= 0xfffffc00;
+        m_meta2 |= static_cast<uint16_t>(val) & 0x3ff;
+    }
+    void setTokenIdx(uint16_t val) noexcept { 
+        m_tokenIdx = val; 
+    }
+    void setReprLen(uint16_t val) noexcept { 
+        m_reprLen = val; 
+    } 
+
+    uint32_t getLineNo() const noexcept { 
+        return (m_meta1 >> 12) & 0xfffff; 
+    }
+    uint32_t getReprStartIdx() const noexcept {
+        return ((m_meta1 & 0xfff) << 8) | ((m_meta2 >> 24) & 0xff);
+    }
+    uint16_t getFileNo() const noexcept {
+        return (m_meta2 >> 10) & 0x3fff; 
+    }
+    TokenType getTokenType() const noexcept {
+        return static_cast<TokenType>(m_meta2 & 0x3ff); 
+    }
+    uint16_t getTokenIdx() const noexcept { 
+        return m_tokenIdx; 
+    }
+    uint16_t getReprLen() const noexcept { 
+        return m_reprLen; 
+    }
+
 private:
+    // 20 bits line no.
+    // 20 bits repr start idx
+    // 14 bits file no.
+    // 10 bits token type
+    // 16 bits token idx
+    // 16 bits repr len
+    uint32_t m_meta1;
+    uint32_t m_meta2;
+    uint16_t m_tokenIdx;
+    uint16_t m_reprLen;
+
     const std::string &token_type_to_string() const {
         static std::map<TokenType, std::string> token_types_repr{
             {TokenType::t_eof,                          "t_eof"},
@@ -193,7 +250,7 @@ private:
         };
         static std::string unknown_repr = "t_repr";
 
-        const auto ret = token_types_repr[m_type];
+        const auto ret = token_types_repr[getTokenType()];
         if (ret.length() == 0) {
             return unknown_repr;
         }

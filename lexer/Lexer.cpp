@@ -41,7 +41,7 @@ void Lexer::addLine(std::string &&line) {
     m_project->lock();
     m_currLineIdx = m_project->m_files[m_sourceStream->getFileIndex()].m_lines.size();
     m_project->m_files[m_sourceStream->getFileIndex()].m_lines.emplace_back(std::move(line));
-    m_currLine = m_project->m_files[m_sourceStream->getFileIndex()].m_lines.begin() + currLineIdx;
+    m_currLine = m_project->m_files[m_sourceStream->getFileIndex()].m_lines.begin();// + currLineIdx;
     m_project->release();
 }
 
@@ -50,7 +50,7 @@ void Lexer::addToken(const Token &token) {
 }
 
 uint64_t Lexer::genTokenId() const {
-    return ((m_sourceStream->getFileIndex() && 0xffffff) << 5)
+    return ((m_sourceStream->getFileIndex() & 0xffffff) << 5)
         | ((m_currLineIdx & 0xffffff) << 2)
         | (m_currLine->m_tokens.size() & 0xffff);
 }

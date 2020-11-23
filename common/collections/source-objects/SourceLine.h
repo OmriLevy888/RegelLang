@@ -20,8 +20,10 @@ public:
             return "";
         }
 
-        const auto repr = m_tokens[idx].m_repr;
-
+        const std::string_view repr{
+            m_repr.c_str() + m_tokens[idx].getReprStartIdx(),
+            m_tokens[idx].getReprLen()};
+        
         size_t numSpaces = repr.cbegin() - m_repr.c_str();
         size_t numUnderline = repr.length();
         size_t numHandle = numSpaces + (numUnderline / 2);

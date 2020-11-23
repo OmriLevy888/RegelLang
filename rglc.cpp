@@ -31,31 +31,32 @@ int main(int argc, char **argv, char **envp) {
     Logger::warning(line);
   }
 
-  FileSourceStream fss("test.txt");
+  FileSourceStream fss("test.txt", 0);
   while (fss.readLine(line)) {
     Logger::error(line);
   }
 
   SourceLine sl("func foo(int a, char b, starng c):");
-  sl.m_tokens.emplace_back(TokenType::t_func, 0, std::string_view(sl.m_repr.c_str(), 4));
-  sl.m_tokens.emplace_back(TokenType::t_identifier, 1, std::string_view(sl.m_repr.c_str() + 5, 3));
-  sl.m_tokens.emplace_back(TokenType::t_open_paren, 2, std::string_view(sl.m_repr.c_str() + 8, 1));
-  sl.m_tokens.emplace_back(TokenType::t_identifier, 3, std::string_view(sl.m_repr.c_str() + 9, 3));
-  sl.m_tokens.emplace_back(TokenType::t_identifier, 4, std::string_view(sl.m_repr.c_str() + 13, 1));
-  sl.m_tokens.emplace_back(TokenType::t_comma, 5, std::string_view(sl.m_repr.c_str() + 14, 1));
-  sl.m_tokens.emplace_back(TokenType::t_identifier, 6, std::string_view(sl.m_repr.c_str() + 16, 4));
-  sl.m_tokens.emplace_back(TokenType::t_identifier, 7, std::string_view(sl.m_repr.c_str() + 21, 1));
-  sl.m_tokens.emplace_back(TokenType::t_comma, 8, std::string_view(sl.m_repr.c_str() + 22, 1));
-  sl.m_tokens.emplace_back(TokenType::t_identifier, 9, std::string_view(sl.m_repr.c_str() + 24, 6));
-  sl.m_tokens.emplace_back(TokenType::t_identifier, 10, std::string_view(sl.m_repr.c_str() + 31, 1));
-  sl.m_tokens.emplace_back(TokenType::t_close_paren, 11, std::string_view(sl.m_repr.c_str() + 32, 1));
-  sl.m_tokens.emplace_back(TokenType::t_colon, 12, std::string_view(sl.m_repr.c_str() + 33, 1));
+  sl.m_tokens.push_back(Token(TokenType::t_func, 0, 4));
+  sl.m_tokens.push_back(Token(TokenType::t_identifier, 5, 3));
+  sl.m_tokens.push_back(Token(TokenType::t_open_paren, 8, 1));
+  sl.m_tokens.push_back(Token(TokenType::t_identifier, 9, 3));
+  sl.m_tokens.push_back(Token(TokenType::t_identifier, 13, 1));
+  sl.m_tokens.push_back(Token(TokenType::t_comma, 14, 1));
+  sl.m_tokens.push_back(Token(TokenType::t_identifier, 16, 4));
+  sl.m_tokens.push_back(Token(TokenType::t_identifier, 21, 1));
+  sl.m_tokens.push_back(Token(TokenType::t_comma, 22, 1));
+  sl.m_tokens.push_back(Token(TokenType::t_identifier, 24, 6));
+  sl.m_tokens.push_back(Token(TokenType::t_identifier, 31, 1));
+  sl.m_tokens.push_back(Token(TokenType::t_close_paren, 32, 1));
+  sl.m_tokens.push_back(Token(TokenType::t_colon, 33, 1));
   std::cout << sl.pointAt(8) << std::endl;
   std::cout << sl.pointAt(9) << std::endl;
   std::cout << sl.pointAt(10) << std::endl;
-  for (const auto &token : sl.m_tokens) {
-    std::cout << token.m_repr << std::endl;
-  }
+  //for (const auto &token : sl.m_tokens) {
+  //  std::cout << token.m_repr << std::endl;
+  //}
+  std::cout << sl.m_repr << std::endl;
   return 0;
 }
 #endif
