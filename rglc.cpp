@@ -1,10 +1,10 @@
+#include "common/Core.hpp"
+#include "common/collections/source-stream/FileSourceStream.hpp"
+#include "common/collections/source-stream/TextSourceStream.hpp"
+#include "lexer/DummyTokenGenerator.hpp"
+#include "lexer/Lexer.hpp"
+#include "lexer/TokenCollection.hpp"
 #include <iostream>
-#include "common/Core.h"
-#include "common/collections/source-stream/FileSourceStream.h"
-#include "common/collections/source-stream/TextSourceStream.h"
-#include "lexer/TokenCollection.h"
-#include "lexer/Lexer.h"
-#include "lexer/DummyTokenGenerator.h"
 
 #ifndef RGL_TESTS
 using namespace rgl;
@@ -24,8 +24,8 @@ int main(int argc, char **argv, char **envp) {
   Logger::info('A');
   Logger::info(Formatter("Format {}", "string"));
 
-  TextSourceStream tss(
-    "This\nis a\ntest to see\nhow the\nTextSourceStream handles multiple lines");
+  TextSourceStream tss("This\nis a\ntest to see\nhow the\nTextSourceStream "
+                       "handles multiple lines");
   std::string line;
   while (tss.readLine(line)) {
     Logger::warning(line);
@@ -53,7 +53,7 @@ int main(int argc, char **argv, char **envp) {
   std::cout << sl.pointAt(8) << std::endl;
   std::cout << sl.pointAt(9) << std::endl;
   std::cout << sl.pointAt(10) << std::endl;
-  //for (const auto &token : sl.m_tokens) {
+  // for (const auto &token : sl.m_tokens) {
   //  std::cout << token.m_repr << std::endl;
   //}
   std::cout << sl.m_repr << std::endl;

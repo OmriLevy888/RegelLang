@@ -1,0 +1,14 @@
+{
+  "configurations": {
+    "Launch": {
+      "adapter": "vscode-cpptools",
+      "configuration": {
+        "request": "launch",
+        "program": "${workspaceFolder}/bin/rglc-debug",
+        "cwd": "${workspaceFolder}/bin/",
+        "externalConsole": true,
+        "MIMode": "gdb"
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+-I.
+-isystem
+/usr/local/include/
+--std=c++17
