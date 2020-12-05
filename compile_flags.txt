@@ -1,4 +1,5 @@
 -I.
+-Ideps/include/
 -isystem
 /usr/local/include/
 --std=c++17

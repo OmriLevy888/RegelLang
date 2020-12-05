@@ -7,8 +7,12 @@
 namespace rgl {
 class Lexer : public ITokenGenerator {
 public:
-  Lexer(std::unique_ptr<ISourceStream> &&sourceStream)
-      : m_sourceStream(std::move(sourceStream)) {}
+  Lexer(std::unique_ptr<ISourceStream> &&sourceStream,
+        std::shared_ptr<SourceProject> project)
+      : m_sourceStream(std::move(sourceStream)), m_project(project),
+        m_yieldedEof(false) {
+    m_file = m_project->m_files.begin() + m_sourceStream->getFileIndex();
+  }
 
   Token getNext() override;
 
@@ -19,13 +23,24 @@ public:
 private:
   std::unique_ptr<ISourceStream> m_sourceStream;
   std::shared_ptr<SourceProject> m_project;
+  std::vector<SourceFile>::iterator m_file;
   std::vector<SourceLine>::iterator m_currLine;
+  size_t m_currTokenIdx;
   size_t m_currLineIdx;
   size_t m_pos;
 
+  Token m_eof;
+  bool m_yieldedEof;
+
+  Token makeToken(TokenType type, uint32_t reprStartIdx = 0,
+                  uint16_t reprLen = 0) const;
+  Token getNextImpl();
+
   bool skipWhiteSpace();
-  void addLine(std::string &&line);
   void addToken(const Token &token);
-  uint64_t genTokenId() const;
+
+  bool lexKeyword(Token &ret);
+  bool lexIdentifier(Token &ret);
+  bool lexSpecialCharacter(Token &ret);
 };
 } // namespace rgl

@@ -38,7 +38,3 @@ public:
   }
 };
 } // namespace rgl
-
-// func foo(int a, char b, starng c):
-//                        ^^^^^^
-//__________________________|

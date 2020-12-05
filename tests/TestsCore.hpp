@@ -1,6 +1,5 @@
 #pragma once
-#include "common/Core.h"
+#include "common/Core.hpp"
 
-// must defined CATCH_CONFIG_MAIN before including catch.hpp
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+// gtest includes go here
+#include "gtest/gtest.h"

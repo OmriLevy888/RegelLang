@@ -32,12 +32,18 @@ private:
   }
 
 public:
-  static inline void setLogLevel(LogLevel level) { s_logLevel = level; }
-  static inline LogLevel getLogLevel() { return s_logLevel; }
-  static inline void setPrefixType(bool doPrefix) { s_prefixType = doPrefix; }
-  static inline bool getPrefixType() { return s_prefixType; }
-  static inline void setPrefixDate(bool doPrefix) { s_prefixDate = doPrefix; }
-  static inline bool getPrefixDate() { return s_prefixDate; }
+  static inline void setLogLevel(LogLevel level) noexcept {
+    s_logLevel = level;
+  }
+  static inline LogLevel getLogLevel() noexcept { return s_logLevel; }
+  static inline void setPrefixType(bool doPrefix) noexcept {
+    s_prefixType = doPrefix;
+  }
+  static inline bool getPrefixType() noexcept { return s_prefixType; }
+  static inline void setPrefixDate(bool doPrefix) noexcept {
+    s_prefixDate = doPrefix;
+  }
+  static inline bool getPrefixDate() noexcept { return s_prefixDate; }
 
   static void init() {
     s_logLevel = LogLevel::info;

@@ -6,6 +6,7 @@
 
 namespace rgl {
 enum class TokenType : uint16_t {
+  t_err,
   t_eof,
 
   t_semicolon,     // ;
@@ -19,7 +20,7 @@ enum class TokenType : uint16_t {
   t_close_paren,   // )
   t_open_square,   // [
   t_close_square,  // ]
-  t_dot_dot,       // ..
+  t_dot,           // .
   t_question_mark, // ?
 
   t_plus,          // +
@@ -139,6 +140,11 @@ public:
   uint16_t getTokenIdx() const noexcept { return m_tokenIdx; }
   uint16_t getReprLen() const noexcept { return m_reprLen; }
 
+  bool operator==(const Token &other) const {
+    return getTokenType() == other.getTokenType();
+  }
+  bool operator==(const TokenType type) const { return getTokenType() == type; }
+
 private:
   // 20 bits line no.
   // 20 bits repr start idx
@@ -153,6 +159,7 @@ private:
 
   const std::string &token_type_to_string() const {
     static std::map<TokenType, std::string> token_types_repr{
+        {TokenType::t_err, "t_err"},
         {TokenType::t_eof, "t_eof"},
 
         {TokenType::t_semicolon, "t_semicolon"},
@@ -166,7 +173,7 @@ private:
         {TokenType::t_close_paren, "t_close_paren"},
         {TokenType::t_open_square, "t_open_square"},
         {TokenType::t_close_square, "t_close_square"},
-        {TokenType::t_dot_dot, "t_dot_dot"},
+        {TokenType::t_dot, "t_dot"},
         {TokenType::t_question_mark, "t_question_mark"},
 
         {TokenType::t_plus, "t_plus"},

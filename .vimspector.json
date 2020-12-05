@@ -1,10 +1,20 @@
 {
   "configurations": {
-    "Launch": {
+    "debug": {
       "adapter": "vscode-cpptools",
       "configuration": {
         "request": "launch",
         "program": "${workspaceFolder}/bin/rglc-debug",
+        "cwd": "${workspaceFolder}/bin/",
+        "externalConsole": true,
+        "MIMode": "gdb"
+      }
+    },
+    "debug-tests": {
+      "adapter": "vscode-cpptools",
+      "configuration": {
+        "request": "launch",
+        "program": "${workspaceFolder}/bin/rglc-tests",
         "cwd": "${workspaceFolder}/bin/",
         "externalConsole": true,
         "MIMode": "gdb"

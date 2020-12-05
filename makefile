@@ -18,8 +18,9 @@ LDFLAGS=$(shell $(LLVM_DIR)bin/llvm-config --ldflags --libs) -lpthread -lncurses
 
 DEBUG_CPPFLAGS=-g
 DEBUG_POSTFIX=-debug 
-TEST_CPPFLAGS=-g -DRGL_TESTS -Itests/deps/include/
+TEST_CPPFLAGS=-DRGL_TESTS -Itests/deps/include/ -g
 TEST_POSTFIX=-tests 
+TEST_LDFLAGS=-Ldeps/lib/gtest/ -lgtest -lgtest_main
 
 .PHONY: clean again rglc debug tests
 
@@ -45,7 +46,7 @@ tests: $(TEST_OBJS)
 	mkdir -p $(OUTDIR)
 
 	$(CPPC) $(CXXFLAGS) $(CPPFLAGS) $(TEST_CPPFLAGS) -o $(MAINOBJ) rglc.cpp 
-	$(CPPC) $(LDFLAGS) -o $(OUTDIR)rglc$(TEST_POSTFIX) $(TEST_OBJS) $(MAINOBJ)
+	$(CPPC) $(LDFLAGS) -o $(OUTDIR)rglc$(TEST_POSTFIX) $(TEST_OBJS) $(MAINOBJ) $(TEST_LDFLAGS)
 
 $(RELEASE_OBJDIR)%.o: %.cpp
 	mkdir -p $(@D)
@@ -62,6 +63,7 @@ $(TEST_OBJDIR)%.o: %.cpp
 clean:
 	rm -rf $(RELEASE_OBJDIR)*
 	rm -rf $(DEBUG_OBJDIR)*
+	rm -rf $(TEST_OBJDIR)*
 	rm -rf $(OUTDIR)*
 
 again:

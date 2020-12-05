@@ -9,7 +9,7 @@ public:
   std::string m_name;
   std::vector<SourceFile> m_files;
 
-  SourceProject(const std::string name) : m_name(name) {}
+  SourceProject(const std::string &name) : m_name(name) {}
 
   // TODO: implement these before switching to multiple lexers/parsers
   void lock() {}
