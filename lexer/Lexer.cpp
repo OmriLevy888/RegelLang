@@ -37,6 +37,7 @@ Token Lexer::getNextImpl() {
     m_currLineIdx = m_file->m_lines.size() - 1;
     m_pos = 0;
     m_currLine = m_file->m_lines.begin() + m_currLineIdx;
+    return getNextImpl();
   }
 
   Token ret;
@@ -47,9 +48,10 @@ Token Lexer::getNextImpl() {
     return ret;
   } else if (lexSpecialCharacter(ret)) {
     return ret;
+  } else if (lexOperator(ret)) {
+    return ret;
   }
   // lexLiteral...
-  // lexOperator...
 
   // if reached this line, an error has occured
   return Token(TokenType::t_err);
@@ -107,6 +109,7 @@ bool Lexer::lexKeyword(Token &ret) {
   m_pos += len;
   return true;
 }
+
 bool Lexer::lexIdentifier(Token &ret) {
   const char curr = m_currLine->m_repr[m_pos];
   if (!std::isalpha(curr) && '_' != curr) {
@@ -129,6 +132,7 @@ bool Lexer::lexIdentifier(Token &ret) {
   m_pos += len;
   return true;
 }
+
 bool Lexer::lexSpecialCharacter(Token &ret) {
   const char curr = m_currLine->m_repr[m_pos];
   switch (m_currLine->m_repr[m_pos]) {
@@ -168,10 +172,62 @@ bool Lexer::lexSpecialCharacter(Token &ret) {
   case '?':
     ret = makeToken(TokenType::t_question_mark, m_pos, 1);
     break;
+  case ',':
+    ret = makeToken(TokenType::t_comma, m_pos, 1);
+    break;
   default:
     return false;
   }
   m_pos++;
   return true;
+}
+
+bool Lexer::lexOperator(Token &ret) {
+  static std::map<std::string, TokenType> keywords = {
+      {"+", TokenType::t_plus},
+      {"-", TokenType::t_minus},
+      {"*", TokenType::t_asterisk},
+      {"/", TokenType::t_forward_slash},
+      {"++", TokenType::t_plus_plus},
+      {"--", TokenType::t_minus_minus},
+      {"=", TokenType::t_equal},
+      {"!", TokenType::t_exclamation},
+      {"^", TokenType::t_caret},
+      {"|", TokenType::t_pipe},
+      {"&", TokenType::t_ampersand},
+      {"==", TokenType::t_equal_equal},
+      {"!=", TokenType::t_not_equal},
+      {">", TokenType::t_greater_than},
+      {"<", TokenType::t_lesser_than},
+      {">=", TokenType::t_greater_equal},
+      {"<=", TokenType::t_lesser_equal},
+      {"+=", TokenType::t_plus_equal},
+      {"-=", TokenType::t_minus_equal},
+      {"*=", TokenType::t_asterisk_equal},
+      {"/=", TokenType::t_forward_slash_equal},
+      {"^=", TokenType::t_caret_equal},
+      {"|=", TokenType::t_pipe_equal},
+      {"&=", TokenType::t_ampersand_equal},
+      {">>", TokenType::t_shift_right},
+      {"<<", TokenType::t_shift_left},
+      {">>=", TokenType::t_shift_right_equal},
+      {"<<=", TokenType::t_shift_left_equal},
+      {"=>", TokenType::t_arrow}};
+  static const size_t MAX_OPERATOR_LEN =
+      3; // Change this when new operators longer than 3 characters are
+         // introduces, though this should probably never happen
+  const size_t lenLeft = m_currLine->m_repr.size() - m_pos;
+  const size_t len = std::min(MAX_OPERATOR_LEN, lenLeft);
+  std::string curr = m_currLine->m_repr.substr(m_pos, len);
+  while (0 != curr.size()) {
+    const auto match = keywords.find(curr);
+    if (keywords.cend() != match) {
+      m_pos += curr.size();
+      ret = match->second;
+      return true;
+    }
+    curr = curr.substr(0, curr.size() - 1);
+  }
+  return false;
 }
 } // namespace rgl

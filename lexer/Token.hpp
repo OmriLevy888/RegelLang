@@ -22,11 +22,23 @@ enum class TokenType : uint16_t {
   t_close_square,  // ]
   t_dot,           // .
   t_question_mark, // ?
+  t_arrow,         // =>
 
   t_plus,          // +
   t_minus,         // -
   t_asterisk,      // *
   t_forward_slash, // /
+
+  t_plus_plus,   // ++
+  t_minus_minus, // --
+
+  t_exclamation, // !
+  t_caret,       // ^
+  t_pipe,        // |
+  t_ampersand,   // &
+
+  t_shift_left,  // <<
+  t_shift_right, // >>
 
   t_equal,         // =
   t_greater_than,  // >
@@ -35,6 +47,16 @@ enum class TokenType : uint16_t {
   t_not_equal,     // !=
   t_greater_equal, // >=
   t_lesser_equal,  // <=
+
+  t_plus_equal,          // +=
+  t_minus_equal,         // -=
+  t_asterisk_equal,      // *=
+  t_forward_slash_equal, // /=
+  t_caret_equal,         // ^=
+  t_pipe_equal,          // |=
+  t_ampersand_equal,     // &=
+  t_shift_left_equal,    // <<=
+  t_shift_right_equal,   // >>=
 
   t_question_equal,         // ?=
   t_question_greater_than,  // ?>
@@ -175,11 +197,23 @@ private:
         {TokenType::t_close_square, "t_close_square"},
         {TokenType::t_dot, "t_dot"},
         {TokenType::t_question_mark, "t_question_mark"},
+        {TokenType::t_arrow, "t_arrow"},
 
         {TokenType::t_plus, "t_plus"},
         {TokenType::t_minus, "t_minus"},
         {TokenType::t_asterisk, "t_asterisk"},
         {TokenType::t_forward_slash, "t_forward_slash"},
+
+        {TokenType::t_plus_plus, "t_plus_plus"},
+        {TokenType::t_minus_minus, "t_minus_minus"},
+
+        {TokenType::t_exclamation, "t_exclamation"},
+        {TokenType::t_caret, "t_caret"},
+        {TokenType::t_pipe, "t_pipe"},
+        {TokenType::t_ampersand, "t_ampersand"},
+
+        {TokenType::t_shift_left, "t_shift_left"},
+        {TokenType::t_shift_right, "t_shift_right"},
 
         {TokenType::t_equal, "t_equal"},
         {TokenType::t_greater_than, "t_greater_than"},
@@ -188,6 +222,16 @@ private:
         {TokenType::t_not_equal, "t_not_equal"},
         {TokenType::t_greater_equal, "t_greater_equal"},
         {TokenType::t_lesser_equal, "t_lesser_equal"},
+
+        {TokenType::t_plus_equal, "t_plus_equal"},
+        {TokenType::t_minus_equal, "t_minus_equal"},
+        {TokenType::t_asterisk_equal, "t_asterisk_equal"},
+        {TokenType::t_forward_slash_equal, "t_forward_slash_equal"},
+        {TokenType::t_caret_equal, "t_caret_equal"},
+        {TokenType::t_pipe_equal, "t_pipe_equal"},
+        {TokenType::t_ampersand_equal, "t_ampersand_equal"},
+        {TokenType::t_shift_left_equal, "t_shift_left_equal"},
+        {TokenType::t_shift_right_equal, "t_shift_right_equal"},
 
         {TokenType::t_question_equal, "t_question_equal"},
         {TokenType::t_question_greater_than, "t_question_greater_than"},
