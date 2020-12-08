@@ -43,5 +43,6 @@ private:
   bool lexIdentifier(Token &ret);
   bool lexSpecialCharacter(Token &ret);
   bool lexOperator(Token &ret);
+  bool lexLiteral(Token &ret);
 };
 } // namespace rgl

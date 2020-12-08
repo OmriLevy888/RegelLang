@@ -230,4 +230,9 @@ bool Lexer::lexOperator(Token &ret) {
   }
   return false;
 }
+
+bool Lexer::lexLiteral(Token &ret) {
+  // TODO: implement this
+  return false;
+}
 } // namespace rgl
