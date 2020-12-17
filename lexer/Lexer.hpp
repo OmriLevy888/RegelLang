@@ -5,12 +5,14 @@
 #include "lexer/ITokenGenerator.hpp"
 
 namespace rgl {
+enum class LexerState : uint8_t { normal, multilineComment };
+
 class Lexer : public ITokenGenerator {
 public:
   Lexer(std::unique_ptr<ISourceStream> &&sourceStream,
         std::shared_ptr<SourceProject> project)
       : m_sourceStream(std::move(sourceStream)), m_project(project),
-        m_yieldedEof(false) {
+        m_state(LexerState::normal), m_yieldedEof(false) {
     m_file = m_project->m_files.begin() + m_sourceStream->getFileIndex();
   }
 
@@ -28,6 +30,7 @@ private:
   size_t m_currTokenIdx;
   size_t m_currLineIdx;
   size_t m_pos;
+  LexerState m_state;
 
   Token m_eof;
   bool m_yieldedEof;
@@ -38,6 +41,8 @@ private:
 
   bool skipWhiteSpace();
   void addToken(const Token &token);
+
+  bool lexComment();
 
   bool lexKeyword(Token &ret);
   bool lexIdentifier(Token &ret);

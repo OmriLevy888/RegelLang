@@ -41,6 +41,9 @@ Token Lexer::getNextImpl() {
     return getNextImpl();
   }
 
+  if (lexComment())
+    return getNextImpl();
+
   Token ret;
   // lexing happens here...
   if (lexKeyword(ret)) {
@@ -73,6 +76,40 @@ bool Lexer::skipWhiteSpace() {
 void Lexer::addToken(const Token &token) {
   m_currLine->m_tokens.push_back(token);
   m_currTokenIdx++;
+}
+
+bool Lexer::lexComment() {
+  if (m_state == LexerState::multilineComment) {
+    for (; m_pos < m_currLine->m_repr.size() - 1; m_pos++) {
+      const char curr = m_currLine->m_repr[m_pos];
+      const char next = m_currLine->m_repr[m_pos + 1];
+      if (curr == '*' && next == '/') {
+        m_state = LexerState::normal;
+        m_pos += 2;
+        return true;
+      }
+    }
+    m_pos = m_currLine->m_repr.size();
+    return true;
+  }
+
+  if (m_pos + 2 > m_currLine->m_repr.size())
+    return false;
+
+  const char first = m_currLine->m_repr[m_pos];
+  const char second = m_currLine->m_repr[m_pos + 1];
+
+  if (first == '/' &&
+      second == '/') { // found a single line comment till the end of the line
+    m_pos = m_currLine->m_repr.size();
+    return true;
+  } else if (first == '/' &&
+             second == '*') { // found the start of a multiline comment
+    m_state = LexerState::multilineComment;
+    return lexComment();
+  }
+
+  return false;
 }
 
 bool Lexer::lexKeyword(Token &ret) {
