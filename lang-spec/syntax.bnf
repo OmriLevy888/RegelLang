@@ -35,14 +35,14 @@ uint_literal              ::= uint8_literal | uint16_literal | uint32_literal |
                               uint64_literal
 int_literal               ::= int8_literal | int16_literal | int32_literal |
                               int64_literal
-uint64_literal            ::= whole_number ['u64' | 'U64']
-uint32_literal            ::= whole_number ['u' | 'U' | 'u32' | 'U32']
-uint16_literal            ::= whole_number ['u16' | 'U16']
-uint8_literal             ::= whole_number ['u8' | 'U8']
-int64_literal             ::= whole_number ['i64' | 'I64']
-int32_literal             ::= whole_number ['i' | 'I' | 'i32' | 'I32']?
-int16_literal             ::= whole_number ['i16' | 'I16']
-int8_literal              ::= whole_number ['i8' | 'I8']
+uint64_literal            ::= whole_number ['u64']
+uint32_literal            ::= whole_number ['u' | 'u32']
+uint16_literal            ::= whole_number ['u16']
+uint8_literal             ::= whole_number ['u8']
+int64_literal             ::= whole_number ['i64']
+int32_literal             ::= whole_number ['i32']?
+int16_literal             ::= whole_number ['i16']
+int8_literal              ::= whole_number ['i8']
 
 whole_number              ::= '-'? abs_number
 

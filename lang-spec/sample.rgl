@@ -16,6 +16,15 @@ func byRvalueRef(@string arg) {
     // made during the call to print
 }
 
+func byDefault(string arg) {
+  // This is a template and will generate an overload based on the call,
+  // this is the prefered way to write out functions and the above ways
+  // to accept arguments are meant as a way of overloading for specific
+  // behavior for different value categories and should be avoided when
+  // possible
+  print(arg);
+}
+
 // Take two string arrays by const reference and return an int32 
 func main(&[]string args, envp) => i32 {
     var mutableString = "This string is mutable";
@@ -84,7 +93,7 @@ func main(&[]string args, envp) => i32 {
         True => print("The two strings are the same");
         False => {
             print("The two strings are not the same");
-            return -1;
+            yield -1;
         }
         _ => print("Unknown value for same");
     }
