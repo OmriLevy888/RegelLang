@@ -43,5 +43,14 @@ private:
   bool lexIdentifier(Token &ret);
   bool lexSpecialCharacter(Token &ret);
   bool lexOperator(Token &ret);
+  bool lexLiteral(Token &ret);
+
+  bool lexCharacter();
+  bool lexCharLiteral(Token &ret);
+  bool lexIntLiteral(Token &ret);
+  bool lexRealLiteral(Token &ret);
+  bool lexStringLiteral(Token &ret);
+
+  bool isHex(const char value) const noexcept;
 };
 } // namespace rgl

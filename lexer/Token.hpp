@@ -66,6 +66,9 @@ enum class TokenType : uint16_t {
   t_question_greater_equal, // ?>=
   t_question_lesser_equal,  // ?<=
 
+  t_true,  // true
+  t_false, // false
+
   t_double_literal,
   t_float_literal,
 
@@ -240,6 +243,9 @@ private:
         {TokenType::t_question_not_equal, "t_question_not_equal"},
         {TokenType::t_question_greater_equal, "t_question_greater_equal"},
         {TokenType::t_question_lesser_equal, "t_question_lesser_equal"},
+
+        {TokenType::t_true, "t_true"},
+        {TokenType::t_false, "t_false"},
 
         {TokenType::t_double_literal, "t_double_literal"},
         {TokenType::t_float_literal, "t_float_literal"},
