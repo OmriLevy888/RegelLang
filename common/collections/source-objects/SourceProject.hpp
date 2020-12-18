@@ -14,6 +14,10 @@ public:
   // TODO: implement these before switching to multiple lexers/parsers
   void lock() {}
   void release() {}
+  size_t addFile(SourceFile &&file) {
+    m_files.push_back(std::move(file));
+    return m_files.size() - 1;
+  }
 
   std::string toString() const override {
     return Formatter("SourceProject<name: \"{}\", files: {}>", m_name,

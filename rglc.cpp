@@ -1,62 +1,50 @@
+#include "cli/CliParser.hpp"
+#include "cli/Context.hpp"
+#include "cli/ProjectFileParser.hpp"
 #include "common/Core.hpp"
+#include "common/collections/source-objects/SourceFile.hpp"
+#include "common/collections/source-objects/SourceProject.hpp"
 #include "common/collections/source-stream/FileSourceStream.hpp"
 #include "common/collections/source-stream/TextSourceStream.hpp"
 #include "lexer/DummyTokenGenerator.hpp"
 #include "lexer/Lexer.hpp"
 #include "lexer/TokenCollection.hpp"
 #include <iostream>
+#include <memory>
 
 #ifndef RGL_TESTS
 using namespace rgl;
 
-int main(int argc, char **argv, char **envp) {
+int main(int argc, const char **argv, char **envp) {
+  if (!CliParser::parseCliArgument(argc, argv)) {
+    return -1;
+  }
+
   Logger::init();
   Logger::setPrefixDate(true);
   Logger::setLogLevel(LogLevel::debug);
+  Context &context = Context::getInstance();
 
-  Logger::error("Something bad has happened :>");
-  std::string a = "hello world\nthis is some\n text";
-  Logger::info(a.find('\n', 0));
-  Logger::info(a.find('\n', 12));
-  Logger::info(a.find('\n', 25) == std::string::npos);
-  Logger::info("Some string");
-  Logger::info(5);
-  Logger::info('A');
-  Logger::info(Formatter("Format {}", "string"));
-
-  TextSourceStream tss("This\nis a\ntest to see\nhow the\nTextSourceStream "
-                       "handles multiple lines");
-  std::string line;
-  while (tss.readLine(line)) {
-    Logger::warning(line);
+  if (!ProjectFileParser::parseProjectFile(
+          context.m_cliArguments.m_projectFilePath,
+          context.m_cliArguments.m_target)) {
+    std::cout << "Failed to parse project file" << std::endl;
+    return -1;
   }
 
-  FileSourceStream fss("test.txt", 0);
-  while (fss.readLine(line)) {
-    Logger::error(line);
+  auto project = std::make_shared<SourceProject>("Project");
+  for (const auto &file : context.m_target.m_files) {
+    std::cout << "working on file " << file << std::endl;
+    size_t fileIdx = project->addFile(SourceFile{file});
+    auto fss = std::make_unique<FileSourceStream>(file, fileIdx);
+    Lexer lexer{std::move(fss), project};
+    Token curr = lexer.getNext();
+    do {
+      std::cout << curr.toString() << std::endl;
+      curr = lexer.getNext();
+    } while (curr != TokenType::t_eof);
+    std::cout << std::endl;
   }
-
-  SourceLine sl("func foo(int a, char b, starng c):");
-  sl.m_tokens.push_back(Token(TokenType::t_func, 0, 4));
-  sl.m_tokens.push_back(Token(TokenType::t_identifier, 5, 3));
-  sl.m_tokens.push_back(Token(TokenType::t_open_paren, 8, 1));
-  sl.m_tokens.push_back(Token(TokenType::t_identifier, 9, 3));
-  sl.m_tokens.push_back(Token(TokenType::t_identifier, 13, 1));
-  sl.m_tokens.push_back(Token(TokenType::t_comma, 14, 1));
-  sl.m_tokens.push_back(Token(TokenType::t_identifier, 16, 4));
-  sl.m_tokens.push_back(Token(TokenType::t_identifier, 21, 1));
-  sl.m_tokens.push_back(Token(TokenType::t_comma, 22, 1));
-  sl.m_tokens.push_back(Token(TokenType::t_identifier, 24, 6));
-  sl.m_tokens.push_back(Token(TokenType::t_identifier, 31, 1));
-  sl.m_tokens.push_back(Token(TokenType::t_close_paren, 32, 1));
-  sl.m_tokens.push_back(Token(TokenType::t_colon, 33, 1));
-  std::cout << sl.pointAt(8) << std::endl;
-  std::cout << sl.pointAt(9) << std::endl;
-  std::cout << sl.pointAt(10) << std::endl;
-  // for (const auto &token : sl.m_tokens) {
-  //  std::cout << token.m_repr << std::endl;
-  //}
-  std::cout << sl.m_repr << std::endl;
 
   return 0;
 }

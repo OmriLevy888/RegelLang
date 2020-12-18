@@ -5,15 +5,16 @@ DEBUG_OBJDIR=obj/debug/
 TEST_OBJDIR=obj/tests/
 OUTDIR=bin/
 
-RELEASE_SRCDIRS=codegen/ common/ lexer/ parser/
-DEBUG_SRCDIRS=codegen/ common/ lexer/ parser/
-TEST_SRCDIRS=codegen/ common/ lexer/ parser/ tests/
+RELEASE_SRCDIRS=codegen/ common/ lexer/ parser/ cli/
+DEBUG_SRCDIRS=codegen/ common/ lexer/ parser/ cli/
+TEST_SRCDIRS=codegen/ common/ lexer/ parser/ cli/ tests/
 RELEASE_OBJS=$(patsubst %.cpp,$(RELEASE_OBJDIR)%.o,$(shell find $(RELEASE_SRCDIRS) -type f -name "*.cpp"))
 DEBUG_OBJS=$(patsubst %.cpp,$(DEBUG_OBJDIR)%.o,$(shell find $(DEBUG_SRCDIRS) -type f -name "*.cpp"))
 TEST_OBJS=$(patsubst %.cpp,$(TEST_OBJDIR)%.o,$(shell find $(TEST_SRCDIRS) -type f -name "*.cpp"))
 
 CPPFLAGS=-I. -Ideps/include/ -std=c++17 -c
-CXXFLAGS=$(shell $(LLVM_DIR)bin/llvm-config --cxxflags)
+_CXXFLAGS=$(shell $(LLVM_DIR)bin/llvm-config --cxxflags)
+CXXFLAGS=$(patsubst -fno-exceptions,,$(_CXXFLAGS))
 LDFLAGS=$(shell $(LLVM_DIR)bin/llvm-config --ldflags --libs) -lpthread -lncurses
 
 DEBUG_CPPFLAGS=-g
@@ -22,7 +23,7 @@ TEST_CPPFLAGS=-DRGL_TESTS -Itests/deps/include/ -g
 TEST_POSTFIX=-tests 
 TEST_LDFLAGS=-Ldeps/lib/gtest/ -lgtest -lgtest_main
 
-.PHONY: clean again rglc debug tests
+.PHONY: clean rglc debug tests cloc
 
 rglc: $(RELEASE_OBJS)
 	$(eval MAINOBJ := $(RELEASE_OBJDIR)rglc.o)
@@ -66,6 +67,5 @@ clean:
 	rm -rf $(TEST_OBJDIR)*
 	rm -rf $(OUTDIR)*
 
-again:
-	make clean
-	make rglc
+cloc:
+	cloc cli codegen common lang-spec lexer parser source tests

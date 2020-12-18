@@ -4,6 +4,8 @@ namespace rgl {
 int FileSourceStream::peek() { return m_ifstream.peek(); }
 int FileSourceStream::read() { return m_ifstream.get(); }
 bool FileSourceStream::readLine(std::string &line) {
+  if (!m_ifstream.is_open())
+    return false;
   return static_cast<bool>(std::getline(m_ifstream, line));
 }
 size_t FileSourceStream::tell() const { return m_ifstream.tellg(); }

@@ -150,3 +150,29 @@ TEST(Lexer, lexRealLiteral) {
   ASSERT_TRUE(lexer.getNext() == TokenType::t_double_literal);
   ASSERT_TRUE(lexer.getNext() == TokenType::t_eof);
 }
+
+TEST(Lexer, lexComment) {
+  auto lexer = makeLexer("let a = // this is some comment\n5;\nlet b /* this "
+                         "is an inline comment */ = 3;\nlet /* this is "
+                         "a\nmultiline\ncomment */ c = true;",
+                         "TEST::Lexer.lexCommen");
+
+  ASSERT_TRUE(lexer.getNext() == TokenType::t_let);
+  ASSERT_TRUE(lexer.getNext() == TokenType::t_identifier);
+  ASSERT_TRUE(lexer.getNext() == TokenType::t_equal);
+  ASSERT_TRUE(lexer.getNext() == TokenType::t_int32_literal);
+  ASSERT_TRUE(lexer.getNext() == TokenType::t_semicolon);
+
+  ASSERT_TRUE(lexer.getNext() == TokenType::t_let);
+  ASSERT_TRUE(lexer.getNext() == TokenType::t_identifier);
+  ASSERT_TRUE(lexer.getNext() == TokenType::t_equal);
+  ASSERT_TRUE(lexer.getNext() == TokenType::t_int32_literal);
+  ASSERT_TRUE(lexer.getNext() == TokenType::t_semicolon);
+
+  ASSERT_TRUE(lexer.getNext() == TokenType::t_let);
+  ASSERT_TRUE(lexer.getNext() == TokenType::t_identifier);
+  ASSERT_TRUE(lexer.getNext() == TokenType::t_equal);
+  ASSERT_TRUE(lexer.getNext() == TokenType::t_true);
+  ASSERT_TRUE(lexer.getNext() == TokenType::t_semicolon);
+  ASSERT_TRUE(lexer.getNext() == TokenType::t_eof);
+}

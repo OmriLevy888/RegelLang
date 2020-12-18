@@ -1,0 +1,11 @@
+{
+  "ProjectName": "sample",
+  "DefaultTarget": "Release",
+  "Release": {
+    "Output": "${ProjectDir}bin/${ProjectName}",
+    "Files": [
+      "a.rgl",
+      "b.rgl"
+    ]
+  }
+}

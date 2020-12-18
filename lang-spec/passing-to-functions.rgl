@@ -14,8 +14,8 @@ func print(string x) {
 
 func main([]string args, envp) => i32 {
   // passing rvalue objects
-  println(1);  // copied (value type)
-  println("hello world");  // passed by rvalue reference (reference type)
+  println(1);  // copied, passed by value as const (value type)
+  println("hello world");  // passed by const reference (reference type)
 
   // passing lvalue objects
   let a : i32 = 1;
@@ -23,13 +23,11 @@ func main([]string args, envp) => i32 {
   println(a);  // copied (value type)
   println(b);  // passed by const reference (reference type)
 
+  // mutable passing
+  println(&a);  // passed by lvalue reference (value type)
+  println(&b);  // passed by lvalue reference (reference type)
+
   // moving ownership
-  println(@b);  // b is moved and is no longer valid in the current scope
-
-  // mutable reference
-  println(&a);  // pass by lvalue reference
-  println(&b);  // pass by lvalue reference
-
-  // passing by value
-  println(:b);  // deep copy b
+  println(:a);  // pass by rvalue reference, move (value type)
+  println(:b);  // pass by rvalue reference, move (reference type)
 }
