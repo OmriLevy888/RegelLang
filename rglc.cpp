@@ -1,3 +1,5 @@
+#include "cli/CliParser.hpp"
+#include "cli/Context.hpp"
 #include "cli/ProjectFileParser.hpp"
 #include "common/Core.hpp"
 #include "common/collections/source-objects/SourceFile.hpp"
@@ -13,29 +15,25 @@
 #ifndef RGL_TESTS
 using namespace rgl;
 
-int main(int argc, char **argv, char **envp) {
-  Logger::init();
-  Logger::setPrefixDate(true);
-  Logger::setLogLevel(LogLevel::debug);
-
-  /*if (argc == 1) {
-    Logger::critical("Usage: ", argv[0], "<File[ File[ File[ ... ]]]>");
+int main(int argc, const char **argv, char **envp) {
+  if (!CliParser::parseCliArgument(argc, argv)) {
     return -1;
   }
 
-  std::vector<std::string> files;
-  files.reserve(argc - 1);
-  for (size_t idx = 1; idx < argc; idx++) {
-    files.push_back(std::string(argv[idx]));
-  }*/
-  if (!ProjectFileParser::parseProjectFile("../source/sample.json",
-                                           "Release")) {
+  Logger::init();
+  Logger::setPrefixDate(true);
+  Logger::setLogLevel(LogLevel::debug);
+  Context &context = Context::getInstance();
+
+  if (!ProjectFileParser::parseProjectFile(
+          context.m_cliArguments.m_projectFilePath,
+          context.m_cliArguments.m_target)) {
     std::cout << "Failed to parse project file" << std::endl;
     return -1;
   }
 
   auto project = std::make_shared<SourceProject>("Project");
-  for (const auto &file : Context::getInstance().m_target.m_files) {
+  for (const auto &file : context.m_target.m_files) {
     std::cout << "working on file " << file << std::endl;
     size_t fileIdx = project->addFile(SourceFile{file});
     auto fss = std::make_unique<FileSourceStream>(file, fileIdx);
