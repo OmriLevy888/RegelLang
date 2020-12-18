@@ -131,7 +131,9 @@ public:
     return getTokenType() == TokenType::t_eof;
   }
 
-  std::string toString() const override { return "Token<>"; }
+  std::string toString() const override {
+    return Formatter("Token<{}>", getTypeString()).toString();
+  }
 
   void setLineNo(uint32_t val) noexcept {
     m_meta1 &= 0xfff;
@@ -169,6 +171,10 @@ public:
     return getTokenType() == other.getTokenType();
   }
   bool operator==(const TokenType type) const { return getTokenType() == type; }
+  bool operator!=(const Token &other) const {
+    return getTokenType() != other.getTokenType();
+  }
+  bool operator!=(const TokenType type) const { return getTokenType() != type; }
 
 private:
   // 20 bits line no.
@@ -182,7 +188,7 @@ private:
   uint16_t m_tokenIdx;
   uint16_t m_reprLen;
 
-  const std::string &token_type_to_string() const {
+  const std::string &getTypeString() const {
     static std::map<TokenType, std::string> token_types_repr{
         {TokenType::t_err, "t_err"},
         {TokenType::t_eof, "t_eof"},
