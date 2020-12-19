@@ -1,4 +1,6 @@
 #include "cli/BuildTarget.hpp"
+#include "common/Formatter.hpp"
+#include "common/errors/ErrorManager.hpp"
 
 namespace rgl {
 std::optional<BuildTarget>
@@ -12,7 +14,8 @@ BuildTarget::makeTarget(const rapidjson::Value &target) {
     if (target["Output"].IsString()) {
       ret.m_output = target["Output"].GetString();
     } else {
-      // TODO: write warning message
+      ErrorManager::logWarning(
+          "Missing Output filed in build target, using default (a.out)");
     }
   }
 
@@ -26,7 +29,8 @@ BuildTarget::makeTarget(const rapidjson::Value &target) {
       for (rapidjson::SizeType idx = 0; idx < files.Size(); idx++) {
         const auto &curr = files[idx];
         if (!curr.IsString()) {
-          // TODO: write warning message
+          ErrorManager::logWarning(
+              "Found non string file name in build target, ignoring");
           continue;
         }
         const std::string &file = curr.GetString();
@@ -37,7 +41,8 @@ BuildTarget::makeTarget(const rapidjson::Value &target) {
         }
       }
     } else {
-      // TODO: write warning message
+      ErrorManager::logError("There are no target files in the build target "
+                             "(invalid or missing Files field)");
       return std::nullopt;
     }
   }

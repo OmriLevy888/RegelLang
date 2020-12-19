@@ -4,6 +4,8 @@
 #include "cli11/App.hpp"
 #include "cli11/Config.hpp"
 #include "cli11/Formatter.hpp"
+#include "common/Formatter.hpp"
+#include "common/errors/ErrorManager.hpp"
 
 namespace rgl {
 bool CliParser::parseCliArgument(size_t argc, const char **argv) {
@@ -20,11 +22,19 @@ bool CliParser::parseCliArgument(size_t argc, const char **argv) {
   CLI11_PARSE(app, argc, argv);
 
   if (file != "" && arguments.m_projectFilePath != "") {
-    // TODO: log error message
+    ErrorManager::logErrorFmt(
+        "Specified project file both as a positional value ({}) and "
+        "as a switch value ({}), can only specify one",
+        file, arguments.m_projectFilePath);
     std::cerr << app.help();
     return false;
   } else if (file != "") {
     arguments.m_projectFilePath = file;
+  } else if (arguments.m_projectFilePath == "") {
+    // TODO: change this when support for single file is added
+    ErrorManager::logError("No project file specified");
+    std::cerr << app.help();
+    return false;
   }
 
   Context::getInstance().m_cliArguments = arguments;

@@ -1,5 +1,7 @@
 #include "cli/ProjectFileParser.hpp"
 #include "cli/Context.hpp"
+#include "common/Formatter.hpp"
+#include "common/errors/ErrorManager.hpp"
 
 namespace rgl {
 bool ProjectFileParser::parseProjectFile(const std::string &path,
@@ -8,7 +10,7 @@ bool ProjectFileParser::parseProjectFile(const std::string &path,
 
   std::ifstream ifs{path};
   if (!ifs.is_open()) {
-    // TODO: log error message
+    ErrorManager::logErrorFmt("Failed to open {}, no such project file", path);
     return false;
   }
 
@@ -34,29 +36,31 @@ bool ProjectFileParser::parseProjectFile(const std::string &path,
   if (chosenTarget == "") {
     if (document.HasMember("DefaultTarget")) {
       if (!document["DefaultTarget"].IsString()) {
-        // TODO: log error
+        ErrorManager::logError("No build target specified and DefaultTarget "
+                               "field is not a string");
         return false;
       }
       target = document["DefaultTarget"].GetString();
     } else {
-      // TODO: log error
+      ErrorManager::logError(
+          "No build target specified and DefaultTarget field does not exist");
       return false;
     }
   } else
     target = chosenTarget;
 
   if (target == "" || !document.HasMember(target.c_str())) {
-    // TODO: log error
+    ErrorManager::logError("Build target {} does not exists", target);
     return false;
   } else if (!document[target.c_str()].IsObject()) {
-    // TODO: log error
+    ErrorManager::logErrorFmt("Build target {} is not an object", target);
     return false;
   }
 
   auto buildTarget =
       BuildTarget::makeTarget(document[target.c_str()].GetObject());
   if (!buildTarget.has_value()) {
-    // TODO: log error
+    ErrorManager::logError("Failed to parse build target");
     return false;
   }
 
