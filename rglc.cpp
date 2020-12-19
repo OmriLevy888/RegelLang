@@ -6,6 +6,7 @@
 #include "common/collections/source-objects/SourceProject.hpp"
 #include "common/collections/source-stream/FileSourceStream.hpp"
 #include "common/collections/source-stream/TextSourceStream.hpp"
+#include "common/errors/ErrorManager.hpp"
 #include "lexer/DummyTokenGenerator.hpp"
 #include "lexer/Lexer.hpp"
 #include "lexer/TokenCollection.hpp"
@@ -28,7 +29,7 @@ int main(int argc, const char **argv, char **envp) {
   if (!ProjectFileParser::parseProjectFile(
           context.m_cliArguments.m_projectFilePath,
           context.m_cliArguments.m_target)) {
-    std::cout << "Failed to parse project file" << std::endl;
+    ErrorManager::logError("Failed to parse project file");
     return -1;
   }
 
