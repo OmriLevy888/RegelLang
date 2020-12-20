@@ -1,6 +1,12 @@
 #include "common/errors/ErrorManager.hpp"
 #include "parser/Parser.hpp"
 #include "parser/ParserUtilities.hpp"
+#include "parser/ast/expressions/IdentifierNode.hpp"
+#include "parser/ast/expressions/literals/BooleanLiteral.hpp"
+#include "parser/ast/expressions/literals/CharLiteralNode.hpp"
+#include "parser/ast/expressions/literals/IntLiteralNode.hpp"
+#include "parser/ast/expressions/literals/RealLiteralNode.hpp"
+#include "parser/ast/expressions/literals/StringLiteralNode.hpp"
 #include <debug/assertions.h>
 
 namespace rgl {
@@ -20,8 +26,7 @@ Expression Parser::parseExprssion() {
 
 Expression Parser::parseIdentifier() {
   _GLIBCXX_DEBUG_ASSERT(m_tokens->getCurrValue().has_value());
-  std::string_view sview = m_tokens->getCurrValue().value().m_string;
-  std::string value{sview.cbegin(), sview.cend()};
+  auto value = std::get<std::string>(m_tokens->getCurrValue().value());
   return std::make_unique<IdentifierNode>(std::move(value));
 }
 
@@ -35,7 +40,7 @@ Expression Parser::parseTextLiteral() { return nullptr; }
 
 Expression Parser::parseBoolLiteral() {
   _GLIBCXX_DEBUG_ASSERT(m_tokens->getCurrValue().has_value());
-  bool value = m_tokens->getCurrValue().value().m_bool;
+  bool value = std::get<bool>(m_tokens->getCurrValue().value());
   return std::make_unique<BooleanLiteral>(value);
 }
 }; // namespace rgl
