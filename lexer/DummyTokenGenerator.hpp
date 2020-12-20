@@ -1,8 +1,10 @@
 #pragma once
 #include "common/Core.hpp"
 #include "lexer/ITokenGenerator.hpp"
-
 #include <vector>
+
+// TODO: allo passing values for the dummy token generator when writing parser
+// tests
 
 namespace rgl {
 class DummyTokenGenerator : public ITokenGenerator {

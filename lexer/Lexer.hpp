@@ -52,12 +52,13 @@ private:
   bool lexOperator(Token &ret);
   bool lexLiteral(Token &ret);
 
-  bool lexCharacter();
+  bool lexCharacter(char &value);
   bool lexCharLiteral(Token &ret);
   bool lexIntLiteral(Token &ret);
   bool lexRealLiteral(Token &ret);
   bool lexStringLiteral(Token &ret);
 
   bool isHex(const char value) const noexcept;
+  uint8_t digitToValue(const char digit) const noexcept;
 };
-} // namespace rgl
+}; // namespace rgl

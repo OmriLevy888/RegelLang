@@ -1,18 +1,11 @@
 #pragma once
 #include "common/Core.hpp"
 #include "lexer/Token.hpp"
+#include <variant>
 
 namespace rgl {
-struct TokenValue {
-  union {
-    bool m_bool;
-    int64_t m_int;
-    uint64_t m_uint;
-    float m_float;
-    double m_double;
-    std::string_view m_string;
-  };
-};
+using TokenValue =
+    std::variant<bool, char, int64_t, uint64_t, float, double, std::string>;
 
 class TokenValuePair {
 public:
