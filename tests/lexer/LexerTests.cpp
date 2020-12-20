@@ -18,12 +18,12 @@ static Lexer makeLexer(std::string &&source, std::string &&testName) {
 TEST(Lexer, keyword) {
   auto lexer = makeLexer("return yield", "TEST::Lexer.keyword");
 
-  Token first = lexer.getNext();
+  auto first = lexer.getNext();
   ASSERT_TRUE(first == TokenType::t_return);
   ASSERT_FALSE(first == TokenType::t_yield);
-  Token second = lexer.getNext();
+  auto second = lexer.getNext();
   ASSERT_TRUE(second == TokenType::t_yield);
-  Token third = lexer.getNext();
+  auto third = lexer.getNext();
   ASSERT_TRUE(third == TokenType::t_eof);
   ASSERT_TRUE(third == lexer.getNext());
 }
@@ -172,7 +172,7 @@ TEST(Lexer, lexComment) {
   ASSERT_TRUE(lexer.getNext() == TokenType::t_let);
   ASSERT_TRUE(lexer.getNext() == TokenType::t_identifier);
   ASSERT_TRUE(lexer.getNext() == TokenType::t_equal);
-  ASSERT_TRUE(lexer.getNext() == TokenType::t_true);
+  ASSERT_TRUE(lexer.getNext() == TokenType::t_boolean);
   ASSERT_TRUE(lexer.getNext() == TokenType::t_semicolon);
   ASSERT_TRUE(lexer.getNext() == TokenType::t_eof);
 }

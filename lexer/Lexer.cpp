@@ -6,13 +6,14 @@
 #include <string>
 
 namespace rgl {
-Token Lexer::getNext() {
+TokenValuePair Lexer::getNext() {
   if (m_yieldedEof) {
     return m_eof;
   }
+  m_value = std::nullopt;
   Token ret = getNextImpl();
   addToken(ret);
-  return ret;
+  return {ret, std::move(m_value)};
 }
 Token Lexer::makeToken(TokenType type, uint32_t reprStartIdx,
                        uint16_t reprLen) const {
@@ -115,8 +116,6 @@ bool Lexer::lexComment() {
 
 bool Lexer::lexKeyword(Token &ret) {
   static std::map<std::string, TokenType> keywords = {
-      {"true", TokenType::t_true},
-      {"false", TokenType::t_false},
       {"return", TokenType::t_return},
       {"yield", TokenType::t_yield},
       {"let", TokenType::t_let},
@@ -141,12 +140,24 @@ bool Lexer::lexKeyword(Token &ret) {
     }
   }
 
+  size_t len = it - start;
   std::string possibleKeyword{start, it};
+  if (possibleKeyword == "true") {
+    ret = makeToken(TokenType::t_boolean, m_pos, len);
+    m_value = TokenValue{.m_bool = true};
+    m_pos += len;
+    return true;
+  } else if (possibleKeyword == "false") {
+    ret = makeToken(TokenType::t_boolean, m_pos, len);
+    m_pos += len;
+    m_value = TokenValue{.m_bool = false};
+    return true;
+  }
+
   TokenType type = keywords[possibleKeyword];
   if (TokenType::t_err == type) {
     return false;
   }
-  size_t len = it - start;
   ret = makeToken(type, m_pos, len);
   m_pos += len;
   return true;

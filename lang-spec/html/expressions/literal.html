@@ -1,0 +1,48 @@
+<head>
+</head>
+
+<body>
+  <h1>Literal</h1>
+  <h4>Syntax</h4>
+  <p>
+    Literal := TextLiteral | NumeralLiteral | BooleanLiteral<br><br>
+
+    TextLiteral := RegexLiteral | StringLiteral | CharLiteral<br>
+    RegexLiteral := '$' StringLiteral<br>
+    StringLiteral := StringDelim CharValue* StringDelim<br>
+    StringDelim := "
+    CharLiteral := CharDelim CharValue CharDelim<br>
+    CharDelim := '
+    CharValue := Alpha | DecimalDigit | SpecialDigit | EscapeCharacter<br><br>
+
+    NumeralLiteral := RealLiteral | NaturalLiteral<br>
+    RealLiteral := [RealNumber | DecimalNumber] ['d' | 'f']<br>
+    RealNumber := DecimalDigit* '.' DecimalDigit*<br><br>
+
+    NaturlaLiteral := IntLiteral | UintLiteral<br>
+    IntLiteral := NaturalNumber IntPostfix?<br>
+    UintLiteral := NaturalNumber UintPostfix<br>
+    IntPostfix := 'i' | 'i8' | 'i16' | 'i32' | 'i64'<br>
+    UintPostfix := 'u' | 'u8' | 'u16' | 'u32' | 'u64'<br>
+    DecimalNumber := DecimalDigit+<br>
+    BinaryNumber := BinaryPrefix BinaryDigit+<br>
+    BinaryPrefix := '0b' | '0B'<br>
+    OctalNumber := OctalPrefix OctalDigit+<br>
+    OctalPrefix := '0o' | '0O'<br>
+    HexNumber := HexPrefix HexDigit+<br>
+    HexPrefix := '0x' | '0X'<br><br>
+
+    BooleanLiteral := 'true' | 'false'
+  </p>
+  <h4>Description</h4>
+  <p>
+    Literals are constant values. 'i' and 'u' suffixes are aliases to 'i32' and 'u32'.
+    More information about each type can be found at the corresponding page.
+  </p>
+
+  <footer>
+    <a href="../index.html">
+      <h4>index</h4>
+    </a>
+  </footer>
+</body>

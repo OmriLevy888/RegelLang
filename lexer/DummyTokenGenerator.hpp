@@ -12,7 +12,7 @@ public:
   DummyTokenGenerator(std::vector<Token> &&tokens)
       : m_yieldedEOF(false), m_index(0), m_tokens(std::move(tokens)) {}
 
-  Token getNext() override {
+  TokenValuePair getNext() override {
     if (m_yieldedEOF || m_tokens.size() == 0) {
       return Token(TokenType::t_eof);
     }

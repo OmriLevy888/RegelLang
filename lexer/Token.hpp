@@ -66,8 +66,7 @@ enum class TokenType : uint16_t {
   t_question_greater_equal, // ?>=
   t_question_lesser_equal,  // ?<=
 
-  t_true,  // true
-  t_false, // false
+  t_boolean,
 
   t_double_literal,
   t_float_literal,
@@ -167,14 +166,7 @@ public:
   uint16_t getTokenIdx() const noexcept { return m_tokenIdx; }
   uint16_t getReprLen() const noexcept { return m_reprLen; }
 
-  bool operator==(const Token &other) const {
-    return getTokenType() == other.getTokenType();
-  }
-  bool operator==(const TokenType type) const { return getTokenType() == type; }
-  bool operator!=(const Token &other) const {
-    return getTokenType() != other.getTokenType();
-  }
-  bool operator!=(const TokenType type) const { return getTokenType() != type; }
+  operator TokenType() const { return getTokenType(); }
 
 private:
   // 20 bits line no.
@@ -250,8 +242,7 @@ private:
         {TokenType::t_question_greater_equal, "t_question_greater_equal"},
         {TokenType::t_question_lesser_equal, "t_question_lesser_equal"},
 
-        {TokenType::t_true, "t_true"},
-        {TokenType::t_false, "t_false"},
+        {TokenType::t_boolean, "t_boolean"},
 
         {TokenType::t_double_literal, "t_double_literal"},
         {TokenType::t_float_literal, "t_float_literal"},

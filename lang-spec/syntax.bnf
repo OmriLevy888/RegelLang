@@ -69,7 +69,7 @@ char_value                ::= alpha | decimal_digit | special_chars |
 
 # Identifiers
 identifier                ::= simple_identifier | compound_identifier
-compound_identifier       ::= [simple_identifier '.']+ simple_identifier
+compound_identifier       ::= [simple_identifier '.']* simple_identifier
 simple_identifier         ::= ['_' | alpha] ['_' | alpha | decimal_digit]*
 
 # Basic character groupings

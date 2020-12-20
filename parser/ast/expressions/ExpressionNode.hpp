@@ -6,7 +6,7 @@
 namespace rgl {
 class ExpressionNode : public ASTNode {
 public:
-  Type getType();
+  // virtual Type getType() = 0;
   // TODO: add getValue function that returns an LLVMValue
 
 private:
