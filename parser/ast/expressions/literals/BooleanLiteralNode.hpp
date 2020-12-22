@@ -2,13 +2,11 @@
 #include "parser/ast/expressions/ExpressionNode.hpp"
 
 namespace rgl {
-class BooleanLiteral : public ExpressionNode {
+class BooleanLiteralNode : public ExpressionNode {
 public:
-  BooleanLiteral(bool value) : m_value(value) {}
+  BooleanLiteralNode(bool value) : m_value(value) {}
 
-  bool get() const noexcept { return m_value; }
-
-  std::string toString() const override {
+  std::string toTreeStr(size_t spaces) const override {
     return Formatter("BooleanLiteral<{}>", m_value);
   }
 

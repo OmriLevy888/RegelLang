@@ -345,7 +345,7 @@ bool Lexer::lexIntLiteral(Token &ret) {
   if (m_currLine->m_repr[m_pos] == '0' &&
       m_pos + 1 < m_currLine->m_repr.size()) {
     m_pos += 2;
-    switch (m_currLine->m_repr[m_pos + 1]) { // check base
+    switch (m_currLine->m_repr[m_pos - 1]) { // check base
     case 'b':
     case 'B':
       base = 2;

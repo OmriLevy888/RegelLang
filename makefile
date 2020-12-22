@@ -30,36 +30,36 @@ rglc: $(RELEASE_OBJS)
 	mkdir -p $(RELEASE_OBJDIR)
 	mkdir -p $(OUTDIR)
 
-	$(CPPC) $(CXXFLAGS) $(CPPFLAGS) $(DEBUG_CPPFLAGS) -o $(MAINOBJ) rglc.cpp 
-	$(CPPC) $(LDFLAGS) -o $(OUTDIR)rglc$(POSTFIX) $(RELEASE_OBJS) $(MAINOBJ)
+	@$(CPPC) $(CXXFLAGS) $(CPPFLAGS) $(DEBUG_CPPFLAGS) -o $(MAINOBJ) rglc.cpp 
+	@$(CPPC) $(LDFLAGS) -o $(OUTDIR)rglc$(POSTFIX) $(RELEASE_OBJS) $(MAINOBJ)
 
 debug: $(DEBUG_OBJS)
 	$(eval MAINOBJ := $(DEBUG_OBJDIR)rglc.o)
 	mkdir -p $(DEBUG_OBJDIR)
 	mkdir -p $(OUTDIR)
 
-	$(CPPC) $(CXXFLAGS) $(CPPFLAGS) $(DEBUG_CPPFLAGS) -o $(MAINOBJ) rglc.cpp 
-	$(CPPC) $(LDFLAGS) -o $(OUTDIR)rglc$(DEBUG_POSTFIX) $(DEBUG_OBJS) $(MAINOBJ)
+	@$(CPPC) $(CXXFLAGS) $(CPPFLAGS) $(DEBUG_CPPFLAGS) -o $(MAINOBJ) rglc.cpp 
+	@$(CPPC) $(LDFLAGS) -o $(OUTDIR)rglc$(DEBUG_POSTFIX) $(DEBUG_OBJS) $(MAINOBJ)
 
 tests: $(TEST_OBJS)
 	$(eval MAINOBJ := $(TEST_OBJDIR)rglc.o)
 	mkdir -p $(TEST_OBJDIR)
 	mkdir -p $(OUTDIR)
 
-	$(CPPC) $(CXXFLAGS) $(CPPFLAGS) $(TEST_CPPFLAGS) -o $(MAINOBJ) rglc.cpp 
-	$(CPPC) $(LDFLAGS) -o $(OUTDIR)rglc$(TEST_POSTFIX) $(TEST_OBJS) $(MAINOBJ) $(TEST_LDFLAGS)
+	@$(CPPC) $(CXXFLAGS) $(CPPFLAGS) $(TEST_CPPFLAGS) -o $(MAINOBJ) rglc.cpp 
+	@$(CPPC) $(LDFLAGS) -o $(OUTDIR)rglc$(TEST_POSTFIX) $(TEST_OBJS) $(MAINOBJ) $(TEST_LDFLAGS)
 
 $(RELEASE_OBJDIR)%.o: %.cpp
 	mkdir -p $(@D)
-	$(CPPC) -c -o $@ $(CPPFLAGS) $<
+	@$(CPPC) -c -o $@ $(CPPFLAGS) $<
 
 $(DEBUG_OBJDIR)%.o: %.cpp
 	mkdir -p $(@D)
-	$(CPPC) -c -o $@ $(CPPFLAGS) $(DEBUG_CPPFLAGS) $<
+	@$(CPPC) -c -o $@ $(CPPFLAGS) $(DEBUG_CPPFLAGS) $<
 
 $(TEST_OBJDIR)%.o: %.cpp
 	mkdir -p $(@D)
-	$(CPPC) -c -o $@ $(CPPFLAGS) $(TEST_CPPFLAGS) $<
+	@$(CPPC) -c -o $@ $(CPPFLAGS) $(TEST_CPPFLAGS) $<
 
 clean:
 	rm -rf $(RELEASE_OBJDIR)*

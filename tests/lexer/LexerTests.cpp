@@ -9,6 +9,7 @@
 #include <memory>
 
 using namespace rgl;
+
 static Lexer makeLexer(std::string &&source, std::string &&testName) {
   auto ss = std::make_unique<TextSourceStream>(source);
   auto sp = std::make_shared<SourceProject>(testName);

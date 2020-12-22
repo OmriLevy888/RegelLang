@@ -1,6 +1,7 @@
 #pragma once
 #include "common/ILoggable.hpp"
 #include <charconv>
+#include <memory>
 
 namespace std { // for overload matching when converting a formatter argument to
                 // string
@@ -11,6 +12,7 @@ std::string to_string(const std::string &str);
 std::string to_string(std::string &&str);
 std::string to_string(const rgl::ILoggable &loggable);
 std::string to_string(rgl::ILoggable &&loggable);
+std::string to_string(std::shared_ptr<rgl::ILoggable> loggable);
 } // namespace std
 
 namespace rgl {

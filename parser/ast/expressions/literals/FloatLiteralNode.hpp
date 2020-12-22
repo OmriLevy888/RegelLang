@@ -3,15 +3,15 @@
 #include "parser/ast/expressions/ExpressionNode.hpp"
 
 namespace rgl {
-class CharLiteralNode : public ExpressionNode {
+class FloatLiteralNode : public ExpressionNode {
 public:
-  CharLiteralNode(char value) : m_value(value) {}
+  FloatLiteralNode(float value) : m_value(value) {}
 
   std::string toTreeStr(size_t spaces) const override {
-    return Formatter("CharLiteral<{}>", m_value);
+    return Formatter("FloatLiteral<{}>", m_value);
   }
 
 private:
-  char m_value;
+  float m_value;
 };
 }; // namespace rgl

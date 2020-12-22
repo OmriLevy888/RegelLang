@@ -1,6 +1,7 @@
 #pragma once
 #include "common/Core.hpp"
 #include "lexer/ITokenGenerator.hpp"
+#include <variant>
 #include <vector>
 
 // TODO: allo passing values for the dummy token generator when writing parser
@@ -9,9 +10,9 @@
 namespace rgl {
 class DummyTokenGenerator : public ITokenGenerator {
 public:
-  DummyTokenGenerator(const std::vector<Token> &tokens)
+  DummyTokenGenerator(const std::vector<TokenValuePair> &tokens)
       : m_yieldedEOF(false), m_index(0), m_tokens(tokens) {}
-  DummyTokenGenerator(std::vector<Token> &&tokens)
+  DummyTokenGenerator(std::vector<TokenValuePair> &&tokens)
       : m_yieldedEOF(false), m_index(0), m_tokens(std::move(tokens)) {}
 
   TokenValuePair getNext() override {
@@ -19,9 +20,11 @@ public:
       return Token(TokenType::t_eof);
     }
 
-    if (m_index + 1 >= m_tokens.size() || m_tokens[m_index].isEOF()) {
+    if (m_index + 1 >= m_tokens.size() || m_tokens[m_index].m_token.isEOF()) {
       m_yieldedEOF = true;
     }
+
+    TokenValuePair tvp = m_tokens[m_index];
 
     return m_tokens[m_index++];
   }
@@ -33,6 +36,6 @@ public:
 private:
   bool m_yieldedEOF;
   size_t m_index;
-  std::vector<Token> m_tokens;
+  std::vector<TokenValuePair> m_tokens;
 };
 } // namespace rgl

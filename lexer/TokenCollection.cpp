@@ -7,18 +7,23 @@ void TokenCollection::saveAnchor() {
   }
   m_anchors.push(m_actualIndex);
 }
+
 void TokenCollection::restoreAnchor() {
   m_backlogIndex = m_anchors.top() - m_baseIndex;
   m_anchors.pop();
   m_usingBacklog = true;
 }
+
 size_t TokenCollection::peekAnchor() {
   return m_anchors.size() == 0 ? -1 : m_anchors.top();
 }
+
 const Token &TokenCollection::getNext() {
   if (!m_usingBacklog) { // when not using the backlog
     m_actualIndex++;
-    auto [m_curr, m_value] = m_tokenGenerator->getNext();
+    auto tvp = m_tokenGenerator->getNext();
+    m_curr = tvp.m_token;
+    m_value = std::move(tvp.m_value);
 
     // after getting the next token, save it if there are any anchors
     if (m_anchors.size() != 0) {

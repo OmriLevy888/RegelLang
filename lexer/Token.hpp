@@ -291,7 +291,7 @@ private:
         {TokenType::t_move, "t_move"}};
     static std::string unknown_repr = "t_repr";
 
-    const auto ret = token_types_repr[getTokenType()];
+    const auto &ret = token_types_repr[getTokenType()];
     if (ret.length() == 0) {
       return unknown_repr;
     }

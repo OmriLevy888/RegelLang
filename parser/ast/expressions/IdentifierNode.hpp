@@ -8,8 +8,8 @@ public:
 
   inline const std::string &get() const noexcept { return m_value; }
 
-  std::string toString() const override {
-    return Formatter("IdentifierNode<{}>", m_value);
+  std::string toTreeStr(size_t spaces) const override {
+    return Formatter("Identifier<{}>", m_value);
   }
 
 private:
