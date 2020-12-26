@@ -14,6 +14,7 @@
 #include "parser/ast/expressions/literals/UintLiteralNode.hpp"
 
 #include "parser/ast/expressions/ops/BinOpNode.hpp"
+#include "parser/ast/expressions/ops/ParenthesesNode.hpp"
 
 #include <memory>
 
@@ -21,32 +22,19 @@ namespace rgl {
 Expression Parser::parseExprssion() {
   m_lastPrecedence = 0;
   auto primary = parsePrimary();
-  if (nullptr == primary)
-    return nullptr; // TODO: fix this when adding ()
+  if (nullptr == primary) {
+    auto parenExpr = parseParentheses();
+    if (nullptr != parenExpr) {
+      return parenExpr;
+    }
+    // NOTE: else case could be used for prefixed unary operations
+    // TODO: write error message
+    return nullptr;
+  }
 
   const Token &next = m_tokens->getNext();
   if (ParserUtilities::isBinOp(next)) { // parser bin-op
-    const Token op = next;
-    m_tokens->getNext(); // consume bin-op
-    auto rhs = parseExprssion();
-    if (nullptr == rhs) {
-      // TODO: write error message
-      return nullptr;
-    }
-
-    uint8_t currPrecedence = ParserUtilities::tokToPrecedence(op);
-    BinOpType binOpType = ParserUtilities::tokToBinOpType(op);
-    auto binOp =
-        std::make_unique<BinOpNode>(binOpType, std::move(primary), nullptr);
-    if (currPrecedence <= m_lastPrecedence) { // should switch
-      rhs->propagateLeft(std::move(binOp));
-      m_lastPrecedence = currPrecedence;
-      return rhs;
-    }
-
-    m_lastPrecedence = currPrecedence;
-    binOp->setSwap(std::move(rhs));
-    return binOp;
+    return parseBinOp(std::move(primary));
   }
 
   // just a primary
@@ -61,7 +49,10 @@ Expression Parser::parsePrimary() {
     primary = parseIdentifier();
   } else if (ParserUtilities::isLiteral(tok)) {
     primary = parseLiteral();
+  } else {
+    return nullptr;
   }
+
   return primary;
 }
 
@@ -159,5 +150,47 @@ Expression Parser::parseTextLiteral() {
 Expression Parser::parseBoolLiteral() {
   bool value = std::get<bool>(m_tokens->getCurrValue().value());
   return std::make_unique<BooleanLiteralNode>(value);
+}
+
+Expression Parser::parseParentheses() {
+  if (TokenType::t_open_paren == m_tokens->getCurr()) {
+    m_tokens->getNext(); // consume (
+    auto innerExpr = parseExprssion();
+    if (nullptr == innerExpr) {
+      // TODO: write error message
+      return nullptr;
+    } else if (TokenType::t_close_paren != m_tokens->getCurr()) {
+      // TODO: write error message
+      return nullptr;
+    }
+
+    m_lastPrecedence = 0;
+    return std::make_unique<ParenthesesNode>(std::move(innerExpr));
+  }
+  return nullptr;
+}
+
+Expression Parser::parseBinOp(Expression primary) {
+  const Token &op = m_tokens->getCurr();
+  m_tokens->getNext(); // consume bin-op
+  auto rhs = parseExprssion();
+  if (nullptr == rhs) {
+    // TODO: write error message
+    return nullptr;
+  }
+
+  uint8_t currPrecedence = ParserUtilities::tokToPrecedence(op);
+  BinOpType binOpType = ParserUtilities::tokToBinOpType(op);
+  auto binOp =
+      std::make_unique<BinOpNode>(binOpType, std::move(primary), nullptr);
+  if (currPrecedence <= m_lastPrecedence) { // should switch
+    rhs->propagateLeft(std::move(binOp));
+    m_lastPrecedence = currPrecedence;
+    return rhs;
+  }
+
+  m_lastPrecedence = currPrecedence;
+  binOp->setSwap(std::move(rhs));
+  return binOp;
 }
 }; // namespace rgl

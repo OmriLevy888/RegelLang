@@ -34,5 +34,8 @@ private:
   Expression parseRealLiteral();
   Expression parseTextLiteral();
   Expression parseBoolLiteral();
+
+  Expression parseParentheses();
+  Expression parseBinOp(Expression primary);
 };
 }; // namespace rgl

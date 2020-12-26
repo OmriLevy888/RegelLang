@@ -10,6 +10,7 @@
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
 #include "parser/ast/expressions/literals/StringLiteralNode.hpp"
 #include "parser/ast/expressions/ops/BinOpNode.hpp"
+#include "parser/ast/expressions/ops/ParenthesesNode.hpp"
 #include "tests/TestsCore.hpp"
 #include "gtest/gtest.h"
 #include <memory>
@@ -26,9 +27,9 @@ std::unique_ptr<Parser> makeParser(std::vector<TokenValuePair> &&tokens) {
 
 static void assertExpr(Expression &&expr, Expression &&expected) {
   ASSERT_TRUE(expr != nullptr);
-  /* std::cout << "===========" << std::endl; */
-  /* std::cout << expected->toString() << std::endl; */
-  /* std::cout << expr->toString() << std::endl; */
+  std::cout << "===========" << std::endl;
+  std::cout << expected->toString() << std::endl;
+  std::cout << expr->toString() << std::endl;
   ASSERT_TRUE(expr->toString() == expected->toString());
 }
 
@@ -119,4 +120,23 @@ TEST(Parser, precedenceMultipleParts) {
           std::make_unique<BinOpNode>(BinOpType::b_asterisk,
                                       std::make_unique<IdentifierNode>("c"),
                                       std::make_unique<IdentifierNode>("d"))));
+}
+
+TEST(Parser, precedenceWithParens) {
+  auto parser = makeParser({{TokenType::t_int32_literal, {2}},
+                            {TokenType::t_asterisk},
+                            {TokenType::t_open_paren},
+                            {TokenType::t_int32_literal, {3}},
+                            {TokenType::t_plus},
+                            {TokenType::t_int32_literal, {1}},
+                            {TokenType::t_close_paren}});
+
+  assertExpr(parser->parseExprssion(),
+             std::make_unique<BinOpNode>(
+                 BinOpType::b_asterisk,
+                 std::make_unique<IntLiteralNode>(2, Type::t_int32()),
+                 std::make_unique<ParenthesesNode>(std::make_unique<BinOpNode>(
+                     BinOpType::b_plus,
+                     std::make_unique<IntLiteralNode>(3, Type::t_int32()),
+                     std::make_unique<IntLiteralNode>(1, Type::t_int32())))));
 }

@@ -50,67 +50,33 @@ bool ParserUtilities::isUnsignedIntLiteral(const Token &tok) {
          tok == TokenType::t_uint64_literal;
 }
 
+static std::unordered_map<TokenType, std::pair<BinOpType, uint8_t>> binOpMap{
+    {TokenType::t_dot, {BinOpType::b_dot, 0}},
+
+    {TokenType::t_asterisk, {BinOpType::b_asterisk, 1}},
+    {TokenType::t_forward_slash, {BinOpType::b_forward_slash, 1}},
+
+    {TokenType::t_plus, {BinOpType::b_plus, 2}},
+    {TokenType::t_minus, {BinOpType::b_minus, 2}},
+
+    {TokenType::t_equal_equal, {BinOpType::b_equal_equal, 3}},
+    {TokenType::t_not_equal, {BinOpType::b_not_equal, 3}},
+    {TokenType::t_lesser_than, {BinOpType::b_lesser_than, 3}},
+    {TokenType::t_greater_than, {BinOpType::b_greater_than, 3}},
+    {TokenType::t_lesser_equal, {BinOpType::b_lesser_equal, 3}},
+    {TokenType::t_greater_equal, {BinOpType::b_greater_equal, 3}},
+
+    {TokenType::t_ampersand, {BinOpType::b_ampersand, 4}},
+    {TokenType::t_caret, {BinOpType::b_caret, 5}},
+    {TokenType::t_pipe, {BinOpType::b_pipe, 6}},
+};
 bool ParserUtilities::isBinOp(const Token &tok) {
-  switch (tok) {
-  case TokenType::t_dot:
-  case TokenType::t_plus:
-  case TokenType::t_minus:
-  case TokenType::t_asterisk:
-  case TokenType::t_forward_slash:
-  case TokenType::t_ampersand:
-  case TokenType::t_pipe:
-  case TokenType::t_caret:
-  case TokenType::t_equal_equal:
-  case TokenType::t_not_equal:
-  case TokenType::t_lesser_than:
-  case TokenType::t_greater_than:
-  case TokenType::t_lesser_equal:
-  case TokenType::t_greater_equal:
-    return true;
-  default:
-    return false;
-  }
+  return BinOpType::b_err != tokToBinOpType(tok);
 }
 uint8_t ParserUtilities::tokToPrecedence(const Token &tok) {
-  static std::unordered_map<TokenType, uint8_t> precendenceMap{
-      {TokenType::t_dot, 0},
-
-      {TokenType::t_asterisk, 1},     {TokenType::t_forward_slash, 1},
-
-      {TokenType::t_plus, 2},         {TokenType::t_minus, 2},
-
-      {TokenType::t_equal_equal, 3},  {TokenType::t_not_equal, 3},
-      {TokenType::t_lesser_than, 3},  {TokenType::t_greater_than, 3},
-      {TokenType::t_lesser_equal, 3}, {TokenType::t_greater_equal, 3},
-
-      {TokenType::t_ampersand, 4},    {TokenType::t_caret, 5},
-      {TokenType::t_pipe, 6},
-  };
-
-  return precendenceMap[tok];
+  return binOpMap[tok].second;
 }
 BinOpType ParserUtilities::tokToBinOpType(const Token &tok) {
-  static std::unordered_map<TokenType, BinOpType> binOpMap{
-      {TokenType::t_dot, BinOpType::b_dot},
-
-      {TokenType::t_asterisk, BinOpType::b_asterisk},
-      {TokenType::t_forward_slash, BinOpType::b_forward_slash},
-
-      {TokenType::t_plus, BinOpType::b_plus},
-      {TokenType::t_minus, BinOpType::b_minus},
-
-      {TokenType::t_equal_equal, BinOpType::b_equal_equal},
-      {TokenType::t_not_equal, BinOpType::b_not_equal},
-      {TokenType::t_lesser_than, BinOpType::b_lesser_than},
-      {TokenType::t_greater_than, BinOpType::b_greater_than},
-      {TokenType::t_lesser_equal, BinOpType::b_lesser_equal},
-      {TokenType::t_greater_equal, BinOpType::b_greater_equal},
-
-      {TokenType::t_ampersand, BinOpType::b_ampersand},
-      {TokenType::t_caret, BinOpType::b_caret},
-      {TokenType::t_pipe, BinOpType::b_pipe},
-  };
-
-  return binOpMap[tok];
+  return binOpMap[tok].first;
 }
 }; // namespace rgl

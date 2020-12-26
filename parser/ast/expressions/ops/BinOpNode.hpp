@@ -4,6 +4,8 @@
 
 namespace rgl {
 enum class BinOpType : uint8_t {
+  b_err, // meta value for comparisons as a default value
+
   b_dot,
 
   b_asterisk,
@@ -41,9 +43,10 @@ public:
   virtual bool isLeaf() override { return false; }
 
   virtual std::string toTreeStr(size_t spaces) const override {
-    return Formatter("BinOp<op:{}, lhs:{}, rhs:{}>", getOpString(),
-                     m_lhs->toTreeStr(spaces + 4),
-                     m_rhs->toTreeStr(spaces + 4));
+    std::string spacesStr(spaces + 6, ' ');
+    return Formatter("BinOp<op:{},\n{}lhs:{},\n{}rhs:{}>", getOpString(),
+                     spacesStr, m_lhs->toTreeStr(spaces + 10), spacesStr,
+                     m_rhs->toTreeStr(spaces + 10));
   }
 
 private:
