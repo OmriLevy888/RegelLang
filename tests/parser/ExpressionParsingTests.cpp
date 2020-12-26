@@ -140,3 +140,19 @@ TEST(Parser, precedenceWithParens) {
                      std::make_unique<IntLiteralNode>(3, Type::t_int32()),
                      std::make_unique<IntLiteralNode>(1, Type::t_int32())))));
 }
+
+TEST(Parser, selfModifyingBinOp) {
+  auto parser = makeParser({{TokenType::t_identifier, "a"},
+                            {TokenType::t_percent_equal},
+                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_minus},
+                            {TokenType::t_identifier, "c"}});
+
+  assertExpr(
+      parser->parseExprssion(),
+      std::make_unique<BinOpNode>(
+          BinOpType::b_percent_equal, std::make_unique<IdentifierNode>("a"),
+          std::make_unique<BinOpNode>(BinOpType::b_minus,
+                                      std::make_unique<IdentifierNode>("b"),
+                                      std::make_unique<IdentifierNode>("c"))));
+}

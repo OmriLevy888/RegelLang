@@ -28,6 +28,7 @@ enum class TokenType : uint16_t {
   t_minus,         // -
   t_asterisk,      // *
   t_forward_slash, // /
+  t_percent,       // %
 
   t_plus_plus,   // ++
   t_minus_minus, // --
@@ -52,6 +53,7 @@ enum class TokenType : uint16_t {
   t_minus_equal,         // -=
   t_asterisk_equal,      // *=
   t_forward_slash_equal, // /=
+  t_percent_equal,       // %=
   t_caret_equal,         // ^=
   t_pipe_equal,          // |=
   t_ampersand_equal,     // &=
@@ -204,6 +206,7 @@ private:
         {TokenType::t_minus, "t_minus"},
         {TokenType::t_asterisk, "t_asterisk"},
         {TokenType::t_forward_slash, "t_forward_slash"},
+        {TokenType::t_percent, "t_percent"},
 
         {TokenType::t_plus_plus, "t_plus_plus"},
         {TokenType::t_minus_minus, "t_minus_minus"},
@@ -228,6 +231,7 @@ private:
         {TokenType::t_minus_equal, "t_minus_equal"},
         {TokenType::t_asterisk_equal, "t_asterisk_equal"},
         {TokenType::t_forward_slash_equal, "t_forward_slash_equal"},
+        {TokenType::t_percent_equal, "t_percent_equal"},
         {TokenType::t_caret_equal, "t_caret_equal"},
         {TokenType::t_pipe_equal, "t_pipe_equal"},
         {TokenType::t_ampersand_equal, "t_ampersand_equal"},

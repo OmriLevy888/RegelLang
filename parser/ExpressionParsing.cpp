@@ -171,7 +171,7 @@ Expression Parser::parseParentheses() {
 }
 
 Expression Parser::parseBinOp(Expression primary) {
-  const Token &op = m_tokens->getCurr();
+  const Token op = m_tokens->getCurr();
   m_tokens->getNext(); // consume bin-op
   auto rhs = parseExprssion();
   if (nullptr == rhs) {
@@ -179,8 +179,8 @@ Expression Parser::parseBinOp(Expression primary) {
     return nullptr;
   }
 
-  uint8_t currPrecedence = ParserUtilities::tokToPrecedence(op);
-  BinOpType binOpType = ParserUtilities::tokToBinOpType(op);
+  const uint8_t currPrecedence = ParserUtilities::tokToPrecedence(op);
+  const BinOpType binOpType = ParserUtilities::tokToBinOpType(op);
   auto binOp =
       std::make_unique<BinOpNode>(binOpType, std::move(primary), nullptr);
   if (currPrecedence <= m_lastPrecedence) { // should switch
