@@ -15,30 +15,59 @@
 
 #include "parser/ast/expressions/ops/BinOpNode.hpp"
 #include "parser/ast/expressions/ops/ParenthesesNode.hpp"
+#include "parser/ast/expressions/ops/UnaryOpNode.hpp"
+
+#include "parser/ast/expressions/VarDeclNode.hpp"
 
 #include <memory>
 
 namespace rgl {
+TypePtr Parser::parseType() {
+  const bool isReference = TokenType::t_ampersand == m_tokens->getCurr();
+  if (isReference) {
+    m_tokens->getNext(); // consume &
+  }
+
+  std::vector<std::string> name;
+  if (!ParserUtilities::isIdentifier(m_tokens->getCurr())) {
+    // TODO: write error message
+    return nullptr;
+  }
+  name.push_back(
+      std::get<std::string>(std::move(m_tokens->getCurrValue().value())));
+  m_tokens->getNext(); // consume first identifier
+
+  while (TokenType::t_dot == m_tokens->getCurr()) {
+    if (TokenType::t_identifier != m_tokens->getNext()) {
+      // TODO: write error message
+      return nullptr;
+    }
+
+    name.push_back(
+        std::get<std::string>(std::move(m_tokens->getCurrValue().value())));
+    m_tokens->getNext(); // consume current identifier
+  }
+
+  return makeType(std::move(name), isReference);
+}
+
 Expression Parser::parseExprssion() {
   m_lastPrecedence = 0;
   auto primary = parsePrimary();
   if (nullptr == primary) {
-    auto parenExpr = parseParentheses();
-    if (nullptr != parenExpr) {
-      return parenExpr;
+    if (ParserUtilities::isPreOp(m_tokens->getCurr())) {
+      return parsePreOp();
+    } else if (TokenType::t_open_paren == m_tokens->getCurr()) {
+      return parseParentheses();
+    } else if (ParserUtilities::isVarDecl(m_tokens->getCurr())) {
+      return parseVarDecl();
     }
     // NOTE: else case could be used for prefixed unary operations
     // TODO: write error message
     return nullptr;
   }
 
-  const Token &next = m_tokens->getNext();
-  if (ParserUtilities::isBinOp(next)) { // parser bin-op
-    return parseBinOp(std::move(primary));
-  }
-
-  // just a primary
-  return primary;
+  return parseRest(std::move(primary));
 }
 
 Expression Parser::parsePrimary() {
@@ -53,10 +82,22 @@ Expression Parser::parsePrimary() {
     return nullptr;
   }
 
+  m_tokens->getNext(); // consume current token
   return primary;
 }
 
-Expression Parser::parseIdentifier() {
+Expression Parser::parseRest(Expression primary) {
+  const Token &curr = m_tokens->getCurr();
+  if (ParserUtilities::isBinOp(curr)) {
+    return parseBinOp(std::move(primary));
+  } else if (ParserUtilities::isPostOp(curr)) {
+    return parsePostOp(std::move(primary));
+  }
+
+  return primary;
+}
+
+std::unique_ptr<IdentifierNode> Parser::parseIdentifier() {
   return std::make_unique<IdentifierNode>(std::move(
       std::get<std::string>(std::move(m_tokens->getCurrValue().value()))));
 }
@@ -192,5 +233,68 @@ Expression Parser::parseBinOp(Expression primary) {
   m_lastPrecedence = currPrecedence;
   binOp->setSwap(std::move(rhs));
   return binOp;
+}
+
+Expression Parser::parsePreOp() {
+  UnaryOpType opType = ParserUtilities::tokToPreOpType(m_tokens->getCurr());
+  m_tokens->getNext(); // consume pre-op
+  auto expr = parseExprssion();
+  if (nullptr == expr) {
+    // TODO: write error message
+    return nullptr;
+  }
+
+  const size_t currPrecedence = ParserUtilities::getPreOpPrecedence();
+  if (currPrecedence > m_lastPrecedence) {
+    m_lastPrecedence = currPrecedence;
+    return std::make_unique<UnaryOpNode>(opType, std::move(expr));
+  }
+
+  auto unaryOp = std::make_unique<UnaryOpNode>(opType, nullptr);
+  m_lastPrecedence = currPrecedence;
+  expr->propagateLeft(std::move(unaryOp));
+  return expr;
+}
+
+Expression Parser::parsePostOp(Expression expr) {
+  UnaryOpType opType = ParserUtilities::tokToPostOpType(m_tokens->getCurr());
+  m_tokens->getNext(); // consume post-op
+  auto primary = std::make_unique<UnaryOpNode>(opType, std::move(expr));
+  return parseRest(std::move(primary));
+}
+
+Expression Parser::parseVarDecl() {
+  bool isConst = TokenType::t_let == m_tokens->getCurr();
+  m_tokens->getNext(); // consume let/var
+  auto name = parseIdentifier();
+  if (nullptr == name) {
+    // TODO: write error message
+    return nullptr;
+  }
+  m_tokens->getNext(); // consume identifier
+
+  TypePtr type;
+  if (TokenType::t_colon == m_tokens->getCurr()) { // parse type
+    m_tokens->getNext();                           // consume :
+    type = parseType();
+    if (nullptr == type) {
+      // TODO: wrrite error message
+      return nullptr;
+    }
+  }
+
+  Expression expr;
+  if (TokenType::t_equal == m_tokens->getCurr()) { // parse initial value
+    m_tokens->getNext();                           // consume =
+
+    expr = parseExprssion();
+    if (nullptr == expr) {
+      // TODO: write error message
+      return nullptr;
+    }
+  }
+
+  return std::make_unique<VarDeclNode>(std::move(name), type, isConst,
+                                       std::move(expr));
 }
 }; // namespace rgl

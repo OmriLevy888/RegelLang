@@ -4,6 +4,7 @@
 #include "lexer/TokenCollection.hpp"
 #include "parser/ast/FileNode.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
+#include "parser/ast/expressions/IdentifierNode.hpp"
 
 namespace rgl {
 class Parser : public ILoggable {
@@ -26,9 +27,12 @@ private:
 
   uint8_t m_lastPrecedence;
 
-  Expression parsePrimary();
+  TypePtr parseType();
 
-  Expression parseIdentifier();
+  Expression parsePrimary();
+  Expression parseRest(Expression primary);
+
+  std::unique_ptr<IdentifierNode> parseIdentifier();
   Expression parseLiteral();
   Expression parseIntLiteral();
   Expression parseRealLiteral();
@@ -37,5 +41,9 @@ private:
 
   Expression parseParentheses();
   Expression parseBinOp(Expression primary);
+  Expression parsePreOp();
+  Expression parsePostOp(Expression expr);
+
+  Expression parseVarDecl();
 };
 }; // namespace rgl

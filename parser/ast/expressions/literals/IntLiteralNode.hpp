@@ -15,6 +15,6 @@ public:
 
 private:
   int64_t m_value;
-  std::shared_ptr<Type> m_type;
+  TypePtr m_type;
 };
 }; // namespace rgl

@@ -69,6 +69,20 @@ public:
     return std::to_string(arg);
   }
 
+  template <typename _TSep, typename _TContainer>
+  static std::string joinContainer(_TSep sep, _TContainer container) {
+    return joinIter(sep, container.cbegin(), container.cend());
+  }
+  template <typename _TSep, typename _TIter>
+  static std::string joinIter(_TSep sep, _TIter begin, _TIter end) {
+    std::string ret = "";
+    for (; begin + 1 != end; begin++) {
+      ret += std::to_string(*begin) + std::to_string(sep);
+    }
+    ret += std::to_string(*begin);
+    return ret;
+  }
+
   std::string toString() const override { return m_formatted; }
 
 private:

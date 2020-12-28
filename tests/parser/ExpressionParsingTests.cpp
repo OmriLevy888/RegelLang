@@ -5,12 +5,15 @@
 #include "lexer/Token.hpp"
 #include "lexer/TokenCollection.hpp"
 #include "parser/Parser.hpp"
+#include "parser/ast/Type.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
+#include "parser/ast/expressions/VarDeclNode.hpp"
 #include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
 #include "parser/ast/expressions/literals/StringLiteralNode.hpp"
 #include "parser/ast/expressions/ops/BinOpNode.hpp"
 #include "parser/ast/expressions/ops/ParenthesesNode.hpp"
+#include "parser/ast/expressions/ops/UnaryOpNode.hpp"
 #include "tests/TestsCore.hpp"
 #include "gtest/gtest.h"
 #include <memory>
@@ -155,4 +158,85 @@ TEST(Parser, selfModifyingBinOp) {
           std::make_unique<BinOpNode>(BinOpType::b_minus,
                                       std::make_unique<IdentifierNode>("b"),
                                       std::make_unique<IdentifierNode>("c"))));
+}
+
+TEST(Parser, preUnaryOp) {
+  auto parser = makeParser({{TokenType::t_plus_plus},
+                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_asterisk},
+                            {TokenType::t_open_paren},
+                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_plus},
+                            {TokenType::t_exclamation},
+                            {TokenType::t_identifier, "c"},
+                            {TokenType::t_close_paren}});
+
+  assertExpr(
+      parser->parseExprssion(),
+      std::make_unique<BinOpNode>(
+          BinOpType::b_asterisk,
+          std::make_unique<UnaryOpNode>(UnaryOpType::u_pre_plus_plus,
+                                        std::make_unique<IdentifierNode>("a")),
+          std::make_unique<ParenthesesNode>(std::make_unique<BinOpNode>(
+              BinOpType::b_plus, std::make_unique<IdentifierNode>("b"),
+              std::make_unique<UnaryOpNode>(
+                  UnaryOpType::u_pre_exclamation,
+                  std::make_unique<IdentifierNode>("c"))))));
+}
+
+TEST(Parser, postUnaryOp) {
+  auto parser = makeParser({{TokenType::t_identifier, "a"},
+                            {TokenType::t_minus_minus},
+                            {TokenType::t_forward_slash},
+                            {TokenType::t_identifier, "b"}});
+
+  assertExpr(
+      parser->parseExprssion(),
+      std::make_unique<BinOpNode>(
+          BinOpType::b_forward_slash,
+          std::make_unique<UnaryOpNode>(UnaryOpType::u_post_minus_minus,
+                                        std::make_unique<IdentifierNode>("a")),
+          std::make_unique<IdentifierNode>("b")));
+}
+
+TEST(Parser, varNoValue) {
+  auto parser = makeParser({{TokenType::t_var},
+                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_colon},
+                            {TokenType::t_ampersand},
+                            {TokenType::t_identifier, "i32"}});
+
+  assertExpr(parser->parseExprssion(),
+             std::make_unique<VarDeclNode>(
+                 std::make_unique<IdentifierNode>("a"),
+                 Type::t_int32()->getReferenceType(), false, nullptr));
+}
+
+TEST(Parser, varImplicitTypeWithValue) {
+  auto parser = makeParser({{TokenType::t_var},
+                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_equal},
+                            {TokenType::t_boolean, true}});
+
+  assertExpr(parser->parseExprssion(),
+             std::make_unique<VarDeclNode>(
+                 std::make_unique<IdentifierNode>("a"), nullptr, false,
+                 std::make_unique<BooleanLiteralNode>(true)));
+}
+
+TEST(Parser, letExplicitTypeWithValue) {
+  auto parser = makeParser({{TokenType::t_let},
+                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_colon},
+                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_dot},
+                            {TokenType::t_identifier, "bar"},
+                            {TokenType::t_equal},
+                            {TokenType::t_int32_literal, 10}});
+
+  assertExpr(parser->parseExprssion(),
+             std::make_unique<VarDeclNode>(
+                 std::make_unique<IdentifierNode>("a"),
+                 makeType({"foo", "bar"}), true,
+                 std::make_unique<IntLiteralNode>(10, Type::t_int32())));
 }
