@@ -5,6 +5,7 @@
 #include "parser/ast/FileNode.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
+#include "parser/ast/statement/StatementNode.hpp"
 
 namespace rgl {
 class Parser : public ILoggable {
@@ -16,6 +17,7 @@ public:
 
   std::unique_ptr<FileNode> parseFile();
   Expression parseExprssion();
+  Statement parseStatement();
 
   std::string toString() const override {
     return Formatter("Parser<{}>", m_tokens->toString());
@@ -45,5 +47,8 @@ private:
   Expression parsePostOp(Expression expr);
 
   Expression parseVarDecl();
+
+  Statement parseKeywordStatement();
+  Statement parseSimpleStatement();
 };
 }; // namespace rgl

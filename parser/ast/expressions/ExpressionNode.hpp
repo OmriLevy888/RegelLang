@@ -14,9 +14,6 @@ public:
   virtual void propagateLeft(std::unique_ptr<ExpressionNode> expr) {}
   virtual void setSwap(std::unique_ptr<ExpressionNode> expr) {}
   virtual bool isLeaf() { return true; }
-
-  virtual std::string toString() const override { return toTreeStr(0); }
-  virtual std::string toTreeStr(size_t spaces) const = 0;
 };
 
 using Expression = std::unique_ptr<ExpressionNode>;

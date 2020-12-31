@@ -28,5 +28,7 @@ public:
   static size_t getPreOpPrecedence() noexcept { return 1; }
 
   static bool isVarDecl(const Token &tok);
+
+  static bool isSimpleStatement(const Token &tok);
 };
 }; // namespace rgl

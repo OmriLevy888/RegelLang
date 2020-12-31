@@ -137,4 +137,14 @@ UnaryOpType ParserUtilities::tokToPostOpType(const Token &tok) {
 bool ParserUtilities::isVarDecl(const Token &tok) {
   return TokenType::t_let == tok || TokenType::t_var == tok;
 }
+
+bool ParserUtilities::isSimpleStatement(const Token &tok) {
+  switch (tok) {
+  case TokenType::t_return:
+  case TokenType::t_yield:
+    return true;
+  default:
+    return false;
+  }
+}
 }; // namespace rgl
