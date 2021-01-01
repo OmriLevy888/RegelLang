@@ -6,6 +6,7 @@
 #include "lexer/TokenCollection.hpp"
 #include "parser/Parser.hpp"
 #include "parser/ast/Type.hpp"
+#include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/VarDeclNode.hpp"
 #include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
@@ -14,6 +15,7 @@
 #include "parser/ast/expressions/ops/BinOpNode.hpp"
 #include "parser/ast/expressions/ops/ParenthesesNode.hpp"
 #include "parser/ast/expressions/ops/UnaryOpNode.hpp"
+#include "parser/ast/statements/YieldNode.hpp"
 #include "tests/TestsCore.hpp"
 
 #include "tests/parser/ParserTestsUtilities.hpp"
@@ -225,4 +227,46 @@ TEST(Parser, letExplicitTypeWithValue) {
                  std::make_unique<IdentifierNode>("a"),
                  makeType({"foo", "bar"}), true,
                  std::make_unique<IntLiteralNode>(10, Type::t_int32())));
+}
+
+TEST(Parser, emptyBlock) {
+  auto parser = makeParser({{TokenType::t_let},
+                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_equal},
+                            {TokenType::t_open_bracket},
+                            {TokenType::t_close_bracket}});
+
+  assertNode(parser->parseExprssion(),
+             std::make_unique<VarDeclNode>(
+                 std::make_unique<IdentifierNode>("a"), nullptr, true,
+                 std::make_unique<BlockNode>()));
+}
+
+TEST(Parser, fullBlock) {
+  auto parser = makeParser({{TokenType::t_var},
+                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_colon},
+                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_equal},
+                            {TokenType::t_int32_literal, 1},
+                            {TokenType::t_plus},
+                            {TokenType::t_open_bracket},
+                            {TokenType::t_yield},
+                            {TokenType::t_int32_literal, 2},
+                            {TokenType::t_semicolon},
+                            {TokenType::t_close_bracket}});
+
+  std::vector<Statement> statements;
+  statements.push_back(std::make_unique<YieldNode>(
+      std::make_unique<IntLiteralNode>(2, Type::t_int32())));
+  Block block = std::make_unique<BlockNode>(std::move(statements));
+  std::cout << block->toString() << std::endl;
+
+  assertNode(parser->parseExprssion(),
+             std::make_unique<VarDeclNode>(
+                 std::make_unique<IdentifierNode>("a"), makeType({"b"}), false,
+                 std::make_unique<BinOpNode>(
+                     BinOpType::b_plus,
+                     std::make_unique<IntLiteralNode>(1, Type::t_int32()),
+                     std::move(block))));
 }

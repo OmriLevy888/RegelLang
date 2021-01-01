@@ -1,11 +1,11 @@
 #pragma once
-#include "parser/ast/statement/StatementNode.hpp"
+#include "parser/ast/statements/StatementNode.hpp"
 
 namespace rgl {
-class ContinueNode : public StatementNode {
+class BreakNode : public StatementNode {
 public:
   virtual std::string toTreeStr(size_t spaces) const override {
-    return "ContinueNode<>";
+    return "Break<>";
   }
 };
 }; // namespace rgl

@@ -3,11 +3,11 @@
 #include "parser/Parser.hpp"
 #include "parser/ParserUtilities.hpp"
 
-#include "parser/ast/statement/BreakNode.hpp"
-#include "parser/ast/statement/ContinueNode.hpp"
-#include "parser/ast/statement/ExpressionStatementNode.hpp"
-#include "parser/ast/statement/ReturnNode.hpp"
-#include "parser/ast/statement/YieldNode.hpp"
+#include "parser/ast/statements/BreakNode.hpp"
+#include "parser/ast/statements/ContinueNode.hpp"
+#include "parser/ast/statements/ExpressionStatementNode.hpp"
+#include "parser/ast/statements/ReturnNode.hpp"
+#include "parser/ast/statements/YieldNode.hpp"
 
 #include <memory>
 
@@ -25,7 +25,11 @@ Statement Parser::parseStatement() {
     if (nullptr == expr) {
       // TODO: write error message
       return nullptr;
+    } else if (TokenType::t_semicolon != m_tokens->getCurr()) {
+      // TODO: write error message
+      return nullptr;
     }
+    m_tokens->getNext(); // consume semicolon
 
     return std::make_unique<ExpressionStatementNode>(std::move(expr));
   }

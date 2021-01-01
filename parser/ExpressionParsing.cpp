@@ -3,6 +3,7 @@
 #include "parser/Parser.hpp"
 #include "parser/ParserUtilities.hpp"
 
+#include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 
 #include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
@@ -61,8 +62,9 @@ Expression Parser::parseExprssion() {
       return parseParentheses();
     } else if (ParserUtilities::isVarDecl(m_tokens->getCurr())) {
       return parseVarDecl();
+    } else if (TokenType::t_open_bracket == m_tokens->getCurr()) {
+      return parseBlock();
     }
-    // NOTE: else case could be used for prefixed unary operations
     // TODO: write error message
     return nullptr;
   }
@@ -296,5 +298,20 @@ Expression Parser::parseVarDecl() {
 
   return std::make_unique<VarDeclNode>(std::move(name), type, isConst,
                                        std::move(expr));
+}
+
+Block Parser::parseBlock() {
+  m_tokens->getNext(); // consume {
+  std::vector<Statement> statements;
+  while (TokenType::t_close_bracket != m_tokens->getCurr()) {
+    auto curr = parseStatement();
+    if (nullptr == curr) {
+      // TODO: write error message
+      return nullptr;
+    }
+    statements.push_back(std::move(curr));
+  }
+  m_tokens->getNext(); // consume }
+  return std::make_unique<BlockNode>(std::move(statements));
 }
 }; // namespace rgl

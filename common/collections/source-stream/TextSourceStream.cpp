@@ -35,7 +35,7 @@ size_t TextSourceStream::seek(off_t offset, std::ios_base::seekdir whence) {
   case std::ios_base::cur:
     result = static_cast<int64_t>(m_pos) + offset;
     break;
-  case std::ios_base::end:
+  default:
     result = static_cast<int64_t>(m_end) + offset;
     break;
   }

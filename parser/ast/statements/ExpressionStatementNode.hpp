@@ -1,6 +1,6 @@
 #pragma once
 #include "parser/ast/expressions/ExpressionNode.hpp"
-#include "parser/ast/statement/StatementNode.hpp"
+#include "parser/ast/statements/StatementNode.hpp"
 
 namespace rgl {
 class ExpressionStatementNode : public StatementNode {

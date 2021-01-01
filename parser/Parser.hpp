@@ -3,9 +3,10 @@
 #include "lexer/ITokenGenerator.hpp"
 #include "lexer/TokenCollection.hpp"
 #include "parser/ast/FileNode.hpp"
+#include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
-#include "parser/ast/statement/StatementNode.hpp"
+#include "parser/ast/statements/StatementNode.hpp"
 
 namespace rgl {
 class Parser : public ILoggable {
@@ -47,6 +48,7 @@ private:
   Expression parsePostOp(Expression expr);
 
   Expression parseVarDecl();
+  Block parseBlock();
 
   Statement parseKeywordStatement();
   Statement parseSimpleStatement();
