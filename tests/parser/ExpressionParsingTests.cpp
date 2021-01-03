@@ -280,14 +280,11 @@ TEST(Parser, simpleIf) {
                             {TokenType::t_semicolon},
                             {TokenType::t_close_bracket}});
 
-  std::vector<Statement> statements;
-  statements.push_back(std::make_unique<ExpressionStatementNode>(
-      std::make_unique<BooleanLiteralNode>(true)));
-
   assertNode(parser->parseExprssion(),
              std::make_unique<ConditionalNode>(
                  std::make_unique<BooleanLiteralNode>(false),
-                 std::make_unique<BlockNode>(std::move(statements)), nullptr));
+                 std::make_unique<ExpressionStatementNode>(
+                     std::make_unique<BooleanLiteralNode>(true))));
 }
 
 TEST(Parser, sinlgeStatementIf) {
@@ -296,14 +293,11 @@ TEST(Parser, sinlgeStatementIf) {
                             {TokenType::t_int8_literal, 1},
                             {TokenType::t_semicolon}});
 
-  std::vector<Statement> statements;
-  statements.push_back(std::make_unique<ExpressionStatementNode>(
-      std::make_unique<IntLiteralNode>(1, Type::t_int8())));
-
   assertNode(parser->parseExprssion(),
              std::make_unique<ConditionalNode>(
                  std::make_unique<IntLiteralNode>(5, Type::t_int32()),
-                 std::make_unique<BlockNode>(std::move(statements)), nullptr));
+                 std::make_unique<ExpressionStatementNode>(
+                     std::make_unique<IntLiteralNode>(1, Type::t_int8()))));
 }
 
 TEST(Parser, elifNoElse) {
@@ -319,28 +313,106 @@ TEST(Parser, elifNoElse) {
                             {TokenType::t_semicolon},
                             {TokenType::t_close_bracket}});
 
-  std::vector<Statement> ifStatements;
-  ifStatements.push_back(std::make_unique<ExpressionStatementNode>(
-      std::make_unique<BooleanLiteralNode>(false)));
+  assertNode(
+      parser->parseExprssion(),
+      std::make_unique<ConditionalNode>(
+          std::make_unique<BooleanLiteralNode>(true),
+          std::make_unique<ExpressionStatementNode>(
+              std::make_unique<BooleanLiteralNode>(false)),
+          std::make_unique<ConditionalNode>(
+              std::make_unique<BooleanLiteralNode>(true),
+              std::make_unique<YieldNode>(
+                  std::make_unique<IntLiteralNode>(0, Type::t_int32())))));
+}
 
-  std::vector<Statement> elifStatements;
-  elifStatements.push_back(std::make_unique<YieldNode>(
-      std::make_unique<IntLiteralNode>(0, Type::t_int32())));
+TEST(Parser, elseNoElif) {
+  auto parser = makeParser({{TokenType::t_if},
+                            {TokenType::t_boolean, true},
+                            {TokenType::t_open_bracket},
+                            {TokenType::t_yield},
+                            {TokenType::t_boolean, true},
+                            {TokenType::t_semicolon},
+                            {TokenType::t_close_bracket},
+                            {TokenType::t_else},
+                            {TokenType::t_int32_literal, 0},
+                            {TokenType::t_semicolon}});
 
   assertNode(parser->parseExprssion(),
              std::make_unique<ConditionalNode>(
                  std::make_unique<BooleanLiteralNode>(true),
-                 std::make_unique<BlockNode>(std::move(ifStatements)),
-                 std::make_unique<ConditionalNode>(
-                     std::make_unique<BooleanLiteralNode>(true),
-                     std::make_unique<BlockNode>(std::move(elifStatements)),
-                     nullptr)));
+                 std::make_unique<YieldNode>(
+                     std::make_unique<BooleanLiteralNode>(true)),
+                 std::make_unique<ExpressionStatementNode>(
+                     std::make_unique<IntLiteralNode>(0, Type::t_int32()))));
 }
 
-TEST(Parser, elseNoElif) {}
+TEST(Parser, multipleElifsAndElse) {
+  auto parser = makeParser({{TokenType::t_if},
+                            {TokenType::t_boolean, false},
+                            {TokenType::t_int32_literal, 0},
+                            {TokenType::t_semicolon},
+                            {TokenType::t_elif},
+                            {TokenType::t_boolean, false},
+                            {TokenType::t_int32_literal, 1},
+                            {TokenType::t_semicolon},
+                            {TokenType::t_elif},
+                            {TokenType::t_boolean, true},
+                            {TokenType::t_int32_literal, 2},
+                            {TokenType::t_semicolon},
+                            {TokenType::t_else},
+                            {TokenType::t_int32_literal, 3},
+                            {TokenType::t_semicolon}});
 
-TEST(Parser, multipleElifsAndElse) {}
+  assertNode(
+      parser->parseExprssion(),
+      std::make_unique<ConditionalNode>(
+          std::make_unique<BooleanLiteralNode>(false),
+          std::make_unique<ExpressionStatementNode>(
+              std::make_unique<IntLiteralNode>(0, Type::t_int32())),
+          std::make_unique<ConditionalNode>(
+              std::make_unique<BooleanLiteralNode>(false),
+              std::make_unique<ExpressionStatementNode>(
+                  std::make_unique<IntLiteralNode>(1, Type::t_int32())),
+              std::make_unique<ConditionalNode>(
+                  std::make_unique<BooleanLiteralNode>(true),
+                  std::make_unique<ExpressionStatementNode>(
+                      std::make_unique<IntLiteralNode>(2, Type::t_int32())),
+                  std::make_unique<ExpressionStatementNode>(
+                      std::make_unique<IntLiteralNode>(3, Type::t_int32()))))));
+}
 
-TEST(Parser, compoundElif) {}
+TEST(Parser, compoundElif) {
+  auto parser = makeParser({{TokenType::t_if},
+                            {TokenType::t_boolean, false},
+                            {TokenType::t_int32_literal, 0},
+                            {TokenType::t_semicolon},
+                            {TokenType::t_elif},
+                            {TokenType::t_boolean, true},
+                            {TokenType::t_if},
+                            {TokenType::t_boolean, false},
+                            {TokenType::t_int32_literal, 1},
+                            {TokenType::t_semicolon},
+                            {TokenType::t_elif},
+                            {TokenType::t_boolean, true},
+                            {TokenType::t_int32_literal, 2},
+                            {TokenType::t_semicolon}});
 
-TEST(Parser, compoundElse) {}
+  assertNode(
+      parser->parseExprssion(),
+      std::make_unique<ConditionalNode>(
+          std::make_unique<BooleanLiteralNode>(false),
+          std::make_unique<ExpressionStatementNode>(
+              std::make_unique<IntLiteralNode>(0, Type::t_int32())),
+          std::make_unique<ConditionalNode>(
+              std::make_unique<BooleanLiteralNode>(true),
+              std::make_unique<ExpressionStatementNode>(
+                  std::make_unique<ConditionalNode>(
+                      std::make_unique<BooleanLiteralNode>(false),
+                      std::make_unique<ExpressionStatementNode>(
+                          std::make_unique<IntLiteralNode>(1, Type::t_int32())),
+                      std::make_unique<ConditionalNode>(
+                          std::make_unique<BooleanLiteralNode>(true),
+                          std::make_unique<ExpressionStatementNode>(
+                              std::make_unique<IntLiteralNode>(
+                                  2, Type::t_int32()))))))));
+}

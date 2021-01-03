@@ -34,6 +34,7 @@ private:
 
   Expression parsePrimary();
   Expression parseRest(Expression primary);
+  Expression parseImplicitStatementExpression();
 
   std::unique_ptr<IdentifierNode> parseIdentifier();
   Expression parseLiteral();
@@ -50,6 +51,7 @@ private:
   Expression parseVarDecl();
   Block parseBlock();
   Expression parseConditional();
+  Expression parseForLoop();
 
   Statement parseKeywordStatement();
   Statement parseSimpleStatement();

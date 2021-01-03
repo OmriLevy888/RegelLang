@@ -100,6 +100,7 @@ enum class TokenType : uint16_t {
   t_else, // else
 
   t_for,      // for
+  t_foreach,  // foreach
   t_while,    // while
   t_times,    // times
   t_break,    // break
@@ -278,6 +279,7 @@ private:
         {TokenType::t_else, "t_else"},
 
         {TokenType::t_for, "t_for"},
+        {TokenType::t_foreach, "t_foreac"},
         {TokenType::t_while, "t_while"},
         {TokenType::t_times, "t_times"},
 

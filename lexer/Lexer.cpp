@@ -116,21 +116,14 @@ bool Lexer::lexComment() {
 
 bool Lexer::lexKeyword(Token &ret) {
   static std::map<std::string, TokenType> keywords = {
-      {"return", TokenType::t_return},
-      {"yield", TokenType::t_yield},
-      {"let", TokenType::t_let},
-      {"var", TokenType::t_var},
-      {"as", TokenType::t_as},
-      {"if", TokenType::t_if},
-      {"elif", TokenType::t_elif},
-      {"else", TokenType::t_else},
-      {"for", TokenType::t_for},
-      {"while", TokenType::t_while},
-      {"times", TokenType::t_times},
-      {"break", TokenType::t_break},
-      {"continue", TokenType::t_continue},
-      {"switch", TokenType::t_switch},
-      {"func", TokenType::t_func}};
+      {"return", TokenType::t_return}, {"yield", TokenType::t_yield},
+      {"let", TokenType::t_let},       {"var", TokenType::t_var},
+      {"as", TokenType::t_as},         {"if", TokenType::t_if},
+      {"elif", TokenType::t_elif},     {"else", TokenType::t_else},
+      {"for", TokenType::t_for},       {"foreach", TokenType::t_foreach},
+      {"while", TokenType::t_while},   {"times", TokenType::t_times},
+      {"break", TokenType::t_break},   {"continue", TokenType::t_continue},
+      {"switch", TokenType::t_switch}, {"func", TokenType::t_func}};
 
   const auto start = m_currLine->m_repr.cbegin() + m_pos;
   auto it = start + 1;

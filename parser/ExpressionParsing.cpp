@@ -19,6 +19,8 @@
 #include "parser/ast/expressions/ops/UnaryOpNode.hpp"
 
 #include "parser/ast/expressions/ConditionalNode.hpp"
+#include "parser/ast/expressions/ForInLoopNode.hpp"
+#include "parser/ast/expressions/ForLoopNode.hpp"
 #include "parser/ast/expressions/VarDeclNode.hpp"
 
 #include <memory>
@@ -65,11 +67,9 @@ Expression Parser::parseExprssion() {
       return parseVarDecl();
     } else if (TokenType::t_open_bracket == m_tokens->getCurr()) {
       return parseBlock();
-    } else if (TokenType::t_if == m_tokens->getCurr()) {
-      return parseConditional();
     }
-    // TODO: write error message
-    return nullptr;
+
+    return parseImplicitStatementExpression();
   }
 
   return parseRest(std::move(primary));
@@ -100,6 +100,17 @@ Expression Parser::parseRest(Expression primary) {
   }
 
   return primary;
+}
+
+Expression Parser::parseImplicitStatementExpression() {
+  if (TokenType::t_if == m_tokens->getCurr()) {
+    return parseConditional();
+  } else if (TokenType::t_for == m_tokens->getCurr()) {
+    return parseForLoop();
+  }
+
+  // TODO: write error message
+  return nullptr;
 }
 
 std::unique_ptr<IdentifierNode> Parser::parseIdentifier() {
@@ -369,5 +380,55 @@ Expression Parser::parseConditional() {
 
   return std::make_unique<ConditionalNode>(std::move(cond), std::move(body),
                                            std::move(_else));
+}
+
+Expression Parser::parseForLoop() {
+  m_tokens->getNext(); // consume for
+
+  Expression init;
+  if (TokenType::t_semicolon != m_tokens->getCurr()) {
+    init = parseExprssion();
+    if (nullptr == init) {
+      // TODO: write error message
+      return nullptr;
+    }
+  }
+  if (TokenType::t_semicolon != m_tokens->getCurr()) {
+    // TODO: write error message
+    return nullptr;
+  }
+  m_tokens->getNext(); // consume ;
+
+  Expression cond;
+  if (TokenType::t_semicolon != m_tokens->getCurr()) {
+    cond = parseExprssion();
+    if (nullptr == cond) {
+      // TODO: write error message
+      return nullptr;
+    }
+  }
+  if (TokenType::t_semicolon != m_tokens->getCurr()) {
+    // TODO: wrtite error message
+    return nullptr;
+  }
+  m_tokens->getNext(); // consume ;
+
+  Expression advance;
+  if (TokenType::t_open_bracket != m_tokens->getCurr()) {
+    advance = parseExprssion();
+    if (nullptr == advance) {
+      // TODO: write error message
+      return nullptr;
+    }
+  }
+
+  auto body = parseBlock();
+  if (nullptr == body) {
+    // TODO: write error message
+    return nullptr;
+  }
+
+  return std::make_unique<ForLoopNode>(std::move(init), std::move(cond),
+                                       std::move(advance), std::move(body));
 }
 }; // namespace rgl

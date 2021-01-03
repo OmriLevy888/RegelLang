@@ -5,11 +5,14 @@
 namespace rgl {
 class ExpressionStatementNode : public StatementNode {
 public:
+  ExpressionStatementNode() : m_expr(nullptr) {}
   ExpressionStatementNode(Expression expr) : m_expr(std::move(expr)) {}
 
   virtual std::string toTreeStr(size_t spaces) const override {
-    return Formatter("ExpressionStatement<expr:{}>",
-                     m_expr->toTreeStr(spaces + 25));
+    std::string exprStr = (nullptr == m_expr)
+                              ? ("empty-statement")
+                              : (m_expr->toTreeStr(spaces + 25));
+    return Formatter("ExpressionStatement<expr:{}>", exprStr);
   }
 
 private:

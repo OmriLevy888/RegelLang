@@ -13,6 +13,11 @@
 
 namespace rgl {
 Statement Parser::parseStatement() {
+  if (TokenType::t_semicolon == m_tokens->getCurr()) {
+    m_tokens->getNext(); // consume ;
+    return std::make_unique<ExpressionStatementNode>();
+  }
+
   auto statement = parseKeywordStatement();
   if (nullptr != statement) {
     m_tokens->getNext(); // consume keyword
@@ -20,6 +25,19 @@ Statement Parser::parseStatement() {
   } else if (ParserUtilities::isSimpleStatement(m_tokens->getCurr())) {
     auto ret = parseSimpleStatement();
     return ret;
+  } else if (ParserUtilities::isImplicityStatementExpression(
+                 m_tokens->getCurr())) {
+    auto implExpr = parseImplicitStatementExpression();
+    if (nullptr == implExpr) {
+      // TODO: write error message
+      return nullptr;
+    }
+
+    if (TokenType::t_semicolon == m_tokens->getCurr()) {
+      m_tokens->getNext(); // consume ;
+    }
+
+    return std::make_unique<ExpressionStatementNode>(std::move(implExpr));
   } else {
     auto expr = parseExprssion();
     if (nullptr == expr) {

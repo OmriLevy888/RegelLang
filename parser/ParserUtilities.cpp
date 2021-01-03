@@ -147,4 +147,17 @@ bool ParserUtilities::isSimpleStatement(const Token &tok) {
     return false;
   }
 }
+
+bool ParserUtilities::isImplicityStatementExpression(const Token &tok) {
+  switch (tok) {
+  case TokenType::t_if:
+  case TokenType::t_for:
+  case TokenType::t_foreach:
+  case TokenType::t_while:
+  case TokenType::t_switch:
+    return true;
+  default:
+    return false;
+  }
+}
 }; // namespace rgl
