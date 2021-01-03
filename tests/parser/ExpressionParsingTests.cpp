@@ -7,6 +7,7 @@
 #include "parser/Parser.hpp"
 #include "parser/ast/Type.hpp"
 #include "parser/ast/expressions/BlockNode.hpp"
+#include "parser/ast/expressions/ConditionalNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/VarDeclNode.hpp"
 #include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
@@ -15,6 +16,8 @@
 #include "parser/ast/expressions/ops/BinOpNode.hpp"
 #include "parser/ast/expressions/ops/ParenthesesNode.hpp"
 #include "parser/ast/expressions/ops/UnaryOpNode.hpp"
+#include "parser/ast/statements/ExpressionStatementNode.hpp"
+#include "parser/ast/statements/StatementNode.hpp"
 #include "parser/ast/statements/YieldNode.hpp"
 #include "tests/TestsCore.hpp"
 
@@ -259,8 +262,6 @@ TEST(Parser, fullBlock) {
   std::vector<Statement> statements;
   statements.push_back(std::make_unique<YieldNode>(
       std::make_unique<IntLiteralNode>(2, Type::t_int32())));
-  Block block = std::make_unique<BlockNode>(std::move(statements));
-  std::cout << block->toString() << std::endl;
 
   assertNode(parser->parseExprssion(),
              std::make_unique<VarDeclNode>(
@@ -268,5 +269,78 @@ TEST(Parser, fullBlock) {
                  std::make_unique<BinOpNode>(
                      BinOpType::b_plus,
                      std::make_unique<IntLiteralNode>(1, Type::t_int32()),
-                     std::move(block))));
+                     std::make_unique<BlockNode>(std::move(statements)))));
 }
+
+TEST(Parser, simpleIf) {
+  auto parser = makeParser({{TokenType::t_if},
+                            {TokenType::t_boolean, false},
+                            {TokenType::t_open_bracket},
+                            {TokenType::t_boolean, true},
+                            {TokenType::t_semicolon},
+                            {TokenType::t_close_bracket}});
+
+  std::vector<Statement> statements;
+  statements.push_back(std::make_unique<ExpressionStatementNode>(
+      std::make_unique<BooleanLiteralNode>(true)));
+
+  assertNode(parser->parseExprssion(),
+             std::make_unique<ConditionalNode>(
+                 std::make_unique<BooleanLiteralNode>(false),
+                 std::make_unique<BlockNode>(std::move(statements)), nullptr));
+}
+
+TEST(Parser, sinlgeStatementIf) {
+  auto parser = makeParser({{TokenType::t_if},
+                            {TokenType::t_int32_literal, 5},
+                            {TokenType::t_int8_literal, 1},
+                            {TokenType::t_semicolon}});
+
+  std::vector<Statement> statements;
+  statements.push_back(std::make_unique<ExpressionStatementNode>(
+      std::make_unique<IntLiteralNode>(1, Type::t_int8())));
+
+  assertNode(parser->parseExprssion(),
+             std::make_unique<ConditionalNode>(
+                 std::make_unique<IntLiteralNode>(5, Type::t_int32()),
+                 std::make_unique<BlockNode>(std::move(statements)), nullptr));
+}
+
+TEST(Parser, elifNoElse) {
+  auto parser = makeParser({{TokenType::t_if},
+                            {TokenType::t_boolean, true},
+                            {TokenType::t_boolean, false},
+                            {TokenType::t_semicolon},
+                            {TokenType::t_elif},
+                            {TokenType::t_boolean, true},
+                            {TokenType::t_open_bracket},
+                            {TokenType::t_yield},
+                            {TokenType::t_int32_literal, 0},
+                            {TokenType::t_semicolon},
+                            {TokenType::t_close_bracket}});
+
+  std::vector<Statement> ifStatements;
+  ifStatements.push_back(std::make_unique<ExpressionStatementNode>(
+      std::make_unique<BooleanLiteralNode>(false)));
+
+  std::vector<Statement> elifStatements;
+  elifStatements.push_back(std::make_unique<YieldNode>(
+      std::make_unique<IntLiteralNode>(0, Type::t_int32())));
+
+  assertNode(parser->parseExprssion(),
+             std::make_unique<ConditionalNode>(
+                 std::make_unique<BooleanLiteralNode>(true),
+                 std::make_unique<BlockNode>(std::move(ifStatements)),
+                 std::make_unique<ConditionalNode>(
+                     std::make_unique<BooleanLiteralNode>(true),
+                     std::make_unique<BlockNode>(std::move(elifStatements)),
+                     nullptr)));
+}
+
+TEST(Parser, elseNoElif) {}
+
+TEST(Parser, multipleElifsAndElse) {}
+
+TEST(Parser, compoundElif) {}
+
+TEST(Parser, compoundElse) {}

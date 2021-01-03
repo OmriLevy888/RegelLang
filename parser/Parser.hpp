@@ -49,6 +49,7 @@ private:
 
   Expression parseVarDecl();
   Block parseBlock();
+  Expression parseConditional();
 
   Statement parseKeywordStatement();
   Statement parseSimpleStatement();

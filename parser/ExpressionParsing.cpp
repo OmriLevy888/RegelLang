@@ -18,6 +18,7 @@
 #include "parser/ast/expressions/ops/ParenthesesNode.hpp"
 #include "parser/ast/expressions/ops/UnaryOpNode.hpp"
 
+#include "parser/ast/expressions/ConditionalNode.hpp"
 #include "parser/ast/expressions/VarDeclNode.hpp"
 
 #include <memory>
@@ -64,6 +65,8 @@ Expression Parser::parseExprssion() {
       return parseVarDecl();
     } else if (TokenType::t_open_bracket == m_tokens->getCurr()) {
       return parseBlock();
+    } else if (TokenType::t_if == m_tokens->getCurr()) {
+      return parseConditional();
     }
     // TODO: write error message
     return nullptr;
@@ -301,17 +304,70 @@ Expression Parser::parseVarDecl() {
 }
 
 Block Parser::parseBlock() {
-  m_tokens->getNext(); // consume {
+  // TODO: implement single line block
+  bool isSingleStatement = TokenType::t_open_bracket != m_tokens->getCurr();
   std::vector<Statement> statements;
-  while (TokenType::t_close_bracket != m_tokens->getCurr()) {
-    auto curr = parseStatement();
-    if (nullptr == curr) {
+
+  if (!isSingleStatement) {
+    m_tokens->getNext(); // consume {
+    while (TokenType::t_close_bracket != m_tokens->getCurr()) {
+      auto curr = parseStatement();
+      if (nullptr == curr) {
+        // TODO: write error message
+        return nullptr;
+      }
+      statements.push_back(std::move(curr));
+    }
+    m_tokens->getNext(); // consume }
+  } else {
+    auto statement = parseStatement();
+    if (nullptr == statement) {
       // TODO: write error message
       return nullptr;
     }
-    statements.push_back(std::move(curr));
+    statements.push_back(std::move(statement));
   }
-  m_tokens->getNext(); // consume }
   return std::make_unique<BlockNode>(std::move(statements));
+}
+
+Expression Parser::parseConditional() {
+  m_tokens->getNext(); // consume if
+  Expression cond = parseExprssion();
+  if (nullptr == cond) {
+    // TODO: write error message
+    return nullptr;
+  }
+
+  Block body = parseBlock();
+  if (nullptr == body) {
+    // TODO: write error message
+    return nullptr;
+  }
+
+  Expression _else;
+  if (TokenType::t_elif == m_tokens->getCurr()) {
+    _else = parseConditional();
+    if (nullptr == _else) {
+      // TODO: write error message
+      return nullptr;
+    }
+  } else if (TokenType::t_else == m_tokens->getCurr()) {
+    if (TokenType::t_if == m_tokens->getNext()) {
+      _else = parseConditional();
+      if (nullptr == _else) {
+        // TODO: write error message
+        return nullptr;
+      }
+    } else {
+      _else = parseBlock();
+      if (nullptr == _else) {
+        // TODO: write error message
+        return nullptr;
+      }
+    }
+  }
+
+  return std::make_unique<ConditionalNode>(std::move(cond), std::move(body),
+                                           std::move(_else));
 }
 }; // namespace rgl
