@@ -15,4 +15,6 @@ public:
 private:
   std::string m_value;
 };
+
+using Identifier = std::unique_ptr<IdentifierNode>;
 }; // namespace rgl

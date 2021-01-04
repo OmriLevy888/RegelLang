@@ -71,6 +71,8 @@ static std::unordered_map<TokenType, std::pair<BinOpType, uint8_t>> binOpMap{
     {TokenType::t_lesser_equal, {BinOpType::b_lesser_equal, 5}},
     {TokenType::t_greater_equal, {BinOpType::b_greater_equal, 5}},
 
+    {TokenType::t_in, {BinOpType::b_in, 5}},
+
     {TokenType::t_ampersand, {BinOpType::b_ampersand, 6}},
     {TokenType::t_caret, {BinOpType::b_caret, 7}},
     {TokenType::t_pipe, {BinOpType::b_pipe, 8}},
@@ -152,7 +154,6 @@ bool ParserUtilities::isImplicityStatementExpression(const Token &tok) {
   switch (tok) {
   case TokenType::t_if:
   case TokenType::t_for:
-  case TokenType::t_foreach:
   case TokenType::t_while:
   case TokenType::t_switch:
     return true;

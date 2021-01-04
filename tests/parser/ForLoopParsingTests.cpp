@@ -1,6 +1,7 @@
 #include "lexer/Token.hpp"
 #include "parser/ast/expressions/ForInLoopNode.hpp"
 #include "parser/ast/expressions/ForLoopNode.hpp"
+#include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/ops/UnaryOpNode.hpp"
 #include "parser/ast/statements/BreakNode.hpp"
 #include "tests/TestsCore.hpp"
@@ -219,4 +220,27 @@ TEST(Parser, forLoopNoCondNoAdvance) {
                      std::make_unique<IdentifierNode>("idx"), nullptr, false,
                      std::make_unique<IntLiteralNode>(0, Type::t_int32())),
                  nullptr, nullptr, std::make_unique<BreakNode>()));
+}
+
+TEST(Parser, forLoopInOpInInit) {
+  auto parser = makeParser({{TokenType::t_for},
+                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_in},
+                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_semicolon},
+                            {TokenType::t_semicolon},
+                            {TokenType::t_open_bracket},
+                            {TokenType::t_yield},
+                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_semicolon},
+                            {TokenType::t_close_bracket}});
+
+  assertNode(
+      parser->parseExprssion(),
+      std::make_unique<ForLoopNode>(
+          std::make_unique<BinOpNode>(BinOpType::b_in,
+                                      std::make_unique<IdentifierNode>("a"),
+                                      std::make_unique<IdentifierNode>("b")),
+          nullptr, nullptr,
+          std::make_unique<YieldNode>(std::make_unique<IdentifierNode>("a"))));
 }

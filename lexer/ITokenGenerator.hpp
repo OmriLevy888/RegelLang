@@ -18,6 +18,8 @@ public:
   TokenValuePair(const Token &token) : m_token(token), m_value(std::nullopt) {}
   TokenValuePair(const Token &token, std::optional<TokenValue> &&value)
       : m_token(token), m_value(value) {}
+  TokenValuePair(const Token &token, const std::optional<TokenValue> &value)
+      : m_token(token), m_value(value) {}
 
   operator TokenType() const { return m_token.getTokenType(); }
 };

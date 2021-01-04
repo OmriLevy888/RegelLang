@@ -15,6 +15,7 @@ public:
 
   void saveAnchor();
   void restoreAnchor();
+  void discardAnchor();
   size_t peekAnchor();
   const Token &getNext();
   const Token &getCurr() { return m_curr; }
@@ -37,6 +38,6 @@ private:
   size_t m_actualIndex;
   bool m_usingBacklog;
   std::stack<size_t> m_anchors;
-  std::vector<Token> m_backlog;
+  std::vector<TokenValuePair> m_backlog;
 };
 } // namespace rgl

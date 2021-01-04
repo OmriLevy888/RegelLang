@@ -1,3 +1,29 @@
 func foo(i32 a, b) {
   return a + b;
 }
+
+func main() {
+  let words : []String = {"hello", "world"};
+  let concat = {
+    var concat : String;
+    // for in that does not change the words
+    for word in words {
+      concat += word;
+    }
+    yield concat;
+  };
+
+  let doubleConcat = for word in words {
+    yield += 2 * word;
+  }
+
+  // for in the changes the words
+  for &word in words {
+    word *= 2;
+  }
+
+  // for in that consumes the words
+  for :word in words {
+    print(:word);
+  }
+}

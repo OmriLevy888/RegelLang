@@ -383,16 +383,28 @@ Expression Parser::parseConditional() {
 }
 
 Expression Parser::parseForLoop() {
+  m_tokens->saveAnchor();
   m_tokens->getNext(); // consume for
+
+  if (TokenType::t_identifier == m_tokens->getCurr()) {
+    auto forInLoop = parseForInLoop();
+    if (nullptr != forInLoop) {
+      m_tokens->discardAnchor();
+      return forInLoop;
+    }
+    m_tokens->restoreAnchor();
+  } else {
+    m_tokens->discardAnchor();
+  }
 
   Expression init;
   if (TokenType::t_semicolon != m_tokens->getCurr()) {
     init = parseExprssion();
     if (nullptr == init) {
-      // TODO: write error message
-      return nullptr;
+      return parseForInLoop();
     }
   }
+
   if (TokenType::t_semicolon != m_tokens->getCurr()) {
     // TODO: write error message
     return nullptr;
@@ -430,5 +442,55 @@ Expression Parser::parseForLoop() {
 
   return std::make_unique<ForLoopNode>(std::move(init), std::move(cond),
                                        std::move(advance), std::move(body));
+}
+
+Expression Parser::parseForInLoop() {
+  PassType type = PassType::p_const;
+  if (TokenType::t_identifier != m_tokens->getCurr()) {
+    switch (m_tokens->getCurr()) {
+    case TokenType::t_colon:
+      type = PassType::p_consume;
+      break;
+    case TokenType::t_ampersand:
+      type = PassType::p_mutable;
+      break;
+    default:
+      // TODO: write error message
+      return nullptr;
+    }
+    m_tokens->getNext(); // consume pass type specifier
+  }
+
+  if (TokenType::t_identifier != m_tokens->getCurr()) {
+    // TODO: write error message
+    return nullptr;
+  }
+  Identifier name = parseIdentifier();
+  m_tokens->getNext(); // consume identifier
+
+  if (TokenType::t_in != m_tokens->getCurr()) {
+    // TODO: write error message
+    return nullptr;
+  }
+  m_tokens->getNext(); // consume in
+
+  Expression iterrable = parseExprssion();
+  if (nullptr == iterrable) {
+    // TODO: write error message
+    return nullptr;
+  }
+
+  if (TokenType::t_semicolon == m_tokens->getCurr()) {
+    return nullptr;
+  }
+
+  Block body = parseBlock();
+  if (nullptr == body) {
+    // TODO: write error message
+    return nullptr;
+  }
+
+  return std::make_unique<ForInLoopNode>(type, std::move(name),
+                                         std::move(iterrable), std::move(body));
 }
 }; // namespace rgl

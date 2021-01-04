@@ -25,6 +25,8 @@ enum class BinOpType : uint8_t {
   b_lesser_equal,
   b_greater_equal,
 
+  b_in,
+
   b_ampersand,
   b_caret,
   b_pipe,
@@ -90,6 +92,8 @@ private:
         {BinOpType::b_greater_than, "b_greater_than"},
         {BinOpType::b_lesser_equal, "b_lesser_equal"},
         {BinOpType::b_greater_equal, "b_greater_equal"},
+
+        {BinOpType::b_in, "b_in"},
 
         {BinOpType::b_ampersand, "b_ampersand"},
         {BinOpType::b_caret, "b_caret"},

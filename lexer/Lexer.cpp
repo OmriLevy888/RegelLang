@@ -120,7 +120,7 @@ bool Lexer::lexKeyword(Token &ret) {
       {"let", TokenType::t_let},       {"var", TokenType::t_var},
       {"as", TokenType::t_as},         {"if", TokenType::t_if},
       {"elif", TokenType::t_elif},     {"else", TokenType::t_else},
-      {"for", TokenType::t_for},       {"foreach", TokenType::t_foreach},
+      {"for", TokenType::t_for},       {"in", TokenType::t_in},
       {"while", TokenType::t_while},   {"times", TokenType::t_times},
       {"break", TokenType::t_break},   {"continue", TokenType::t_continue},
       {"switch", TokenType::t_switch}, {"func", TokenType::t_func}};
