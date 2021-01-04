@@ -53,6 +53,7 @@ private:
   Expression parseConditional();
   Expression parseForLoop();
   Expression parseForInLoop();
+  Expression parseWhileLoop();
 
   Statement parseKeywordStatement();
   Statement parseSimpleStatement();

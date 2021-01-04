@@ -22,6 +22,7 @@
 #include "parser/ast/expressions/ForInLoopNode.hpp"
 #include "parser/ast/expressions/ForLoopNode.hpp"
 #include "parser/ast/expressions/VarDeclNode.hpp"
+#include "parser/ast/expressions/WhileLoopNode.hpp"
 
 #include <memory>
 
@@ -107,6 +108,8 @@ Expression Parser::parseImplicitStatementExpression() {
     return parseConditional();
   } else if (TokenType::t_for == m_tokens->getCurr()) {
     return parseForLoop();
+  } else if (TokenType::t_while == m_tokens->getCurr()) {
+    return parseWhileLoop();
   }
 
   // TODO: write error message
@@ -492,5 +495,26 @@ Expression Parser::parseForInLoop() {
 
   return std::make_unique<ForInLoopNode>(type, std::move(name),
                                          std::move(iterrable), std::move(body));
+}
+
+Expression Parser::parseWhileLoop() {
+  m_tokens->getNext(); // consume while
+
+  Expression cond;
+  if (TokenType::t_open_bracket != m_tokens->getCurr()) {
+    cond = parseExprssion();
+    if (nullptr == cond) {
+      // TODO: write error message
+      return nullptr;
+    }
+  }
+
+  Block body = parseBlock();
+  if (nullptr == body) {
+    // TODO: write error message
+    return nullptr;
+  }
+
+  return std::make_unique<WhileLoopNode>(std::move(cond), std::move(body));
 }
 }; // namespace rgl
