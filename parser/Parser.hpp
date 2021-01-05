@@ -6,6 +6,7 @@
 #include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
+#include "parser/ast/expressions/SwitchNode.hpp"
 #include "parser/ast/statements/StatementNode.hpp"
 
 namespace rgl {
@@ -54,6 +55,9 @@ private:
   Expression parseForLoop();
   Expression parseForInLoop();
   Expression parseWhileLoop();
+
+  Switch parseSwitch();
+  SwitchCase parseSwitchCase();
 
   Statement parseKeywordStatement();
   Statement parseSimpleStatement();

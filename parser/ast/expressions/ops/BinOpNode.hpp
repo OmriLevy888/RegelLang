@@ -40,6 +40,8 @@ enum class BinOpType : uint8_t {
   b_shift_right_equal,
   b_ampersand_equal,
   b_caret_equal,
+
+  b_as,
 };
 
 class BinOpNode : public ExpressionNode {
@@ -108,6 +110,8 @@ private:
         {BinOpType::b_shift_right_equal, "b_shift_right_equal"},
         {BinOpType::b_ampersand_equal, "b_ampersand_equal"},
         {BinOpType::b_caret_equal, "b_caret_equal"},
+
+        {BinOpType::b_as, "b_as"},
     };
 
     return binOpReprMap[m_op];

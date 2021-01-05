@@ -86,6 +86,8 @@ static std::unordered_map<TokenType, std::pair<BinOpType, uint8_t>> binOpMap{
     {TokenType::t_shift_right_equal, {BinOpType::b_shift_right_equal, 9}},
     {TokenType::t_ampersand_equal, {BinOpType::b_ampersand_equal, 9}},
     {TokenType::t_caret_equal, {BinOpType::b_caret_equal, 9}},
+
+    {TokenType::t_as, {BinOpType::b_as, 10}},
 };
 bool ParserUtilities::isBinOp(const Token &tok) {
   return BinOpType::b_err != tokToBinOpType(tok);

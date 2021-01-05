@@ -6,6 +6,7 @@
 #include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 
+#include "parser/ast/expressions/SwitchCaseNode.hpp"
 #include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
 #include "parser/ast/expressions/literals/CharLiteralNode.hpp"
 #include "parser/ast/expressions/literals/DoubleLiteralNode.hpp"
@@ -110,6 +111,8 @@ Expression Parser::parseImplicitStatementExpression() {
     return parseForLoop();
   } else if (TokenType::t_while == m_tokens->getCurr()) {
     return parseWhileLoop();
+  } else if (TokenType::t_switch == m_tokens->getCurr()) {
+    return parseSwitch();
   }
 
   // TODO: write error message
@@ -516,5 +519,69 @@ Expression Parser::parseWhileLoop() {
   }
 
   return std::make_unique<WhileLoopNode>(std::move(cond), std::move(body));
+}
+
+Switch Parser::parseSwitch() {
+  m_tokens->getNext(); // consume switch keyword
+
+  auto expr = parseExprssion();
+  if (nullptr == expr) {
+    // TODO: write error message
+    return nullptr;
+  }
+
+  TypePtr caseExprType;
+  if (TokenType::t_colon == m_tokens->getCurr()) {
+    m_tokens->getNext(); // consume :
+    caseExprType = parseType();
+    if (nullptr == caseExprType) {
+      // TODO: write error message
+      return nullptr;
+    }
+  }
+
+  if (TokenType::t_open_bracket != m_tokens->getCurr()) {
+    // TODO: write error message
+    return nullptr;
+  }
+  m_tokens->getNext(); // consume {
+
+  std::vector<SwitchCase> cases;
+  while (TokenType::t_close_bracket != m_tokens->getCurr()) {
+    auto currCase = parseSwitchCase();
+    if (nullptr == currCase) {
+      // TODO: write error message
+      return nullptr;
+    }
+    cases.push_back(std::move(currCase));
+  }
+  m_tokens->getNext(); // consume }
+
+  return std::make_unique<SwitchNode>(std::move(expr), caseExprType,
+                                      std::move(cases));
+}
+
+SwitchCase Parser::parseSwitchCase() {
+  auto expr = parseExprssion();
+  if (nullptr == expr) {
+    if (TokenType::t_underscore != m_tokens->getCurr()) {
+      // TODO: write error message
+      return nullptr;
+    }
+  }
+
+  if (TokenType::t_arrow != m_tokens->getCurr()) {
+    // TODO: write error message
+    return nullptr;
+  }
+  m_tokens->getNext(); // consume =>
+
+  auto body = parseBlock();
+  if (nullptr == body) {
+    // TODO: write error message
+    return nullptr;
+  }
+
+  return std::make_unique<SwitchCaseNode>(std::move(expr), std::move(body));
 }
 }; // namespace rgl
