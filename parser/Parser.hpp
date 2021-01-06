@@ -49,7 +49,7 @@ private:
   Expression parsePreOp();
   Expression parsePostOp(Expression primary);
   Expression parseInvoke(Expression primary);
-  // TODO: Expression parseIndex
+  Expression parseIndex(Expression primary);
 
   Expression parseVarDecl();
   Block parseBlock();

@@ -17,6 +17,7 @@
 #include "parser/ast/expressions/literals/UintLiteralNode.hpp"
 
 #include "parser/ast/expressions/ops/BinOpNode.hpp"
+#include "parser/ast/expressions/ops/IndexNode.hpp"
 #include "parser/ast/expressions/ops/InvokeNode.hpp"
 #include "parser/ast/expressions/ops/ParenthesesNode.hpp"
 #include "parser/ast/expressions/ops/UnaryOpNode.hpp"
@@ -101,6 +102,8 @@ Expression Parser::parseRest(Expression primary) {
     return parseBinOp(std::move(primary));
   } else if (TokenType::t_open_paren == curr) {
     return parseInvoke(std::move(primary));
+  } else if (TokenType::t_open_square == curr) {
+    return parseIndex(std::move(primary));
   } else if (ParserUtilities::isPostOp(curr)) {
     return parsePostOp(std::move(primary));
   }
@@ -318,7 +321,27 @@ Expression Parser::parseInvoke(Expression primary) {
   }
   m_tokens->getNext(); // consume )
 
-  return std::make_unique<InvokeNode>(std::move(primary), std::move(params));
+  return parseRest(
+      std::make_unique<InvokeNode>(std::move(primary), std::move(params)));
+}
+
+Expression Parser::parseIndex(Expression primary) {
+  m_tokens->getNext(); // consume [
+
+  auto index = parseExprssion();
+  if (nullptr == index) {
+    // TODO: write error message
+    return nullptr;
+  }
+
+  if (TokenType::t_close_square != m_tokens->getCurr()) {
+    // TODO: write error message
+    return nullptr;
+  }
+  m_tokens->getNext(); // consume ]
+
+  return parseRest(
+      std::make_unique<IndexNode>(std::move(primary), std::move(index)));
 }
 
 Expression Parser::parseVarDecl() {

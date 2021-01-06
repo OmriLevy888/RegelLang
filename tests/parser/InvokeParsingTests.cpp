@@ -1,20 +1,12 @@
 #include "lexer/Token.hpp"
-#include "parser/ast/expressions/ForInLoopNode.hpp"
-#include "parser/ast/expressions/ForLoopNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/ops/InvokeNode.hpp"
-#include "parser/ast/expressions/ops/UnaryOpNode.hpp"
-#include "parser/ast/statements/BreakNode.hpp"
 #include "tests/TestsCore.hpp"
 #include "tests/parser/ParserTestsUtilities.hpp"
 
-#include "parser/ast/expressions/ConditionalNode.hpp"
-#include "parser/ast/expressions/VarDeclNode.hpp"
 #include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
 #include "parser/ast/expressions/ops/BinOpNode.hpp"
-#include "parser/ast/statements/ExpressionStatementNode.hpp"
-#include "parser/ast/statements/YieldNode.hpp"
 
 #include <memory>
 
@@ -70,4 +62,21 @@ TEST(Parser, invokeLastParamWithComma) {
       parser->parseExprssion(),
       std::make_unique<InvokeNode>(std::make_unique<IdentifierNode>("foo"),
                                    std::make_unique<IdentifierNode>("a")));
+}
+
+TEST(Parser, invokeWithBinOp) {
+  auto parser = makeParser({{TokenType::t_identifier, "foo"},
+                            {TokenType::t_open_paren},
+                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_close_paren},
+                            {TokenType::t_plus},
+                            {TokenType::t_identifier, "b"}});
+
+  assertNode(
+      parser->parseExprssion(),
+      std::make_unique<BinOpNode>(
+          BinOpType::b_plus,
+          std::make_unique<InvokeNode>(std::make_unique<IdentifierNode>("foo"),
+                                       std::make_unique<IdentifierNode>("a")),
+          std::make_unique<IdentifierNode>("b")));
 }
