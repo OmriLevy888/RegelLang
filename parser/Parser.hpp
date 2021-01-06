@@ -47,7 +47,9 @@ private:
   Expression parseParentheses();
   Expression parseBinOp(Expression primary);
   Expression parsePreOp();
-  Expression parsePostOp(Expression expr);
+  Expression parsePostOp(Expression primary);
+  Expression parseInvoke(Expression primary);
+  // TODO: Expression parseIndex
 
   Expression parseVarDecl();
   Block parseBlock();

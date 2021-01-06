@@ -4,6 +4,7 @@
 #include "parser/ParserUtilities.hpp"
 
 #include "parser/ast/expressions/BlockNode.hpp"
+#include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 
 #include "parser/ast/expressions/SwitchCaseNode.hpp"
@@ -16,6 +17,7 @@
 #include "parser/ast/expressions/literals/UintLiteralNode.hpp"
 
 #include "parser/ast/expressions/ops/BinOpNode.hpp"
+#include "parser/ast/expressions/ops/InvokeNode.hpp"
 #include "parser/ast/expressions/ops/ParenthesesNode.hpp"
 #include "parser/ast/expressions/ops/UnaryOpNode.hpp"
 
@@ -97,6 +99,8 @@ Expression Parser::parseRest(Expression primary) {
   const Token &curr = m_tokens->getCurr();
   if (ParserUtilities::isBinOp(curr)) {
     return parseBinOp(std::move(primary));
+  } else if (TokenType::t_open_paren == curr) {
+    return parseInvoke(std::move(primary));
   } else if (ParserUtilities::isPostOp(curr)) {
     return parsePostOp(std::move(primary));
   }
@@ -278,11 +282,43 @@ Expression Parser::parsePreOp() {
   return expr;
 }
 
-Expression Parser::parsePostOp(Expression expr) {
+Expression Parser::parsePostOp(Expression primary) {
   UnaryOpType opType = ParserUtilities::tokToPostOpType(m_tokens->getCurr());
   m_tokens->getNext(); // consume post-op
-  auto primary = std::make_unique<UnaryOpNode>(opType, std::move(expr));
-  return parseRest(std::move(primary));
+  auto postOpExpr = std::make_unique<UnaryOpNode>(opType, std::move(primary));
+  return parseRest(std::move(postOpExpr));
+}
+
+Expression Parser::parseInvoke(Expression primary) {
+  m_tokens->getNext(); // consume (
+
+  std::vector<Expression> params;
+  bool hadComma = false;
+
+  if (TokenType::t_close_paren != m_tokens->getCurr()) {
+    do {
+      hadComma = false;
+      auto param = parseExprssion();
+      if (nullptr == param) {
+        // TODO: write error message
+        return nullptr;
+      }
+      params.push_back(std::move(param));
+
+      if (TokenType::t_comma == m_tokens->getCurr()) {
+        hadComma = true;
+        m_tokens->getNext();
+      }
+    } while (TokenType::t_close_paren != m_tokens->getCurr() && hadComma);
+  }
+
+  if (TokenType::t_close_paren != m_tokens->getCurr()) {
+    // TODO: wrtie error message
+    return nullptr;
+  }
+  m_tokens->getNext(); // consume )
+
+  return std::make_unique<InvokeNode>(std::move(primary), std::move(params));
 }
 
 Expression Parser::parseVarDecl() {
