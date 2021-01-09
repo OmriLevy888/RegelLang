@@ -6,6 +6,9 @@
         "request": "launch",
         "program": "${workspaceFolder}/bin/rglc-debug",
         "cwd": "${workspaceFolder}/bin/",
+        "args": [
+          "../source/sample.json"
+        ],
         "externalConsole": true,
         "MIMode": "gdb"
       }

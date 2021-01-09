@@ -39,10 +39,10 @@ int main(int argc, const char **argv, char **envp) {
     size_t fileIdx = project->addFile(SourceFile{file});
     auto fss = std::make_unique<FileSourceStream>(file, fileIdx);
     Lexer lexer{std::move(fss), project};
-    Token curr = lexer.getNext();
+    auto [curr, _] = lexer.getNext();
     do {
       std::cout << curr.toString() << std::endl;
-      curr = lexer.getNext();
+      curr = lexer.getNext().m_token;
     } while (curr != TokenType::t_eof);
     std::cout << std::endl;
   }

@@ -6,13 +6,14 @@
 #include <string>
 
 namespace rgl {
-Token Lexer::getNext() {
+TokenValuePair Lexer::getNext() {
   if (m_yieldedEof) {
     return m_eof;
   }
+  m_value = std::nullopt;
   Token ret = getNextImpl();
   addToken(ret);
-  return ret;
+  return {ret, std::move(m_value)};
 }
 Token Lexer::makeToken(TokenType type, uint32_t reprStartIdx,
                        uint16_t reprLen) const {
@@ -115,23 +116,14 @@ bool Lexer::lexComment() {
 
 bool Lexer::lexKeyword(Token &ret) {
   static std::map<std::string, TokenType> keywords = {
-      {"true", TokenType::t_true},
-      {"false", TokenType::t_false},
-      {"return", TokenType::t_return},
-      {"yield", TokenType::t_yield},
-      {"let", TokenType::t_let},
-      {"var", TokenType::t_var},
-      {"as", TokenType::t_as},
-      {"if", TokenType::t_if},
-      {"elif", TokenType::t_elif},
-      {"else", TokenType::t_else},
-      {"for", TokenType::t_for},
-      {"while", TokenType::t_while},
-      {"times", TokenType::t_times},
-      {"break", TokenType::t_break},
-      {"continue", TokenType::t_continue},
-      {"switch", TokenType::t_switch},
-      {"func", TokenType::t_func}};
+      {"return", TokenType::t_return}, {"yield", TokenType::t_yield},
+      {"let", TokenType::t_let},       {"var", TokenType::t_var},
+      {"as", TokenType::t_as},         {"if", TokenType::t_if},
+      {"elif", TokenType::t_elif},     {"else", TokenType::t_else},
+      {"for", TokenType::t_for},       {"in", TokenType::t_in},
+      {"while", TokenType::t_while},   {"times", TokenType::t_times},
+      {"break", TokenType::t_break},   {"continue", TokenType::t_continue},
+      {"switch", TokenType::t_switch}, {"func", TokenType::t_func}};
 
   const auto start = m_currLine->m_repr.cbegin() + m_pos;
   auto it = start + 1;
@@ -141,12 +133,24 @@ bool Lexer::lexKeyword(Token &ret) {
     }
   }
 
+  size_t len = it - start;
   std::string possibleKeyword{start, it};
+  if (possibleKeyword == "true") {
+    ret = makeToken(TokenType::t_boolean, m_pos, len);
+    m_value = true;
+    m_pos += len;
+    return true;
+  } else if (possibleKeyword == "false") {
+    ret = makeToken(TokenType::t_boolean, m_pos, len);
+    m_pos += len;
+    m_value = false;
+    return true;
+  }
+
   TokenType type = keywords[possibleKeyword];
   if (TokenType::t_err == type) {
     return false;
   }
-  size_t len = it - start;
   ret = makeToken(type, m_pos, len);
   m_pos += len;
   return true;
@@ -171,6 +175,8 @@ bool Lexer::lexIdentifier(Token &ret) {
 
   size_t len = it - start;
   ret = makeToken(TokenType::t_identifier, m_pos, len);
+  const char *startPtr = m_currLine->m_repr.c_str() + m_pos;
+  m_value = std::move(std::string{startPtr, len});
   m_pos += len;
   return true;
 }
@@ -230,6 +236,7 @@ bool Lexer::lexOperator(Token &ret) {
       {"-", TokenType::t_minus},
       {"*", TokenType::t_asterisk},
       {"/", TokenType::t_forward_slash},
+      {"%", TokenType::t_percent},
       {"++", TokenType::t_plus_plus},
       {"--", TokenType::t_minus_minus},
       {"=", TokenType::t_equal},
@@ -247,6 +254,7 @@ bool Lexer::lexOperator(Token &ret) {
       {"-=", TokenType::t_minus_equal},
       {"*=", TokenType::t_asterisk_equal},
       {"/=", TokenType::t_forward_slash_equal},
+      {"%=", TokenType::t_percent_equal},
       {"^=", TokenType::t_caret_equal},
       {"|=", TokenType::t_pipe_equal},
       {"&=", TokenType::t_ampersand_equal},
@@ -257,7 +265,7 @@ bool Lexer::lexOperator(Token &ret) {
       {"=>", TokenType::t_arrow}};
   static const size_t MAX_OPERATOR_LEN =
       3; // Change this when new operators longer than 3 characters are
-         // introduces, though this should probably never happen
+  // introduces, though this should probably never happen
   const size_t lenLeft = m_currLine->m_repr.size() - m_pos;
   const size_t len = std::min(MAX_OPERATOR_LEN, lenLeft);
   std::string curr = m_currLine->m_repr.substr(m_pos, len);
@@ -289,7 +297,8 @@ bool Lexer::lexCharLiteral(Token &ret) {
   if (m_currLine->m_repr[m_pos] != '\'')
     return false;
   const size_t originalPos = m_pos++;
-  if (!lexCharacter()) {
+  char value;
+  if (!lexCharacter(value)) {
     m_pos = originalPos;
     return false;
   }
@@ -298,6 +307,7 @@ bool Lexer::lexCharLiteral(Token &ret) {
     return false;
   }
   ret = makeToken(TokenType::t_char_literal, originalPos, m_pos - originalPos);
+  m_value = value;
   return true;
 }
 
@@ -305,15 +315,19 @@ bool Lexer::lexStringLiteral(Token &ret) {
   if (m_currLine->m_repr[m_pos] != '\"')
     return false;
   const size_t originalPos = m_pos++;
+  std::string value;
+  char curr;
   while (m_currLine->m_repr[m_pos] != '\"') {
-    if (!lexCharacter()) {
+    if (!lexCharacter(curr)) {
       m_pos = originalPos;
       return false;
     }
+    value += curr;
   }
   m_pos++;
   ret =
       makeToken(TokenType::t_string_literal, originalPos, m_pos - originalPos);
+  m_value = std::move(value);
   return true;
 }
 
@@ -325,7 +339,8 @@ bool Lexer::lexIntLiteral(Token &ret) {
   uint8_t base = 10;
   if (m_currLine->m_repr[m_pos] == '0' &&
       m_pos + 1 < m_currLine->m_repr.size()) {
-    switch (m_currLine->m_repr[m_pos + 1]) { // check base
+    m_pos += 2;
+    switch (m_currLine->m_repr[m_pos - 1]) { // check base
     case 'b':
     case 'B':
       base = 2;
@@ -342,7 +357,6 @@ bool Lexer::lexIntLiteral(Token &ret) {
       m_pos -= 2; // to cancel the addition
       break;
     }
-    m_pos += 2;
   }
 
   const size_t numStartPos = m_pos;
@@ -362,6 +376,8 @@ bool Lexer::lexIntLiteral(Token &ret) {
                                                    // loop cause the line ended
     ret =
         makeToken(TokenType::t_int32_literal, originalPos, m_pos - originalPos);
+    m_value =
+        std::strtoll(m_currLine->m_repr.c_str() + numStartPos, nullptr, base);
     return true;
   }
 
@@ -376,10 +392,14 @@ bool Lexer::lexIntLiteral(Token &ret) {
       case 'i':
         ret = makeToken(TokenType::t_int32_literal, originalPos,
                         m_pos - originalPos);
+        m_value = std::strtoll(m_currLine->m_repr.c_str() + numStartPos,
+                               nullptr, base);
         return true;
       case 'u':
         ret = makeToken(TokenType::t_uint32_literal, originalPos,
                         m_pos - originalPos);
+        m_value = std::strtoull(m_currLine->m_repr.c_str() + numStartPos,
+                                nullptr, base);
         return true;
       }
     }
@@ -395,21 +415,33 @@ bool Lexer::lexIntLiteral(Token &ret) {
         case 'i':
           ret = makeToken(TokenType::t_int8_literal, originalPos,
                           m_pos - originalPos);
+          m_value = std::strtoll(m_currLine->m_repr.c_str() + numStartPos,
+                                 nullptr, base);
           return true;
         case 'u':
           ret = makeToken(TokenType::t_uint8_literal, originalPos,
                           m_pos - originalPos);
+          m_value = std::strtoull(m_currLine->m_repr.c_str() + numStartPos,
+                                  nullptr, base);
           return true;
         }
+      } else if (std::isdigit(
+                     first)) { // an invalid size after the type character
+        m_pos = originalPos;
+        return false;
       } else {
         switch (type) { // check which is the correct type
         case 'i':
           ret = makeToken(TokenType::t_int32_literal, originalPos,
                           m_pos - originalPos);
+          m_value = std::strtoll(m_currLine->m_repr.c_str() + numStartPos,
+                                 nullptr, base);
           return true;
         case 'u':
           ret = makeToken(TokenType::t_uint32_literal, originalPos,
                           m_pos - originalPos);
+          m_value = std::strtoull(m_currLine->m_repr.c_str() + numStartPos,
+                                  nullptr, base);
           return true;
         }
       }
@@ -464,10 +496,19 @@ bool Lexer::lexIntLiteral(Token &ret) {
       break;
     }
     ret = makeToken(tokType, startIdx, reprLen);
+    if (type == 'i') {
+      m_value =
+          std::strtoll(m_currLine->m_repr.c_str() + numStartPos, nullptr, base);
+    } else {
+      m_value = std::strtoull(m_currLine->m_repr.c_str() + numStartPos, nullptr,
+                              base);
+    }
     return true;
   }
 
   ret = makeToken(TokenType::t_int32_literal, originalPos, m_pos - originalPos);
+  m_value =
+      std::strtoll(m_currLine->m_repr.c_str() + numStartPos, nullptr, base);
   return true;
 }
 
@@ -494,10 +535,12 @@ bool Lexer::lexRealLiteral(Token &ret) {
     case 'd':
       ret = makeToken(TokenType::t_double_literal, originalPos,
                       m_pos - originalPos);
+      m_value = std::strtod(m_currLine->m_repr.c_str() + originalPos, nullptr);
       return true;
     case 'f':
       ret = makeToken(TokenType::t_float_literal, originalPos,
                       m_pos - originalPos);
+      m_value = std::strtof(m_currLine->m_repr.c_str() + originalPos, nullptr);
       return true;
     default:
       m_pos--;
@@ -519,10 +562,11 @@ bool Lexer::lexRealLiteral(Token &ret) {
   // if found dot, the default type is double literal
   ret =
       makeToken(TokenType::t_double_literal, originalPos, m_pos - originalPos);
+  m_value = std::strtod(m_currLine->m_repr.c_str() + originalPos, nullptr);
   return true;
 }
 
-bool Lexer::lexCharacter() {
+bool Lexer::lexCharacter(char &value) {
   const char curr = m_currLine->m_repr[m_pos];
   if ('\\' == curr) {
     if (m_pos >= m_currLine->m_repr.length() - 1)
@@ -532,28 +576,40 @@ bool Lexer::lexCharacter() {
     m_pos += 2;
     switch (second) {
     case 'a':
+      value = '\a';
       return true;
     case 'b':
+      value = '\b';
       return true;
     case 'e':
+      value = '\e';
       return true;
     case 'f':
+      value = '\f';
       return true;
     case 'n':
+      value = '\n';
       return true;
     case 'r':
+      value = '\r';
       return true;
     case 't':
+      value = '\t';
       return true;
     case 'v':
+      value = '\v';
       return true;
     case '\\':
+      value = '\\';
       return true;
     case '\'':
+      value = '\'';
       return true;
     case '\"':
+      value = '\"';
       return true;
     case '?':
+      value = '\?';
       return true;
     }
     m_pos -= 2;
@@ -565,17 +621,31 @@ bool Lexer::lexCharacter() {
     const char fourth = m_currLine->m_repr[m_pos + 3];
     if (isHex(third) && isHex(fourth)) {
       m_pos += 4;
+      value = (digitToValue(third) << 4) | digitToValue(fourth);
       return true;
     }
     return false;
   }
-  if (std::isgraph(curr))
+  if (std::isgraph(curr)) {
+    value = curr;
     m_pos++;
-  return std::isgraph(curr);
+    return true;
+  }
+  return false;
 }
 
 bool Lexer::isHex(const char value) const noexcept {
   return std::isdigit(value) || ('a' <= value && value <= 'f') ||
          ('A' <= value && value <= 'F');
+}
+uint8_t Lexer::digitToValue(const char digit) const noexcept {
+  if ('0' <= digit && digit <= '9')
+    return digit - '0';
+  else if ('a' <= digit && digit <= 'f')
+    return digit - 'a' + 10;
+  else if ('A' <= digit && digit <= 'F')
+    return digit - 'A' + 10;
+  else
+    return 0;
 }
 } // namespace rgl

@@ -28,6 +28,7 @@ enum class TokenType : uint16_t {
   t_minus,         // -
   t_asterisk,      // *
   t_forward_slash, // /
+  t_percent,       // %
 
   t_plus_plus,   // ++
   t_minus_minus, // --
@@ -52,6 +53,7 @@ enum class TokenType : uint16_t {
   t_minus_equal,         // -=
   t_asterisk_equal,      // *=
   t_forward_slash_equal, // /=
+  t_percent_equal,       // %=
   t_caret_equal,         // ^=
   t_pipe_equal,          // |=
   t_ampersand_equal,     // &=
@@ -66,8 +68,9 @@ enum class TokenType : uint16_t {
   t_question_greater_equal, // ?>=
   t_question_lesser_equal,  // ?<=
 
-  t_true,  // true
-  t_false, // false
+  t_in, // in
+
+  t_boolean,
 
   t_double_literal,
   t_float_literal,
@@ -167,14 +170,7 @@ public:
   uint16_t getTokenIdx() const noexcept { return m_tokenIdx; }
   uint16_t getReprLen() const noexcept { return m_reprLen; }
 
-  bool operator==(const Token &other) const {
-    return getTokenType() == other.getTokenType();
-  }
-  bool operator==(const TokenType type) const { return getTokenType() == type; }
-  bool operator!=(const Token &other) const {
-    return getTokenType() != other.getTokenType();
-  }
-  bool operator!=(const TokenType type) const { return getTokenType() != type; }
+  operator TokenType() const { return getTokenType(); }
 
 private:
   // 20 bits line no.
@@ -212,6 +208,7 @@ private:
         {TokenType::t_minus, "t_minus"},
         {TokenType::t_asterisk, "t_asterisk"},
         {TokenType::t_forward_slash, "t_forward_slash"},
+        {TokenType::t_percent, "t_percent"},
 
         {TokenType::t_plus_plus, "t_plus_plus"},
         {TokenType::t_minus_minus, "t_minus_minus"},
@@ -236,6 +233,7 @@ private:
         {TokenType::t_minus_equal, "t_minus_equal"},
         {TokenType::t_asterisk_equal, "t_asterisk_equal"},
         {TokenType::t_forward_slash_equal, "t_forward_slash_equal"},
+        {TokenType::t_percent_equal, "t_percent_equal"},
         {TokenType::t_caret_equal, "t_caret_equal"},
         {TokenType::t_pipe_equal, "t_pipe_equal"},
         {TokenType::t_ampersand_equal, "t_ampersand_equal"},
@@ -250,8 +248,9 @@ private:
         {TokenType::t_question_greater_equal, "t_question_greater_equal"},
         {TokenType::t_question_lesser_equal, "t_question_lesser_equal"},
 
-        {TokenType::t_true, "t_true"},
-        {TokenType::t_false, "t_false"},
+        {TokenType::t_in, "t_in"},
+
+        {TokenType::t_boolean, "t_boolean"},
 
         {TokenType::t_double_literal, "t_double_literal"},
         {TokenType::t_float_literal, "t_float_literal"},
@@ -300,7 +299,7 @@ private:
         {TokenType::t_move, "t_move"}};
     static std::string unknown_repr = "t_repr";
 
-    const auto ret = token_types_repr[getTokenType()];
+    const auto &ret = token_types_repr[getTokenType()];
     if (ret.length() == 0) {
       return unknown_repr;
     }

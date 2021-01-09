@@ -1,4 +1,5 @@
 #include "common/Formatter.hpp"
+#include "common/ILoggable.hpp"
 
 namespace std { // for overload matching when converting a formatter argument to
                 // stirng
@@ -11,4 +12,10 @@ std::string to_string(const rgl::ILoggable &loggable) {
   return loggable.toString();
 }
 std::string to_string(rgl::ILoggable &&loggable) { return loggable.toString(); }
+std::string to_string(const std::unique_ptr<rgl::ILoggable> &loggable) {
+  return loggable->toString();
+}
+std::string to_string(std::shared_ptr<rgl::ILoggable> loggable) {
+  return loggable->toString();
+}
 } // namespace std

@@ -1,6 +1,7 @@
 #pragma once
 #include "common/ILoggable.hpp"
 #include <charconv>
+#include <memory>
 
 namespace std { // for overload matching when converting a formatter argument to
                 // string
@@ -11,6 +12,7 @@ std::string to_string(const std::string &str);
 std::string to_string(std::string &&str);
 std::string to_string(const rgl::ILoggable &loggable);
 std::string to_string(rgl::ILoggable &&loggable);
+std::string to_string(std::shared_ptr<rgl::ILoggable> loggable);
 } // namespace std
 
 namespace rgl {
@@ -65,6 +67,20 @@ public:
   template <typename _TSep, typename _TArg>
   static std::string join(_TSep sep, _TArg arg) {
     return std::to_string(arg);
+  }
+
+  template <typename _TSep, typename _TContainer>
+  static std::string joinContainer(_TSep sep, _TContainer container) {
+    return joinIter(sep, container.cbegin(), container.cend());
+  }
+  template <typename _TSep, typename _TIter>
+  static std::string joinIter(_TSep sep, _TIter begin, _TIter end) {
+    std::string ret = "";
+    for (; begin + 1 != end; begin++) {
+      ret += std::to_string(*begin) + std::to_string(sep);
+    }
+    ret += std::to_string(*begin);
+    return ret;
   }
 
   std::string toString() const override { return m_formatted; }

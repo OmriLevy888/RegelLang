@@ -11,12 +11,15 @@ public:
   TokenCollection(std::unique_ptr<ITokenGenerator> &&tokenGenerator)
       : m_baseIndex(0), m_backlogIndex(0), m_actualIndex(0),
         m_usingBacklog(false), m_tokenGenerator(std::move(tokenGenerator)),
-        m_backlog() {}
+        m_backlog(), m_value(std::nullopt) {}
 
   void saveAnchor();
   void restoreAnchor();
+  void discardAnchor();
   size_t peekAnchor();
-  Token getNext();
+  const Token &getNext();
+  const Token &getCurr() { return m_curr; }
+  std::optional<TokenValue> &getCurrValue() { return m_value; }
 
   std::string toString() const override {
     return "TokenCollection<baseIndex: " + std::to_string(m_baseIndex) +
@@ -27,12 +30,14 @@ public:
 
 private:
   std::unique_ptr<ITokenGenerator> m_tokenGenerator;
+  Token m_curr;
+  std::optional<TokenValue> m_value;
 
   size_t m_baseIndex;
   size_t m_backlogIndex;
   size_t m_actualIndex;
   bool m_usingBacklog;
   std::stack<size_t> m_anchors;
-  std::vector<Token> m_backlog;
+  std::vector<TokenValuePair> m_backlog;
 };
 } // namespace rgl
