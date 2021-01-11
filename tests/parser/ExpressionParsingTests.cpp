@@ -277,14 +277,38 @@ TEST(Parser, fullBlock) {
 }
 
 TEST(Parser, typeNoIdentifier) {
-  std::vector<TokenValuePair> tokens{{{0, TokenType::t_let, 0, 3}},
-                                     {{1, TokenType::t_identifier, 4, 1}, "a"},
-                                     {{2, TokenType::t_colon, 9, 1}},
-                                     {{3, TokenType::t_equal, 11, 1}}};
+  std::vector<TokenValuePair> tokens{
+      {{0, TokenType::t_let, 0, 3, 1}},
+      {{1, TokenType::t_identifier, 4, 1, 1}, "a"},
+      {{2, TokenType::t_colon, 9, 1, 1}},
+      {{3, TokenType::t_equal, 11, 1, 1}}};
   auto project =
       std::make_shared<SourceProject>("TEST::Parser.typeNoIdentifier");
   SourceFile file{"TEST::Parser.typeNoIdentifier"};
-  file.m_lines.push_back(SourceLine("let a    : =", tokens));
+  file.m_lines.push_back(SourceLine("let b = 5;"));
+  file.m_lines.push_back(SourceLine("let a    : = 1;", tokens));
+  file.m_lines.push_back(SourceLine("return a + b;"));
+  project->addFile(std::move(file));
+  auto parser = makeParser(std::move(tokens), project);
+
+  ASSERT_EQ(parser->parseExprssion(), nullptr);
+  ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
+}
+
+TEST(Parser, compoundTypeNoIdentifier) {
+  std::vector<TokenValuePair> tokens{
+      {{0, TokenType::t_let, 0, 3, 1}},
+      {{1, TokenType::t_identifier, 4, 1, 1}, "a"},
+      {{2, TokenType::t_colon, 6, 1, 1}},
+      {{3, TokenType::t_identifier, 8, 3, 1}, "foo"},
+      {{4, TokenType::t_dot, 11, 1, 1}},
+      {{5, TokenType::t_equal, 13, 1, 1}}};
+  auto project =
+      std::make_shared<SourceProject>("TEST::Parser.typeNoIdentifier");
+  SourceFile file{"TEST::Parser.typeNoIdentifier"};
+  file.m_lines.push_back(SourceLine("let b = 5;"));
+  file.m_lines.push_back(SourceLine("let a : foo. = 1;", tokens));
+  file.m_lines.push_back(SourceLine("return a + b;"));
   project->addFile(std::move(file));
   auto parser = makeParser(std::move(tokens), project);
 

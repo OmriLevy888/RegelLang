@@ -16,6 +16,17 @@ std::string to_string(std::shared_ptr<rgl::ILoggable> loggable);
 } // namespace std
 
 namespace rgl {
+template <typename T>
+std::string padLeft(T val, size_t count, char padding = '0') {
+  const auto valStr = std::to_string(val);
+  if (valStr.size() >= count) {
+    return valStr;
+  }
+
+  std::string ret(count - valStr.size(), padding);
+  return ret + valStr;
+}
+
 template <typename... _TArgs> class Formatter : public ILoggable {
 public:
   Formatter(const std::string &pattern, const _TArgs &...args) {

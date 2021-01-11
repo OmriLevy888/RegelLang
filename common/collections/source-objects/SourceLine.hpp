@@ -1,6 +1,7 @@
 #pragma once
 
-#include "common/Core.hpp"
+#include "common/Formatter.hpp"
+#include "common/ILoggable.hpp"
 #include "lexer/Token.hpp"
 
 #include <vector>
@@ -22,9 +23,9 @@ public:
     }
   }
 
-  std::string pointAt(size_t idx) const {
+  std::pair<std::string, std::string> pointAt(size_t idx) const {
     if (idx >= m_tokens.size()) {
-      return "";
+      return {"", ""};
     }
 
     const std::string_view repr{m_repr.c_str() +
@@ -38,8 +39,7 @@ public:
     std::string underline(numUnderline, '^');
     std::string handle(numHandle, '_');
 
-    return Formatter("{}\n{}{}\n{}|", m_repr, spaces, underline, handle)
-        .toString();
+    return {spaces + underline, handle + "|"};
   }
 
   std::string toString() const override {

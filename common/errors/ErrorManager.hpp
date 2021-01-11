@@ -1,6 +1,7 @@
 #pragma once
 #include "common/Formatter.hpp"
 #include "common/ILoggable.hpp"
+#include "common/errors/ErrorObject.hpp"
 #include <iostream>
 #include <queue>
 #include <string>
@@ -39,6 +40,10 @@ public:
                        const _TArgs &...rest) {
     s_errors.push(error);
     logErrorImpl(first, rest...);
+  }
+  static void logError(ErrorTypes error, const ErrorObject &obj) {
+    s_errors.push(error);
+    logErrorImpl(obj);
   }
 
   template <typename _T, typename... _TArgs>

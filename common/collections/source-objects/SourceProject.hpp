@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/Core.hpp"
+#include "common/ILoggable.hpp"
 #include "common/collections/source-objects/SourceFile.hpp"
 
 namespace rgl {

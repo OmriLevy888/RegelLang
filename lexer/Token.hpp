@@ -1,5 +1,6 @@
 #pragma once
-#include "common/Core.hpp"
+#include "common/Formatter.hpp"
+#include "common/ILoggable.hpp"
 
 #include <map>
 #include <memory>
@@ -132,8 +133,8 @@ public:
     setReprStartIdx(reprStartIdx);
   }
   Token(uint16_t tokenIdx, TokenType type = TokenType::t_eof,
-        uint32_t reprStartIdx = 0, uint16_t reprLen = 0, uint16_t fileNo = 0,
-        uint32_t lineNo = 0)
+        uint32_t reprStartIdx = 0, uint16_t reprLen = 0, uint32_t lineNo = 0,
+        uint16_t fileNo = 0)
       : m_tokenIdx(tokenIdx), m_reprLen(reprLen) {
     setTokenType(type);
     setFileNo(fileNo);

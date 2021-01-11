@@ -1,4 +1,5 @@
 #include "common/errors/ErrorManager.hpp"
+#include "common/errors/ErrorObject.hpp"
 #include "common/errors/ErrorUtilities.hpp"
 #include "lexer/Token.hpp"
 #include "parser/Parser.hpp"
@@ -40,10 +41,10 @@ TypePtr Parser::parseType() {
 
   std::vector<std::string> name;
   if (!ParserUtilities::isIdentifier(m_tokens->getCurr())) {
-    const auto p = pointAt(m_tokens);
-    ErrorManager::logErrorFmt(ErrorTypes::E_BAD_TOKEN,
-                              "Expected identifier, found {}\n{}",
-                              tokenToString(m_tokens), p);
+    ErrorManager::logError(
+        ErrorTypes::E_BAD_TOKEN,
+        {Formatter("Expected identifier, found {}", tokenToString(m_tokens)),
+         m_tokens});
     return nullptr;
   }
   name.push_back(
@@ -52,7 +53,10 @@ TypePtr Parser::parseType() {
 
   while (TokenType::t_dot == m_tokens->getCurr()) {
     if (TokenType::t_identifier != m_tokens->getNext()) {
-      // TODO: write error message
+      ErrorManager::logError(
+          ErrorTypes::E_BAD_TOKEN,
+          {Formatter("Expected identifier, found {}", tokenToString(m_tokens)),
+           m_tokens, "Did you add an extra '.'?"});
       return nullptr;
     }
 
