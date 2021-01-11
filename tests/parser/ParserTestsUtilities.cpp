@@ -4,9 +4,11 @@
 
 namespace rgl {
 
-std::unique_ptr<Parser> makeParser(std::vector<TokenValuePair> &&tokens) {
+std::unique_ptr<Parser>
+makeParser(std::vector<TokenValuePair> &&tokens,
+           std::shared_ptr<SourceProject> sourceProject) {
   auto tokenGenerator =
-      std::make_unique<DummyTokenGenerator>(std::move(tokens));
+      std::make_unique<DummyTokenGenerator>(std::move(tokens), sourceProject);
   auto tokenCollection =
       std::make_unique<TokenCollection>(std::move(tokenGenerator));
   return std::make_unique<Parser>(std::move(tokenCollection));

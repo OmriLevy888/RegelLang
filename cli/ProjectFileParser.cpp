@@ -10,7 +10,8 @@ bool ProjectFileParser::parseProjectFile(const std::string &path,
 
   std::ifstream ifs{path};
   if (!ifs.is_open()) {
-    ErrorManager::logErrorFmt("Failed to open {}, no such project file", path);
+    ErrorManager::logErrorFmt(ErrorTypes::E_NO_SUCH_PROJECT_FILE,
+                              "Failed to open {}, no such project file", path);
     return false;
   }
 
@@ -36,13 +37,15 @@ bool ProjectFileParser::parseProjectFile(const std::string &path,
   if (chosenTarget == "") {
     if (document.HasMember("DefaultTarget")) {
       if (!document["DefaultTarget"].IsString()) {
-        ErrorManager::logError("No build target specified and DefaultTarget "
+        ErrorManager::logError(ErrorTypes::E_NO_BUILD_DEFAULT_NOT_A_STRING,
+                               "No build target specified and DefaultTarget "
                                "field is not a string");
         return false;
       }
       target = document["DefaultTarget"].GetString();
     } else {
       ErrorManager::logError(
+          ErrorTypes::E_NO_BUILD_TARGET_AND_NO_DEFAULT,
           "No build target specified and DefaultTarget field does not exist");
       return false;
     }
@@ -50,17 +53,20 @@ bool ProjectFileParser::parseProjectFile(const std::string &path,
     target = chosenTarget;
 
   if (target == "" || !document.HasMember(target.c_str())) {
-    ErrorManager::logError("Build target {} does not exists", target);
+    ErrorManager::logError(ErrorTypes::E_BUILD_TARGET_DOES_NOT_EXIST,
+                           "Build target {} does not exists", target);
     return false;
   } else if (!document[target.c_str()].IsObject()) {
-    ErrorManager::logErrorFmt("Build target {} is not an object", target);
+    ErrorManager::logErrorFmt(ErrorTypes::E_BUILD_TARGET_IS_NOT_AN_OBJECT,
+                              "Build target {} is not an object", target);
     return false;
   }
 
   auto buildTarget =
       BuildTarget::makeTarget(document[target.c_str()].GetObject());
   if (!buildTarget.has_value()) {
-    ErrorManager::logError("Failed to parse build target");
+    ErrorManager::logError(ErrorTypes::E_FAILED_TO_PARSE_BUILD_TARGET,
+                           "Failed to parse build target");
     return false;
   }
 

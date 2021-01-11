@@ -6,12 +6,21 @@
 #include <vector>
 
 namespace rgl {
+
 class SourceLine : public ILoggable {
 public:
   std::string m_repr;
   std::vector<Token> m_tokens;
 
   SourceLine(const std::string &repr) : m_repr(repr) {}
+  SourceLine(std::string &&repr) : m_repr(std::move(repr)) {}
+  SourceLine(std::string &&repr, const std::vector<TokenValuePair> tokens)
+      : m_repr(repr) {
+    m_tokens.reserve(tokens.size());
+    for (const auto &token : tokens) {
+      m_tokens.push_back(token.m_token);
+    }
+  }
 
   std::string pointAt(size_t idx) const {
     if (idx >= m_tokens.size()) {

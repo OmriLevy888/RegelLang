@@ -1,5 +1,8 @@
+#include "common/collections/source-objects/SourceFile.hpp"
+#include "common/collections/source-objects/SourceLine.hpp"
 #include "common/collections/source-objects/SourceProject.hpp"
 #include "common/collections/source-stream/TextSourceStream.hpp"
+#include "common/errors/ErrorManager.hpp"
 #include "lexer/DummyTokenGenerator.hpp"
 #include "lexer/ITokenGenerator.hpp"
 #include "lexer/Token.hpp"
@@ -23,6 +26,7 @@
 
 #include "tests/parser/ParserTestsUtilities.hpp"
 
+#include "gtest/gtest.h"
 #include <memory>
 
 using namespace rgl;
@@ -270,4 +274,20 @@ TEST(Parser, fullBlock) {
                      BinOpType::b_plus,
                      std::make_unique<IntLiteralNode>(1, Type::t_int32()),
                      std::make_unique<BlockNode>(std::move(statements)))));
+}
+
+TEST(Parser, typeNoIdentifier) {
+  std::vector<TokenValuePair> tokens{{{0, TokenType::t_let, 0, 3}},
+                                     {{1, TokenType::t_identifier, 4, 1}, "a"},
+                                     {{2, TokenType::t_colon, 9, 1}},
+                                     {{3, TokenType::t_equal, 11, 1}}};
+  auto project =
+      std::make_shared<SourceProject>("TEST::Parser.typeNoIdentifier");
+  SourceFile file{"TEST::Parser.typeNoIdentifier"};
+  file.m_lines.push_back(SourceLine("let a    : =", tokens));
+  project->addFile(std::move(file));
+  auto parser = makeParser(std::move(tokens), project);
+
+  ASSERT_EQ(parser->parseExprssion(), nullptr);
+  ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
 }

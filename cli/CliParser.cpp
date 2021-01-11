@@ -23,6 +23,7 @@ bool CliParser::parseCliArgument(size_t argc, const char **argv) {
 
   if (file != "" && arguments.m_projectFilePath != "") {
     ErrorManager::logErrorFmt(
+        ErrorTypes::E_AMBIGIOUS_PROJECT_FILE,
         "Specified project file both as a positional value ({}) and "
         "as a switch value ({}), can only specify one",
         file, arguments.m_projectFilePath);
@@ -32,7 +33,8 @@ bool CliParser::parseCliArgument(size_t argc, const char **argv) {
     arguments.m_projectFilePath = file;
   } else if (arguments.m_projectFilePath == "") {
     // TODO: change this when support for single file is added
-    ErrorManager::logError("No project file specified");
+    ErrorManager::logError(ErrorTypes::E_NO_PROJECT_FILE_SPECIFIED,
+                           "No project file specified");
     std::cerr << app.help();
     return false;
   }

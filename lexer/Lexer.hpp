@@ -17,9 +17,12 @@ public:
     m_file = m_project->m_files.begin() + m_sourceStream->getFileIndex();
   }
 
-  TokenValuePair getNext() override;
+  virtual TokenValuePair getNext() override;
+  virtual std::shared_ptr<SourceProject> getSourceProject() const override {
+    return m_project;
+  }
 
-  std::string toString() const override {
+  virtual std::string toString() const override {
     return "Lexer<sourceStream: " + m_sourceStream->toString() + ">";
   }
 

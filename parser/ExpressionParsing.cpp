@@ -1,4 +1,5 @@
 #include "common/errors/ErrorManager.hpp"
+#include "common/errors/ErrorUtilities.hpp"
 #include "lexer/Token.hpp"
 #include "parser/Parser.hpp"
 #include "parser/ParserUtilities.hpp"
@@ -39,7 +40,10 @@ TypePtr Parser::parseType() {
 
   std::vector<std::string> name;
   if (!ParserUtilities::isIdentifier(m_tokens->getCurr())) {
-    // TODO: write error message
+    const auto p = pointAt(m_tokens);
+    ErrorManager::logErrorFmt(ErrorTypes::E_BAD_TOKEN,
+                              "Expected identifier, found {}\n{}",
+                              tokenToString(m_tokens), p);
     return nullptr;
   }
   name.push_back(

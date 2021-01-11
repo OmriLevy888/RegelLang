@@ -15,7 +15,8 @@ BuildTarget::makeTarget(const rapidjson::Value &target) {
       ret.m_output = target["Output"].GetString();
     } else {
       ErrorManager::logWarning(
-          "Missing Output filed in build target, using default (a.out)");
+          WarningTypes::W_MISSING_OUTPUT_FILE,
+          "Missing Output file in build target, using default (a.out)");
     }
   }
 
@@ -30,6 +31,7 @@ BuildTarget::makeTarget(const rapidjson::Value &target) {
         const auto &curr = files[idx];
         if (!curr.IsString()) {
           ErrorManager::logWarning(
+              WarningTypes::W_NON_STRING_NAME_IN_BUILD_TARGET,
               "Found non string file name in build target, ignoring");
           continue;
         }
@@ -41,7 +43,8 @@ BuildTarget::makeTarget(const rapidjson::Value &target) {
         }
       }
     } else {
-      ErrorManager::logError("There are no target files in the build target "
+      ErrorManager::logError(ErrorTypes::E_NO_TARGET_FILES_IN_BUILD_TARGET,
+                             "There are no target files in the build target "
                              "(invalid or missing Files field)");
       return std::nullopt;
     }

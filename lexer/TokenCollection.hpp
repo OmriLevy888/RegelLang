@@ -1,5 +1,6 @@
 #pragma once
 #include "common/Core.hpp"
+#include "common/collections/source-objects/SourceProject.hpp"
 #include "lexer/ITokenGenerator.hpp"
 
 #include <stack>
@@ -20,6 +21,13 @@ public:
   const Token &getNext();
   const Token &getCurr() { return m_curr; }
   std::optional<TokenValue> &getCurrValue() { return m_value; }
+
+  std::shared_ptr<SourceProject> getSourceProject() const {
+    if (nullptr == m_tokenGenerator) {
+      return nullptr;
+    }
+    return m_tokenGenerator->getSourceProject();
+  }
 
   std::string toString() const override {
     return "TokenCollection<baseIndex: " + std::to_string(m_baseIndex) +
