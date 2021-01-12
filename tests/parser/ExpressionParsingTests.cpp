@@ -357,6 +357,35 @@ TEST(Parser, invokeMissingClose) {
   ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
 }
 
-TEST(Parser, indexMissingClose) {}
+TEST(Parser, indexMissingClose) {
+  std::vector<TokenValuePair> tokens{{{0, TokenType::t_identifier, 0, 1}, "a"},
+                                     {{1, TokenType::t_open_square, 1, 1}},
+                                     {{2, TokenType::t_semicolon, 2, 1}}};
+  auto project =
+      std::make_shared<SourceProject>("TEST::Parser.invokeMissingClose");
+  SourceFile file{"TEST::Parser.invokeMissingClose"};
+  file.m_lines.push_back(SourceLine("a[;", tokens));
+  project->addFile(std::move(file));
+  auto parser = makeParser(std::move(tokens), project);
 
-TEST(Parser, blockMissingClose) {}
+  ASSERT_EQ(parser->parseExprssion(), nullptr);
+  ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
+}
+
+TEST(Parser, blockMissingClose) {
+  std::vector<TokenValuePair> tokens{
+      {{0, TokenType::t_open_bracket, 0, 1, 0}},
+      {{0, TokenType::t_yield, 4, 5, 1}},
+      {{1, TokenType::t_identifier, 10, 1, 1}, "a"},
+      {{2, TokenType::t_semicolon, 11, 1, 1}}};
+  auto project =
+      std::make_shared<SourceProject>("TEST::Parser.invokeMissingClose");
+  SourceFile file{"TEST::Parser.invokeMissingClose"};
+  file.m_lines.push_back(SourceLine("{", tokens, 0));
+  file.m_lines.push_back(SourceLine("    yield a;", tokens, 1));
+  project->addFile(std::move(file));
+  auto parser = makeParser(std::move(tokens), project);
+
+  ASSERT_EQ(parser->parseExprssion(), nullptr);
+  ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
+}

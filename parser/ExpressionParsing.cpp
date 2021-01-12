@@ -130,10 +130,10 @@ Expression Parser::parseImplicitStatementExpression() {
     return parseSwitch();
   }
 
-  ErrorManager::logError(ErrorTypes::E_UNKNOWN_ERROR,
-                         {"Unknown error when parsing implicit statement "
-                          "expression",
-                          m_tokens});
+  ErrorManager::logError(
+      ErrorTypes::E_BAD_TOKEN,
+      {Formatter("Expected expression but found {}", tokenToString(m_tokens)),
+       m_tokens});
   return nullptr;
 }
 
@@ -405,6 +405,7 @@ Block Parser::parseBlock() {
   std::vector<Statement> statements;
 
   if (!isSingleStatement) {
+    Token openBracket = m_tokens->getCurr();
     m_tokens->getNext(); // consume {
     while (TokenType::t_close_bracket != m_tokens->getCurr() &&
            TokenType::t_eof != m_tokens->getCurr()) {
@@ -418,7 +419,8 @@ Block Parser::parseBlock() {
 
     if (TokenType::t_close_bracket != m_tokens->getCurr()) {
       ErrorManager::logError(ErrorTypes::E_BAD_TOKEN,
-                             {"Expected } but not found"});
+                             {"Expected } but not found", openBracket,
+                              m_tokens->getSourceProject()});
       return nullptr;
     }
     m_tokens->getNext(); // consume }
