@@ -295,6 +295,8 @@ TEST(Parser, typeNoIdentifier) {
   ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
 }
 
+#include <iostream>
+
 TEST(Parser, compoundTypeNoIdentifier) {
   std::vector<TokenValuePair> tokens{
       {{0, TokenType::t_let, 0, 3, 1}},
@@ -315,3 +317,46 @@ TEST(Parser, compoundTypeNoIdentifier) {
   ASSERT_EQ(parser->parseExprssion(), nullptr);
   ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
 }
+
+TEST(Parser, parensMissingClose) {
+  std::vector<TokenValuePair> tokens{{{0, TokenType::t_identifier, 0, 1}, "a"},
+                                     {{1, TokenType::t_asterisk, 2, 1}},
+                                     {{2, TokenType::t_open_paren, 4, 1}},
+                                     {{3, TokenType::t_identifier, 5, 1}, "b"},
+                                     {{4, TokenType::t_plus, 7, 1}},
+                                     {{5, TokenType::t_identifier, 9, 1}, "c"},
+                                     {{6, TokenType::t_semicolon, 10, 1}}};
+  auto project =
+      std::make_shared<SourceProject>("TEST::Parser.parensMissingClose");
+  SourceFile file{"TEST::Parser.parensMissingClose"};
+  file.m_lines.push_back(SourceLine("a * (b + c;", tokens));
+  project->addFile(std::move(file));
+  auto parser = makeParser(std::move(tokens), project);
+
+  ASSERT_EQ(parser->parseExprssion(), nullptr);
+  ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
+}
+
+TEST(Parser, invokeMissingClose) {
+  std::vector<TokenValuePair> tokens{
+      {{0, TokenType::t_identifier, 0, 1, 0}, "a"},
+      {{1, TokenType::t_open_paren, 1, 1, 0}},
+      {{0, TokenType::t_identifier, 0, 1, 1}, "b"},
+      {{1, TokenType::t_comma, 1, 1, 1}},
+      {{2, TokenType::t_identifier, 3, 1, 1}, "c"},
+      {{3, TokenType::t_semicolon, 4, 1, 1}}};
+  auto project =
+      std::make_shared<SourceProject>("TEST::Parser.invokeMissingClose");
+  SourceFile file{"TEST::Parser.invokeMissingClose"};
+  file.m_lines.push_back(SourceLine("a(", tokens, 0));
+  file.m_lines.push_back(SourceLine("b, c;", tokens, 1));
+  project->addFile(std::move(file));
+  auto parser = makeParser(std::move(tokens), project);
+
+  ASSERT_EQ(parser->parseExprssion(), nullptr);
+  ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
+}
+
+TEST(Parser, indexMissingClose) {}
+
+TEST(Parser, blockMissingClose) {}

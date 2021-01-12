@@ -8,6 +8,8 @@
 
 namespace rgl {
 enum class ErrorTypes : size_t {
+  E_UNKNOWN_ERROR,
+
   E_AMBIGIOUS_PROJECT_FILE,
   E_NO_PROJECT_FILE_SPECIFIED,
   E_NO_SUCH_PROJECT_FILE,
@@ -32,7 +34,6 @@ enum class WarningTypes : size_t {
 class ErrorManager {
 public:
   static ErrorTypes getErrorType();
-
   static WarningTypes getWarningType();
 
   template <typename _T, typename... _TArgs>

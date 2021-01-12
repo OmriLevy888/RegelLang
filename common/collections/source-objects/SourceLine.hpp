@@ -22,6 +22,17 @@ public:
       m_tokens.push_back(token.m_token);
     }
   }
+  SourceLine(std::string &&repr, const std::vector<TokenValuePair> tokens,
+             const size_t lineNo)
+      : m_repr(repr) {
+    m_tokens.reserve(tokens.size());
+    for (const auto &token : tokens) {
+      if (lineNo != token.m_token.getLineNo()) {
+        continue;
+      }
+      m_tokens.push_back(token.m_token);
+    }
+  }
 
   std::pair<std::string, std::string> pointAt(size_t idx) const {
     if (idx >= m_tokens.size()) {
