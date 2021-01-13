@@ -1,8 +1,11 @@
 #pragma once
-#include "common/Core.hpp"
+#include "common/Formatter.hpp"
+#include "common/ILoggable.hpp"
 
 #include <map>
+#include <memory>
 #include <string_view>
+#include <variant>
 
 namespace rgl {
 enum class TokenType : uint16_t {
@@ -123,6 +126,15 @@ public:
   Token(TokenType type = TokenType::t_eof, uint32_t reprStartIdx = 0,
         uint16_t reprLen = 0, uint16_t fileNo = 0, uint32_t lineNo = 0,
         uint16_t tokenIdx = 0)
+      : m_tokenIdx(tokenIdx), m_reprLen(reprLen) {
+    setTokenType(type);
+    setFileNo(fileNo);
+    setLineNo(lineNo);
+    setReprStartIdx(reprStartIdx);
+  }
+  Token(uint16_t tokenIdx, TokenType type = TokenType::t_eof,
+        uint32_t reprStartIdx = 0, uint16_t reprLen = 0, uint32_t lineNo = 0,
+        uint16_t fileNo = 0)
       : m_tokenIdx(tokenIdx), m_reprLen(reprLen) {
     setTokenType(type);
     setFileNo(fileNo);
@@ -305,5 +317,25 @@ private:
     }
     return ret;
   }
+};
+
+using TokenValue =
+    std::variant<bool, char, int64_t, uint64_t, float, double, std::string>;
+
+class TokenValuePair {
+public:
+  Token m_token;
+  std::optional<TokenValue> m_value;
+
+  TokenValuePair(Token &&token) : m_token(token), m_value(std::nullopt) {}
+  TokenValuePair(Token &&token, std::optional<TokenValue> &&value)
+      : m_token(token), m_value(value) {}
+  TokenValuePair(const Token &token) : m_token(token), m_value(std::nullopt) {}
+  TokenValuePair(const Token &token, std::optional<TokenValue> &&value)
+      : m_token(token), m_value(value) {}
+  TokenValuePair(const Token &token, const std::optional<TokenValue> &value)
+      : m_token(token), m_value(value) {}
+
+  operator TokenType() const { return m_token.getTokenType(); }
 };
 } // namespace rgl

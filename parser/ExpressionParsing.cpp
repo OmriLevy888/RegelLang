@@ -1,4 +1,6 @@
 #include "common/errors/ErrorManager.hpp"
+#include "common/errors/ErrorObject.hpp"
+#include "common/errors/ErrorUtilities.hpp"
 #include "lexer/Token.hpp"
 #include "parser/Parser.hpp"
 #include "parser/ParserUtilities.hpp"
@@ -39,7 +41,10 @@ TypePtr Parser::parseType() {
 
   std::vector<std::string> name;
   if (!ParserUtilities::isIdentifier(m_tokens->getCurr())) {
-    // TODO: write error message
+    ErrorManager::logError(
+        ErrorTypes::E_BAD_TOKEN,
+        {Formatter("Expected identifier, found {}", tokenToString(m_tokens)),
+         m_tokens});
     return nullptr;
   }
   name.push_back(
@@ -48,7 +53,10 @@ TypePtr Parser::parseType() {
 
   while (TokenType::t_dot == m_tokens->getCurr()) {
     if (TokenType::t_identifier != m_tokens->getNext()) {
-      // TODO: write error message
+      ErrorManager::logError(
+          ErrorTypes::E_BAD_TOKEN,
+          {Formatter("Expected identifier, found {}", tokenToString(m_tokens)),
+           m_tokens, "Did you add an extra '.'?"});
       return nullptr;
     }
 
@@ -122,7 +130,10 @@ Expression Parser::parseImplicitStatementExpression() {
     return parseSwitch();
   }
 
-  // TODO: write error message
+  ErrorManager::logError(
+      ErrorTypes::E_BAD_TOKEN,
+      {Formatter("Expected expression but found {}", tokenToString(m_tokens)),
+       m_tokens});
   return nullptr;
 }
 
@@ -230,7 +241,10 @@ Expression Parser::parseParentheses() {
       // TODO: write error message
       return nullptr;
     } else if (TokenType::t_close_paren != m_tokens->getCurr()) {
-      // TODO: write error message
+      ErrorManager::logError(
+          ErrorTypes::E_BAD_TOKEN,
+          {Formatter("Expected ), found {}", tokenToString(m_tokens)), m_tokens,
+           "Did you forget the closing parenthesis?"});
       return nullptr;
     }
 
@@ -316,7 +330,10 @@ Expression Parser::parseInvoke(Expression primary) {
   }
 
   if (TokenType::t_close_paren != m_tokens->getCurr()) {
-    // TODO: wrtie error message
+    ErrorManager::logError(
+        ErrorTypes::E_BAD_TOKEN,
+        {Formatter("Expected ), found {}", tokenToString(m_tokens)), m_tokens,
+         "Did you forget the closing parenthesis?"});
     return nullptr;
   }
   m_tokens->getNext(); // consume )
@@ -335,7 +352,10 @@ Expression Parser::parseIndex(Expression primary) {
   }
 
   if (TokenType::t_close_square != m_tokens->getCurr()) {
-    // TODO: write error message
+    ErrorManager::logError(
+        ErrorTypes::E_BAD_TOKEN,
+        {Formatter("Expected ], found {}", tokenToString(m_tokens)), m_tokens,
+         "Did you forget the closing square bracket?"});
     return nullptr;
   }
   m_tokens->getNext(); // consume ]
@@ -385,14 +405,23 @@ Block Parser::parseBlock() {
   std::vector<Statement> statements;
 
   if (!isSingleStatement) {
+    Token openBracket = m_tokens->getCurr();
     m_tokens->getNext(); // consume {
-    while (TokenType::t_close_bracket != m_tokens->getCurr()) {
+    while (TokenType::t_close_bracket != m_tokens->getCurr() &&
+           TokenType::t_eof != m_tokens->getCurr()) {
       auto curr = parseStatement();
       if (nullptr == curr) {
         // TODO: write error message
         return nullptr;
       }
       statements.push_back(std::move(curr));
+    }
+
+    if (TokenType::t_close_bracket != m_tokens->getCurr()) {
+      ErrorManager::logError(ErrorTypes::E_BAD_TOKEN,
+                             {"Expected } but not found", openBracket,
+                              m_tokens->getSourceProject()});
+      return nullptr;
     }
     m_tokens->getNext(); // consume }
   } else {
@@ -466,6 +495,7 @@ Expression Parser::parseForLoop() {
   if (TokenType::t_semicolon != m_tokens->getCurr()) {
     init = parseExprssion();
     if (nullptr == init) {
+      ErrorManager::getErrorType(); // consume error
       return parseForInLoop();
     }
   }
