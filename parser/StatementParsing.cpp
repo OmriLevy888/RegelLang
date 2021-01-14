@@ -20,7 +20,6 @@ Statement Parser::parseStatement() {
 
   auto statement = parseKeywordStatement();
   if (nullptr != statement) {
-    m_tokens->getNext(); // consume keyword
     return statement;
   } else if (ParserUtilities::isSimpleStatement(m_tokens->getCurr())) {
     auto ret = parseSimpleStatement();
@@ -67,9 +66,14 @@ Statement Parser::parseKeywordStatement() {
   }
 
   if (TokenType::t_semicolon != m_tokens->getNext()) {
-    // TODO: write error message
+    ErrorManager::logError(
+        ErrorTypes::E_BAD_TOKEN,
+        {Formatter("Expected semicolon (;), found {}", tokenToString(m_tokens)),
+         m_tokens, "Did you forget a semicolon (';')?"});
     return nullptr;
   }
+
+  m_tokens->getNext(); // consume ;
   return ret;
 };
 

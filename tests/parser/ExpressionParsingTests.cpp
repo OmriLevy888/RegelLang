@@ -362,8 +362,8 @@ TEST(Parser, indexMissingClose) {
                                      {{1, TokenType::t_open_square, 1, 1}},
                                      {{2, TokenType::t_semicolon, 2, 1}}};
   auto project =
-      std::make_shared<SourceProject>("TEST::Parser.invokeMissingClose");
-  SourceFile file{"TEST::Parser.invokeMissingClose"};
+      std::make_shared<SourceProject>("TEST::Parser.indexMissingClose");
+  SourceFile file{"TEST::Parser.indexMissingClose"};
   file.m_lines.push_back(SourceLine("a[;", tokens));
   project->addFile(std::move(file));
   auto parser = makeParser(std::move(tokens), project);
@@ -379,8 +379,8 @@ TEST(Parser, blockMissingClose) {
       {{1, TokenType::t_identifier, 10, 1, 1}, "a"},
       {{2, TokenType::t_semicolon, 11, 1, 1}}};
   auto project =
-      std::make_shared<SourceProject>("TEST::Parser.invokeMissingClose");
-  SourceFile file{"TEST::Parser.invokeMissingClose"};
+      std::make_shared<SourceProject>("TEST::Parser.blockMissingClose");
+  SourceFile file{"TEST::Parser.blockMissingClose"};
   file.m_lines.push_back(SourceLine("{", tokens, 0));
   file.m_lines.push_back(SourceLine("    yield a;", tokens, 1));
   project->addFile(std::move(file));
