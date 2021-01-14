@@ -35,30 +35,31 @@ std::string pointAt(Token tok, std::shared_ptr<SourceProject> sourceProject) {
   static const std::string spacesStr(4, ' ');
   static const std::string blankLinNoStr(11, ' ');
   const auto lineNoStr = padLeft(padLeft(lineNo, 7), 11, ' ');
-  const auto prevLineNoStr = padLeft(padLeft(lineNo - 1, 7), 11, ' ');
-  const auto nextLineNoStr = padLeft(padLeft(lineNo + 1, 7), 11, ' ');
 
-  const std::string currLineFmt =
+  std::string formatted =
       Formatter("{}|{}{}\n{}|{}{}\n{}|{}{}", lineNoStr, spacesStr, line.m_repr,
                 blankLinNoStr, spacesStr, pointerTopStr, blankLinNoStr,
                 pointerBottomExtStr, pointerBottomStr);
 
-  if (0 == lineNo && 1 == file.m_lines.size()) { // only line in file
-    return currLineFmt;
-  } else if (lineNo + 1 >= file.m_lines.size()) { // last line in file
-    return Formatter("{}|{}{}\n{}", prevLineNoStr, spacesStr,
-                     file.m_lines[lineNo - 1].m_repr, currLineFmt);
-  } else if (0 == lineNo) { // first line in file
-    return Formatter("{}\n{}|{}{}", currLineFmt, nextLineNoStr, spacesStr,
-                     file.m_lines[fileNo + 1].m_repr);
+  if (lineNo < file.m_lines.size() - 1) { // add next line
+    const auto nextLineNoStr = padLeft(padLeft(lineNo + 1, 7), 11, ' ');
+    formatted = Formatter("{}\n{}|{}{}", formatted, nextLineNoStr, spacesStr,
+                          file.m_lines[fileNo + 1].m_repr);
   }
 
-  return Formatter("{}\n{}\n{}",
-                   Formatter("{}|{}{}", prevLineNoStr, spacesStr,
-                             file.m_lines[lineNo - 1].m_repr),
-                   currLineFmt,
-                   Formatter("{}|{}{}", nextLineNoStr, spacesStr,
-                             file.m_lines[lineNo + 1].m_repr));
+  if (lineNo > 0) { // add previous line
+    const auto prevLineNoStr = padLeft(padLeft(lineNo - 1, 7), 11, ' ');
+    formatted = Formatter("{}|{}{}\n{}", prevLineNoStr, spacesStr,
+                          file.m_lines[lineNo - 1].m_repr, formatted);
+  }
+
+  if (lineNo > 1) { // add line before previous line
+    const auto prevPrevLineNoStr = padLeft(padLeft(lineNo - 2, 7), 11, ' ');
+    formatted = Formatter("{}|{}{}\n{}", prevPrevLineNoStr, spacesStr,
+                          file.m_lines[lineNo - 2].m_repr, formatted);
+  }
+
+  return formatted;
 }
 std::string pointAt(const std::unique_ptr<TokenCollection> &tokens) {
   return pointAt(tokens->getCurr(), tokens->getSourceProject());

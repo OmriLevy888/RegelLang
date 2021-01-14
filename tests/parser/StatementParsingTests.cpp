@@ -77,3 +77,20 @@ TEST(Parser, keywordStatementNoSemicolon) {
   ASSERT_EQ(parser->parseStatement(), nullptr);
   ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
 }
+
+TEST(Parser, simpleStatementNoSemicolon) {
+  std::vector<TokenValuePair> tokens{
+      {{0, TokenType::t_return, 4, 6, 0}},
+      {{1, TokenType::t_identifier, 12, 1, 0}, "a"},
+      {{0, TokenType::t_close_bracket, 0, 1, 1}}};
+  auto project = std::make_shared<SourceProject>(
+      "TEST::Parser.simpleStatementNoSemicolon");
+  SourceFile file{"TEST::Parser.simpleStatementNoSemicolon"};
+  file.m_lines.push_back(SourceLine("    return a", tokens, 0));
+  file.m_lines.push_back(SourceLine("}", tokens, 1));
+  project->addFile(std::move(file));
+  auto parser = makeParser(std::move(tokens), project);
+
+  ASSERT_EQ(parser->parseStatement(), nullptr);
+  ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
+}

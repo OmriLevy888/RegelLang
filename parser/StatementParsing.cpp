@@ -14,6 +14,7 @@
 namespace rgl {
 Statement Parser::parseStatement() {
   if (TokenType::t_semicolon == m_tokens->getCurr()) {
+    // TODO: add warning of empty statement
     m_tokens->getNext(); // consume ;
     return std::make_unique<ExpressionStatementNode>();
   }
@@ -22,8 +23,7 @@ Statement Parser::parseStatement() {
   if (nullptr != statement) {
     return statement;
   } else if (ParserUtilities::isSimpleStatement(m_tokens->getCurr())) {
-    auto ret = parseSimpleStatement();
-    return ret;
+    return parseSimpleStatement();
   } else if (ParserUtilities::isImplicityStatementExpression(
                  m_tokens->getCurr())) {
     auto implExpr = parseImplicitStatementExpression();
@@ -90,7 +90,10 @@ Statement Parser::parseSimpleStatement() {
   }
 
   if (TokenType::t_semicolon != m_tokens->getCurr()) {
-    // TODO: write error message
+    ErrorManager::logError(
+        ErrorTypes::E_BAD_TOKEN,
+        {Formatter("Expected semicolon (;), found {}", tokenToString(m_tokens)),
+         m_tokens, "Did you forget a semicolon (';')?"});
     return nullptr;
   }
   m_tokens->getNext(); // consume semicolon
