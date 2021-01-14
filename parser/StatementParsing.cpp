@@ -43,7 +43,10 @@ Statement Parser::parseStatement() {
       // TODO: write error message
       return nullptr;
     } else if (TokenType::t_semicolon != m_tokens->getCurr()) {
-      // TODO: write error message
+      ErrorManager::logError(ErrorTypes::E_BAD_TOKEN,
+                             {Formatter("Expected semicolon (;), found {}",
+                                        tokenToString(m_tokens)),
+                              m_tokens, "Did you forget a semicolon (';')?"});
       return nullptr;
     }
     m_tokens->getNext(); // consume semicolon
