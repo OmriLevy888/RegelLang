@@ -56,7 +56,7 @@ TypePtr Parser::parseType() {
       ErrorManager::logError(
           ErrorTypes::E_BAD_TOKEN,
           {Formatter("Expected identifier, found {}", tokenToString(m_tokens)),
-           m_tokens, "Did you add an extra '.'?"});
+           m_tokens, "Did you add an extra dot ('.')?"});
       return nullptr;
     }
 
