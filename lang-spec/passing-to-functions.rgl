@@ -1,33 +1,63 @@
-// x may be passed in by any way, but may no be changed
-func print(i32 x) {
-  println(x);
+func foo(i32 a) {} // a is a constant, any copy must be made explicitly
+
+func foo(@i32 a) {} // a is copied (value types outside the function, reference
+                    // types inside the function) and can therefore be changed
+                    // and its ownership may be passed without affecting the
+                    // original object
+
+func foo(&i32 a) {} // a is mutable, any changes to it affect the actual
+                    // object, may not take ownership or destroy the object
+
+func foo(:i32 a) {} // a is mutable, it is no longer valid after being passed
+                    // may pass ownership or destroy the object
+
+func main([string] args, envs) {
+  let a = 5;
+  foo(a); // a may not be changed
+  foo(&a); // a may be changed but is still valid after this call
+  foo(:a); // a is no longer valid after this call and access to it causes a
+           // compile time error
+
+  var a = "hello";
+  var b = a; // this causes a compile time error. a has to either be explicitly
+             // moved : or explicitly copied @
+
+  let string c = @a;
+  bat(&c); // compile time error, c is a constant
+  bar(:c); // c is moved, the function may even change it, c is no longer valid
+
+  let d : []string = ["hello", "word"]; // array literal
+  let e = : d[0]; // compile time error, modifies item in constant array d
+
+  var f : []string = ["hello", "world"];
+  var g = :f[0]; // may be moved, f[0] is set to the default value for the type
+
+  for :item in f {} // items are consumed and may be changed or passed
+  for item in f {} // items remain the same
+  for &item in f {} // items may be changed
+  for @item in f {} // items are copied and the copy may be chaged or passed
+
+  for f : {string, i32} = {"0": 0, "1": 1}; // map literal
 }
 
-// x may be passed in either by value of by non-const reference
-func print(&i32 x) {
-  println(x);
+class test {
+  // private member
+  let a : i32;
+
+  // protected member
+  var _a : i32;
+
+  // public member
+  let A : i32;
+
+  var unique : <i32>;
+  var shared : {i32};
 }
 
-func print(string x) {
-  println(x);
-}
-
-func main([]string args, envp) => i32 {
-  // passing rvalue objects
-  println(1);  // copied, passed by value as const (value type)
-  println("hello world");  // passed by const reference (reference type)
-
-  // passing lvalue objects
-  let a : i32 = 1;
-  let b : string = "hello world";
-  println(a);  // copied (value type)
-  println(b);  // passed by const reference (reference type)
-
-  // mutable passing
-  println(&a);  // passed by lvalue reference (value type)
-  println(&b);  // passed by lvalue reference (reference type)
-
-  // moving ownership
-  println(:a);  // pass by rvalue reference, move (value type)
-  println(:b);  // pass by rvalue reference, move (reference type)
-}
+/* When creating a member/constant/variable of a type that has virtual
+ * functions that are not sealed, a warning is thrown if the object is not a
+ * unique or shared pointer (or a reference). If a virtual function that is not
+ * sealed is called, a warning is thrown at the call site. If the type has
+ * virtual functions that are not implemented, a compile time error is thrown.
+ * Casting from a derived type to a base type without an explicit cast throws
+ * an error */
