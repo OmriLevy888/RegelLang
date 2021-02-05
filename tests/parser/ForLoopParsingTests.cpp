@@ -58,7 +58,8 @@ TEST(Parser, fullForLoop) {
       parser->parseExprssion(),
       std::make_unique<ForLoopNode>(
           std::make_unique<VarDeclNode>(
-              std::make_unique<IdentifierNode>("idx"), nullptr, false,
+              std::make_unique<IdentifierNode>("idx"),
+              Type::t_implicit()->getMutableType(),
               std::make_unique<IntLiteralNode>(0, Type::t_int32())),
           std::make_unique<BinOpNode>(
               BinOpType::b_lesser_than, std::make_unique<IdentifierNode>("idx"),
@@ -115,7 +116,8 @@ TEST(Parser, forLoopNoCond) {
   assertNode(parser->parseExprssion(),
              std::make_unique<ForLoopNode>(
                  std::make_unique<VarDeclNode>(
-                     std::make_unique<IdentifierNode>("idx"), nullptr, false,
+                     std::make_unique<IdentifierNode>("idx"),
+                     Type::t_implicit()->getMutableType(),
                      std::make_unique<IntLiteralNode>(0, Type::t_int32())),
                  nullptr,
                  std::make_unique<UnaryOpNode>(
@@ -146,7 +148,8 @@ TEST(Parser, forLoopNoAdvance) {
       parser->parseExprssion(),
       std::make_unique<ForLoopNode>(
           std::make_unique<VarDeclNode>(
-              std::make_unique<IdentifierNode>("idx"), nullptr, false,
+              std::make_unique<IdentifierNode>("idx"),
+              Type::t_implicit()->getMutableType(),
               std::make_unique<IntLiteralNode>(0, Type::t_int32())),
           std::make_unique<BinOpNode>(
               BinOpType::b_lesser_than, std::make_unique<IdentifierNode>("idx"),
@@ -217,7 +220,8 @@ TEST(Parser, forLoopNoCondNoAdvance) {
   assertNode(parser->parseExprssion(),
              std::make_unique<ForLoopNode>(
                  std::make_unique<VarDeclNode>(
-                     std::make_unique<IdentifierNode>("idx"), nullptr, false,
+                     std::make_unique<IdentifierNode>("idx"),
+                     Type::t_implicit()->getMutableType(),
                      std::make_unique<IntLiteralNode>(0, Type::t_int32())),
                  nullptr, nullptr, std::make_unique<BreakNode>()));
 }

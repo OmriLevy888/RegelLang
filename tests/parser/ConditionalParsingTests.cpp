@@ -189,7 +189,8 @@ TEST(Parser, compoundElse) {
   std::vector<Statement> elseStatements;
   elseStatements.push_back(
       std::make_unique<ExpressionStatementNode>(std::make_unique<VarDeclNode>(
-          std::make_unique<IdentifierNode>("a"), nullptr, true,
+          std::make_unique<IdentifierNode>("a"),
+          Type::t_implicit()->getOwningType(),
           std::make_unique<IntLiteralNode>(10, Type::t_int32()))));
 
   elseStatements.push_back(std::make_unique<ExpressionStatementNode>(

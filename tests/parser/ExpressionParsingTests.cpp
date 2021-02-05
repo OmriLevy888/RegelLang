@@ -198,13 +198,12 @@ TEST(Parser, varNoValue) {
   auto parser = makeParser({{TokenType::t_var},
                             {TokenType::t_identifier, "a"},
                             {TokenType::t_colon},
-                            {TokenType::t_ampersand},
                             {TokenType::t_identifier, "i32"}});
 
-  assertNode(parser->parseExprssion(),
-             std::make_unique<VarDeclNode>(
-                 std::make_unique<IdentifierNode>("a"),
-                 Type::t_int32()->getReferenceType(), false, nullptr));
+  assertNode(
+      parser->parseExprssion(),
+      std::make_unique<VarDeclNode>(std::make_unique<IdentifierNode>("a"),
+                                    Type::t_int32()->getOwningType(), nullptr));
 }
 
 TEST(Parser, varImplicitTypeWithValue) {
@@ -215,7 +214,8 @@ TEST(Parser, varImplicitTypeWithValue) {
 
   assertNode(parser->parseExprssion(),
              std::make_unique<VarDeclNode>(
-                 std::make_unique<IdentifierNode>("a"), nullptr, false,
+                 std::make_unique<IdentifierNode>("a"),
+                 Type::t_implicit()->getMutableType(),
                  std::make_unique<BooleanLiteralNode>(true)));
 }
 
@@ -232,7 +232,7 @@ TEST(Parser, letExplicitTypeWithValue) {
   assertNode(parser->parseExprssion(),
              std::make_unique<VarDeclNode>(
                  std::make_unique<IdentifierNode>("a"),
-                 makeType({"foo", "bar"}), true,
+                 makeType({"foo", "bar"}, TypeProperties::_owning),
                  std::make_unique<IntLiteralNode>(10, Type::t_int32())));
 }
 
@@ -243,10 +243,11 @@ TEST(Parser, emptyBlock) {
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
 
-  assertNode(parser->parseExprssion(),
-             std::make_unique<VarDeclNode>(
-                 std::make_unique<IdentifierNode>("a"), nullptr, true,
-                 std::make_unique<BlockNode>()));
+  assertNode(
+      parser->parseExprssion(),
+      std::make_unique<VarDeclNode>(std::make_unique<IdentifierNode>("a"),
+                                    Type::t_implicit()->getOwningType(),
+                                    std::make_unique<BlockNode>()));
 }
 
 TEST(Parser, fullBlock) {
@@ -269,7 +270,9 @@ TEST(Parser, fullBlock) {
 
   assertNode(parser->parseExprssion(),
              std::make_unique<VarDeclNode>(
-                 std::make_unique<IdentifierNode>("a"), makeType({"b"}), false,
+                 std::make_unique<IdentifierNode>("a"),
+                 makeType({"b"}, BitField(TypeProperties::_mutable) |
+                                     TypeProperties::_owning),
                  std::make_unique<BinOpNode>(
                      BinOpType::b_plus,
                      std::make_unique<IntLiteralNode>(1, Type::t_int32()),
