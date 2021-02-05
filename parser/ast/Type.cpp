@@ -1,6 +1,15 @@
 #include "parser/ast/Type.hpp"
 
 namespace rgl {
+TypeProperties operator~(TypeProperties property) {
+  using TUnderlying = typename std::underlying_type<TypeProperties>::type;
+  return static_cast<TypeProperties>(~static_cast<TUnderlying>(property));
+}
+
+TypePtr Type::t_implicit() {
+  static TypePtr instance = std::make_shared<Type>("implicit");
+  return instance;
+}
 TypePtr Type::t_void() {
   static TypePtr instance = std::make_shared<Type>("void");
   return instance;
@@ -50,7 +59,8 @@ TypePtr Type::t_char() {
   return instance;
 }
 TypePtr Type::t_string() {
-  static TypePtr instance = std::make_shared<Type>("string");
+  static TypePtr instance =
+      std::make_shared<Type>("string", TypeProperties::_referenceType);
   return instance;
 }
 TypePtr Type::t_bool() {
@@ -81,20 +91,22 @@ std::unordered_map<Type, TypePtr> typeBank{
     {*Type::t_bool(), Type::t_bool()},
 };
 
-TypePtr makeType(std::vector<std::string> &&name, bool isReference) {
-  Type target{std::move(name), isReference};
+TypePtr makeType(std::vector<std::string> &&name, TypeProperties properties) {
+  Type target{std::move(name), properties};
   if (typeBank.cend() == typeBank.find(target)) {
-    auto typePtr = std::make_shared<Type>(target.m_name, isReference);
+    auto typePtr = std::make_shared<Type>(target.m_name, properties);
     typeBank[std::move(target)] = typePtr;
     return typePtr;
   }
   return typeBank[target];
 }
 
-TypePtr makeType(const std::vector<std::string> &name, bool isReference) {
-  Type target{name, isReference};
+TypePtr makeType(const std::vector<std::string> &name,
+                 TypeProperties properties) {
+  Type target{name, properties};
   if (typeBank.cend() == typeBank.find(target)) {
-    auto typePtr = std::make_shared<Type>(target.m_name, isReference);
+    auto typePtr = std::make_shared<Type>(target.m_name, properties);
+    typeBank[std::move(target)] = typePtr;
     return typePtr;
   }
   return typeBank[target];

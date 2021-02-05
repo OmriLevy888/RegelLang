@@ -4,7 +4,8 @@
 namespace rgl {
 class IdentifierNode : public ExpressionNode {
 public:
-  IdentifierNode(std::string &&value) : m_value(value) {}
+  IdentifierNode(std::string &&value) : m_value(std::move(value)) {}
+  IdentifierNode(const std::string &value) : m_value(value) {}
 
   inline const std::string &get() const noexcept { return m_value; }
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "common/BitField.hpp"
 #include "common/Core.hpp"
 #include "common/ILoggable.hpp"
 #include <functional>
@@ -7,36 +8,67 @@
 #include <vector>
 
 namespace rgl {
+enum class TypeProperties : uint8_t {
+  _default = 0b00000000,
+  _mutable = 0b00000001,
+  _referenceType = 0b00000010,
+  _owning = 0b00000100,
+  _isPointer = 0b00001000,
+  _isShared = 0b00010000,
+};
+
+TypeProperties operator~(TypeProperties property);
+
 class Type;
 using TypePtr = std::shared_ptr<Type>;
-TypePtr makeType(std::vector<std::string> &&name, bool isReference = false);
+TypePtr makeType(std::vector<std::string> &&name,
+                 TypeProperties properties = TypeProperties::_default);
 TypePtr makeType(const std::vector<std::string> &name,
-                 bool isReference = false);
+                 TypeProperties properties = TypeProperties::_default);
 extern std::unordered_map<Type, TypePtr> typeBank;
 
 class Type : public ILoggable {
 public:
   std::vector<std::string> m_name;
-  bool m_isReference;
+  BitField<TypeProperties> m_typeProperties;
 
-  Type() : m_name(t_void()->m_name), m_isReference(t_void()->m_isReference) {}
+  Type()
+      : m_name(t_void()->m_name), m_typeProperties(t_void()->m_typeProperties) {
+  }
 
-  Type(std::vector<std::string> &&name, bool isReference = false)
-      : m_name(std::move(name)), m_isReference(isReference) {}
-  Type(const std::vector<std::string> &name, bool isReference = false)
-      : m_name(name), m_isReference(isReference) {}
-  Type(const std::string &name, bool isReference = false)
-      : m_name({name}), m_isReference(isReference) {}
+  Type(std::vector<std::string> &&name,
+       TypeProperties properties = TypeProperties::_default)
+      : m_name(std::move(name)), m_typeProperties(properties) {}
+  Type(const std::vector<std::string> &name,
+       TypeProperties properties = TypeProperties::_default)
+      : m_name(name), m_typeProperties(properties) {}
+  Type(const std::string &name,
+       TypeProperties properties = TypeProperties::_default)
+      : m_name({name}), m_typeProperties(properties) {}
 
-  TypePtr getReferenceType() { return makeType(m_name, true); }
-  TypePtr getValueType() { return makeType(m_name, false); }
+  TypePtr getOwningType() const {
+    return makeType(m_name, m_typeProperties | TypeProperties::_owning);
+  }
+  TypePtr getMutableType() const {
+    return makeType(m_name, m_typeProperties | TypeProperties::_mutable);
+  }
+  TypePtr getValueType() const {
+    return makeType(m_name, m_typeProperties & ~TypeProperties::_isPointer);
+  }
+  TypePtr getUniquePointerType() const {
+    return makeType(m_name, m_typeProperties | TypeProperties::_isPointer);
+  }
+  TypePtr getSharedPointerType() const {
+    return makeType(m_name, m_typeProperties | TypeProperties::_isPointer |
+                                TypeProperties::_isShared);
+  }
 
   size_t getHash() const {
     size_t h = std::hash<std::string>{}(m_name[0]);
     for (size_t idx = 1; idx < m_name.size(); idx++) {
       h ^= std::hash<std::string>{}(m_name[idx]) << 1;
     }
-    return h ^ (std::hash<bool>{}(m_isReference));
+    return h ^ (std::hash<uint8_t>{}(m_typeProperties));
   }
 
   bool operator==(const Type &other) const {
@@ -44,7 +76,7 @@ public:
       return false;
     }
 
-    if (m_isReference != other.m_isReference) {
+    if (m_typeProperties != other.m_typeProperties) {
       return false;
     }
 
@@ -59,11 +91,21 @@ public:
   }
 
   std::string toString() const override {
-    std::string referencePrefix = (m_isReference) ? ("&") : ("");
-    return Formatter("Type<{}{}>", referencePrefix,
+    std::string typePrefix =
+        (m_typeProperties & TypeProperties::_owning)    ? (":")
+        : (m_typeProperties & TypeProperties::_mutable) ? ("&")
+                                                        : ("");
+
+    if (m_typeProperties & TypeProperties::_isPointer) {
+      typePrefix +=
+          (m_typeProperties & TypeProperties::_isShared) ? ("{}") : ("<>");
+    }
+
+    return Formatter("Type<{}{}>", typePrefix,
                      Formatter<>::joinContainer('.', m_name));
   }
 
+  static TypePtr t_implicit();
   static TypePtr t_void();
   static TypePtr t_int8();
   static TypePtr t_int16();

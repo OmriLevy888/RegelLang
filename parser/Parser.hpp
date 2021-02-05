@@ -3,6 +3,7 @@
 #include "lexer/ITokenGenerator.hpp"
 #include "lexer/TokenCollection.hpp"
 #include "parser/ast/FileNode.hpp"
+#include "parser/ast/constructs/ParameterNode.hpp"
 #include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
@@ -16,7 +17,6 @@ public:
       : m_tokens(std::move(tokens)) {
     m_tokens->getNext(); // get the first token
   }
-
   std::unique_ptr<FileNode> parseFile();
   Expression parseExprssion();
   Statement parseStatement();
@@ -31,7 +31,7 @@ private:
 
   uint8_t m_lastPrecedence;
 
-  TypePtr parseType();
+  TypePtr parseType(bool skipQualifiers = false);
 
   Expression parsePrimary();
   Expression parseRest(Expression primary);
@@ -63,5 +63,7 @@ private:
 
   Statement parseKeywordStatement();
   Statement parseSimpleStatement();
+
+  Parameter parseParameter();
 };
 }; // namespace rgl
