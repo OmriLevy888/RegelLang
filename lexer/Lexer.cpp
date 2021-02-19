@@ -28,10 +28,10 @@ Token Lexer::getNextImpl() {
     // new line
     std::string line;
     if (!m_sourceStream->readLine(line)) { // eof
-      m_file->m_lines.emplace_back("");
-      m_eof = makeToken(TokenType::t_eof);
+      const uint32_t reprStartIdx = m_currLine->m_repr.size();
+      m_eof = makeToken(TokenType::t_eof, reprStartIdx, 1);
+      addToken(m_eof);
       m_yieldedEof = true;
-      m_currLine = m_file->m_lines.begin();
       return m_eof;
     }
 

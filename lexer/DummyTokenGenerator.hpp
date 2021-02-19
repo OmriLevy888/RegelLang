@@ -20,6 +20,10 @@ public:
 
   TokenValuePair getNext() override {
     if (m_yieldedEOF || m_tokens.size() == 0) {
+      if (m_tokens.size() != 0 &&
+          TokenType::t_eof == m_tokens[m_tokens.size() - 1]) {
+        return m_tokens[m_tokens.size() - 1];
+      }
       return Token(TokenType::t_eof);
     }
 
