@@ -29,6 +29,7 @@ public:
 
   static bool isVarDecl(const Token &tok);
 
+  static bool isKeywordStatement(const Token &tok);
   static bool isSimpleStatement(const Token &tok);
   static bool isImplicityStatementExpression(const Token &tok);
 };

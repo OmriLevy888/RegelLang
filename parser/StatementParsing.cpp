@@ -18,18 +18,14 @@ Statement Parser::parseStatement() {
     return std::make_unique<ExpressionStatementNode>();
   }
 
-  auto statement = parseKeywordStatement();
-  if (nullptr != statement) {
-    m_tokens->getNext(); // consume keyword
-    return statement;
+  if (ParserUtilities::isKeywordStatement(m_tokens->getCurr())) {
+    return parseKeywordStatement();
   } else if (ParserUtilities::isSimpleStatement(m_tokens->getCurr())) {
-    auto ret = parseSimpleStatement();
-    return ret;
+    return parseSimpleStatement();
   } else if (ParserUtilities::isImplicityStatementExpression(
                  m_tokens->getCurr())) {
     auto implExpr = parseImplicitStatementExpression();
     if (nullptr == implExpr) {
-      // TODO: write error message
       return nullptr;
     }
 
@@ -41,10 +37,12 @@ Statement Parser::parseStatement() {
   } else {
     auto expr = parseExprssion();
     if (nullptr == expr) {
-      // TODO: write error message
       return nullptr;
     } else if (TokenType::t_semicolon != m_tokens->getCurr()) {
-      // TODO: write error message
+      ErrorManager::logError(
+          ErrorTypes::E_BAD_TOKEN,
+          {Formatter("Expected ; found {}", tokenToString(m_tokens)),
+           m_tokens});
       return nullptr;
     }
     m_tokens->getNext(); // consume semicolon
@@ -67,9 +65,13 @@ Statement Parser::parseKeywordStatement() {
   }
 
   if (TokenType::t_semicolon != m_tokens->getNext()) {
-    // TODO: write error message
+    ErrorManager::logError(
+        ErrorTypes::E_BAD_TOKEN,
+        {Formatter("Expected ; found {}", tokenToString(m_tokens)), m_tokens});
     return nullptr;
   }
+
+  m_tokens->getNext();
   return ret;
 };
 
@@ -80,13 +82,14 @@ Statement Parser::parseSimpleStatement() {
   if (TokenType::t_semicolon != m_tokens->getNext()) {
     expr = parseExprssion();
     if (nullptr == expr) {
-      // TODO: write error message
       return nullptr;
     }
   }
 
   if (TokenType::t_semicolon != m_tokens->getCurr()) {
-    // TODO: write error message
+    ErrorManager::logError(
+        ErrorTypes::E_BAD_TOKEN,
+        {Formatter("Expected ; found {}", tokenToString(m_tokens)), m_tokens});
     return nullptr;
   }
   m_tokens->getNext(); // consume semicolon

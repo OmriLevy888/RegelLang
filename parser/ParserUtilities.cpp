@@ -142,6 +142,16 @@ bool ParserUtilities::isVarDecl(const Token &tok) {
   return TokenType::t_let == tok || TokenType::t_var == tok;
 }
 
+bool ParserUtilities::isKeywordStatement(const Token &tok) {
+  switch (tok) {
+  case TokenType::t_continue:
+  case TokenType::t_break:
+    return true;
+  default:
+    return false;
+  }
+}
+
 bool ParserUtilities::isSimpleStatement(const Token &tok) {
   switch (tok) {
   case TokenType::t_return:
