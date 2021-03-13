@@ -2,7 +2,7 @@
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/literals/ParameterNode.hpp"
-#include <optional>
+
 #include <vector>
 
 namespace rgl {

@@ -16,7 +16,6 @@ public:
       : m_tokens(std::move(tokens)) {
     m_tokens->getNext(); // get the first token
   }
-
   std::unique_ptr<FileNode> parseFile();
   Expression parseExprssion();
   Statement parseStatement();
@@ -31,7 +30,7 @@ private:
 
   uint8_t m_lastPrecedence;
 
-  TypePtr parseType();
+  TypePtr parseType(bool skipQualifiers = false);
 
   Expression parsePrimary();
   Expression parseRest(Expression primary);

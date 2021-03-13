@@ -5,6 +5,10 @@
 namespace rgl {
 std::string tokenToString(Token tok,
                           std::shared_ptr<SourceProject> sourceProject) {
+  if (TokenType::t_eof == tok) {
+    return "end of file";
+  }
+
   if (nullptr == sourceProject) {
     return "";
   }

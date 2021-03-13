@@ -11,8 +11,8 @@ public:
 
   std::string toTreeStr(size_t spaces) const override {
     const std::string spacesStr(spaces + 14, ' ');
-    return Formatter("ParameterNode<name:{},\n{}type:{}>", m_name, spacesStr,
-                     m_type);
+    return Formatter("ParameterNode<name:{},\n{}type:{}>",
+                     m_name->toTreeStr(spaces + 19), spacesStr, m_type);
   }
 
 private:

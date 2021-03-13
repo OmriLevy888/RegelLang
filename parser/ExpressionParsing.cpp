@@ -34,41 +34,6 @@
 #include <memory>
 
 namespace rgl {
-TypePtr Parser::parseType() {
-  const bool isReference = TokenType::t_ampersand == m_tokens->getCurr();
-  if (isReference) {
-    m_tokens->getNext(); // consume &
-  }
-
-  std::vector<std::string> name;
-  if (!ParserUtilities::isIdentifier(m_tokens->getCurr())) {
-    ErrorManager::logError(
-        ErrorTypes::E_BAD_TOKEN,
-        {Formatter("Expected identifier, found {}", tokenToString(m_tokens)),
-         m_tokens});
-    return nullptr;
-  }
-  name.push_back(
-      std::get<std::string>(std::move(m_tokens->getCurrValue().value())));
-  m_tokens->getNext(); // consume first identifier
-
-  while (TokenType::t_dot == m_tokens->getCurr()) {
-    if (TokenType::t_identifier != m_tokens->getNext()) {
-      ErrorManager::logError(
-          ErrorTypes::E_BAD_TOKEN,
-          {Formatter("Expected identifier, found {}", tokenToString(m_tokens)),
-           m_tokens, "Did you add an extra dot ('.')?"});
-      return nullptr;
-    }
-
-    name.push_back(
-        std::get<std::string>(std::move(m_tokens->getCurrValue().value())));
-    m_tokens->getNext(); // consume current identifier
-  }
-
-  return makeType(std::move(name), isReference);
-}
-
 Expression Parser::parseExprssion() {
   m_lastPrecedence = 0;
   auto primary = parsePrimary();
@@ -368,19 +333,18 @@ Expression Parser::parseIndex(Expression primary) {
 }
 
 Expression Parser::parseVarDecl() {
-  bool isConst = TokenType::t_let == m_tokens->getCurr();
-  m_tokens->getNext(); // consume let/var
-  auto name = parseIdentifier();
-  if (nullptr == name) {
+  bool isMutable = TokenType::t_var == m_tokens->getCurr();
+  if (TokenType::t_identifier != m_tokens->getNext()) {
     // TODO: write error message
     return nullptr;
   }
+  auto name = parseIdentifier();
   m_tokens->getNext(); // consume identifier
 
-  TypePtr type;
+  TypePtr type = Type::t_implicit();
   if (TokenType::t_colon == m_tokens->getCurr()) { // parse type
     m_tokens->getNext();                           // consume :
-    type = parseType();
+    type = parseType(true);
     if (nullptr == type) {
       // TODO: wrrite error message
       return nullptr;
@@ -396,10 +360,22 @@ Expression Parser::parseVarDecl() {
       // TODO: write error message
       return nullptr;
     }
+  } else if (!isMutable) { // let must have a value
+    ErrorManager::logError(
+        ErrorTypes::E_BAD_TOKEN,
+        {Formatter("Expected initial value for constant, found {}",
+                   tokenToString(m_tokens)),
+         m_tokens});
+    return nullptr;
   }
 
-  return std::make_unique<VarDeclNode>(std::move(name), type, isConst,
-                                       std::move(expr));
+  if (isMutable) {
+    type = type->getMutableType();
+  } else {
+    type = type->getOwningType();
+  }
+
+  return std::make_unique<VarDeclNode>(std::move(name), type, std::move(expr));
 }
 
 Block Parser::parseBlock() {
@@ -703,7 +679,8 @@ Expression Parser::parseFunction() {
         return nullptr;
       }
       Identifier paramName = parseIdentifier();
-      parameters.emplace_back(paramType, std::move(paramName));
+      parameters.push_back(
+          std::make_unique<ParameterNode>(paramType, std::move(paramName)));
 
       if (TokenType::t_comma != m_tokens->getNext()) {
         break;
@@ -727,7 +704,8 @@ Expression Parser::parseFunction() {
     }
     Identifier paramName = parseIdentifier();
     m_tokens->getNext();
-    parameters.emplace_back(paramType, std::move(paramName));
+    parameters.push_back(
+        std::make_unique<ParameterNode>(paramType, std::move(paramName)));
   }
 
   // parse retType
