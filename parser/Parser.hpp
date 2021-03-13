@@ -63,5 +63,7 @@ private:
 
   Statement parseKeywordStatement();
   Statement parseSimpleStatement();
+
+  Expression parseFunction();
 };
 }; // namespace rgl

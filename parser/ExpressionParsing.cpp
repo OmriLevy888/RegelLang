@@ -15,6 +15,7 @@
 #include "parser/ast/expressions/literals/DoubleLiteralNode.hpp"
 #include "parser/ast/expressions/literals/FloatLiteralNode.hpp"
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
+#include "parser/ast/expressions/literals/ParameterNode.hpp"
 #include "parser/ast/expressions/literals/StringLiteralNode.hpp"
 #include "parser/ast/expressions/literals/UintLiteralNode.hpp"
 
@@ -80,6 +81,8 @@ Expression Parser::parseExprssion() {
       return parseVarDecl();
     } else if (TokenType::t_open_bracket == m_tokens->getCurr()) {
       return parseBlock();
+    } else if (TokenType::t_func == m_tokens->getCurr()) {
+      return parseFunction();
     }
 
     return parseImplicitStatementExpression();
@@ -672,5 +675,78 @@ SwitchCase Parser::parseSwitchCase() {
   }
 
   return std::make_unique<SwitchCaseNode>(std::move(expr), std::move(body));
+}
+
+Expression Parser::parseFunction() {
+  Identifier name = nullptr;
+  if (TokenType::t_identifier == m_tokens->getNext()) {
+    name = parseIdentifier();
+    m_tokens->getNext(); // consume name
+  }
+
+  // parse parameters
+  std::vector<Parameter> parameters;
+  const bool multipleParams = TokenType::t_open_paren == m_tokens->getCurr();
+  if (multipleParams) {
+    m_tokens->getNext(); // consume (
+    TypePtr lastType = nullptr;
+    while (TokenType::t_close_paren != m_tokens->getCurr()) {
+      // TODO: disable the ErrorManager
+      TypePtr paramType = parseType();
+      if (nullptr == paramType && nullptr == lastType) {
+        // TODO: write error message
+        return nullptr;
+      }
+
+      if (TokenType::t_identifier != m_tokens->getCurr()) {
+        // TODO: write error message
+        return nullptr;
+      }
+      Identifier paramName = parseIdentifier();
+      parameters.emplace_back(paramType, std::move(paramName));
+
+      if (TokenType::t_comma != m_tokens->getNext()) {
+        break;
+      }
+    }
+
+    if (TokenType::t_close_paren != m_tokens->getCurr()) {
+      // TODO: write error message
+      return nullptr;
+    }
+  } else if (TokenType::t_arrow != m_tokens->getCurr()) {
+    // if there is only one param
+    TypePtr paramType = parseType();
+    if (nullptr == paramType) {
+      return nullptr;
+    }
+
+    if (TokenType::t_identifier != m_tokens->getCurr()) {
+      // TODO: write error message
+      return nullptr;
+    }
+    Identifier paramName = parseIdentifier();
+    m_tokens->getNext();
+    parameters.emplace_back(paramType, std::move(paramName));
+  }
+
+  // parse retType
+  TypePtr retType = nullptr;
+  if (TokenType::t_arrow == m_tokens->getCurr()) {
+    retType = parseType();
+    if (nullptr == retType) {
+      // TODO: write error message
+      return nullptr;
+    }
+  }
+
+  // parse body
+  Expression body = parseExprssion();
+  if (nullptr == body) {
+    // TODO: write error message
+    return nullptr;
+  }
+
+  return nullptr;
 }
 }; // namespace rgl
