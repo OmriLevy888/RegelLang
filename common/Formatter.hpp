@@ -86,6 +86,9 @@ public:
   }
   template <typename _TSep, typename _TIter>
   static std::string joinIter(_TSep sep, _TIter begin, _TIter end) {
+    if (begin + 1 == end) {
+      return "";
+    }
     std::string ret = "";
     for (; begin + 1 != end; begin++) {
       ret += std::to_string(*begin) + std::to_string(sep);

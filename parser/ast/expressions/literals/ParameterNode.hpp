@@ -10,9 +10,9 @@ public:
       : m_type(type), m_name(std::move(name)) {}
 
   std::string toTreeStr(size_t spaces) const override {
-    const std::string spacesStr(spaces + 14, ' ');
+    const std::string spacesStr(spaces + 18, ' ');
     return Formatter("ParameterNode<name:{},\n{}type:{}>",
-                     m_name->toTreeStr(spaces + 19), spacesStr, m_type);
+                     m_name->toTreeStr(spaces + 18), spacesStr, m_type);
   }
 
 private:

@@ -51,7 +51,7 @@ private:
   Expression parseIndex(Expression primary);
 
   Expression parseVarDecl();
-  Block parseBlock();
+  Block parseBlock(bool forceBrackets = false);
   Expression parseConditional();
   Expression parseForLoop();
   Expression parseForInLoop();

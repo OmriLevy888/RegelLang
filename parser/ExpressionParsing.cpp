@@ -14,6 +14,7 @@
 #include "parser/ast/expressions/literals/CharLiteralNode.hpp"
 #include "parser/ast/expressions/literals/DoubleLiteralNode.hpp"
 #include "parser/ast/expressions/literals/FloatLiteralNode.hpp"
+#include "parser/ast/expressions/literals/FunctionLiteral.hpp"
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
 #include "parser/ast/expressions/literals/ParameterNode.hpp"
 #include "parser/ast/expressions/literals/StringLiteralNode.hpp"
@@ -378,9 +379,13 @@ Expression Parser::parseVarDecl() {
   return std::make_unique<VarDeclNode>(std::move(name), type, std::move(expr));
 }
 
-Block Parser::parseBlock() {
+Block Parser::parseBlock(bool forceBrackets) {
   // TODO: implement single line block
   bool isSingleStatement = TokenType::t_open_bracket != m_tokens->getCurr();
+  if (forceBrackets && isSingleStatement) {
+    // TODO: write error message
+    return nullptr;
+  }
   std::vector<Statement> statements;
 
   if (!isSingleStatement) {
@@ -663,15 +668,32 @@ Expression Parser::parseFunction() {
   // parse parameters
   std::vector<Parameter> parameters;
   const bool multipleParams = TokenType::t_open_paren == m_tokens->getCurr();
+  if (nullptr != name && !multipleParams) {
+    // TODO: write error message
+    return nullptr;
+  }
+
   if (multipleParams) {
     m_tokens->getNext(); // consume (
     TypePtr lastType = nullptr;
     while (TokenType::t_close_paren != m_tokens->getCurr()) {
+      if (nullptr != lastType) {
+        // if not the first parameter
+        if (TokenType::t_comma != m_tokens->getCurr()) {
+          // TODO: write error message
+          return nullptr;
+        }
+      }
+
       // TODO: disable the ErrorManager
       TypePtr paramType = parseType();
       if (nullptr == paramType && nullptr == lastType) {
         // TODO: write error message
         return nullptr;
+      } else if (nullptr == paramType) {
+        paramType = lastType;
+      } else {
+        lastType = paramType;
       }
 
       if (TokenType::t_identifier != m_tokens->getCurr()) {
@@ -681,16 +703,14 @@ Expression Parser::parseFunction() {
       Identifier paramName = parseIdentifier();
       parameters.push_back(
           std::make_unique<ParameterNode>(paramType, std::move(paramName)));
-
-      if (TokenType::t_comma != m_tokens->getNext()) {
-        break;
-      }
+      m_tokens->getNext(); // consume idnetifier
     }
 
     if (TokenType::t_close_paren != m_tokens->getCurr()) {
       // TODO: write error message
       return nullptr;
     }
+    m_tokens->getNext(); // consume )
   } else if (TokenType::t_arrow != m_tokens->getCurr()) {
     // if there is only one param
     TypePtr paramType = parseType();
@@ -711,6 +731,7 @@ Expression Parser::parseFunction() {
   // parse retType
   TypePtr retType = nullptr;
   if (TokenType::t_arrow == m_tokens->getCurr()) {
+    m_tokens->getNext(); // consume =>
     retType = parseType();
     if (nullptr == retType) {
       // TODO: write error message
@@ -719,12 +740,14 @@ Expression Parser::parseFunction() {
   }
 
   // parse body
-  Expression body = parseExprssion();
+  Expression body =
+      (nullptr == retType) ? (parseExprssion()) : (parseBlock(true));
   if (nullptr == body) {
     // TODO: write error message
     return nullptr;
   }
 
-  return nullptr;
+  return std::make_unique<FunctionLietralNode>(
+      std::move(name), std::move(parameters), retType, std::move(body));
 }
 }; // namespace rgl
