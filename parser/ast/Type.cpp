@@ -6,6 +6,21 @@ TypeProperties operator~(TypeProperties property) {
   return static_cast<TypeProperties>(~static_cast<TUnderlying>(property));
 }
 
+std::string Type::toString() const {
+  std::string typePrefix = (m_typeProperties & TypeProperties::_owning) ? (":")
+                           : (m_typeProperties & TypeProperties::_mutable)
+                               ? ("&")
+                               : ("");
+
+  if (m_typeProperties & TypeProperties::_isPointer) {
+    typePrefix +=
+        (m_typeProperties & TypeProperties::_isShared) ? ("{}") : ("<>");
+  }
+
+  return Formatter("Type<{}{}>", typePrefix,
+                   Formatter<>::joinContainer('.', m_name));
+}
+
 TypePtr Type::t_implicit() {
   static TypePtr instance = std::make_shared<Type>("implicit");
   return instance;

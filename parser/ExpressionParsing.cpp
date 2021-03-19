@@ -14,7 +14,7 @@
 #include "parser/ast/expressions/literals/CharLiteralNode.hpp"
 #include "parser/ast/expressions/literals/DoubleLiteralNode.hpp"
 #include "parser/ast/expressions/literals/FloatLiteralNode.hpp"
-#include "parser/ast/expressions/literals/FunctionLiteral.hpp"
+#include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
 #include "parser/ast/expressions/literals/ParameterNode.hpp"
 #include "parser/ast/expressions/literals/StringLiteralNode.hpp"
@@ -683,6 +683,7 @@ Expression Parser::parseFunction() {
           // TODO: write error message
           return nullptr;
         }
+        m_tokens->getNext(); // consume ,
       }
 
       // TODO: disable the ErrorManager
@@ -690,20 +691,24 @@ Expression Parser::parseFunction() {
       if (nullptr == paramType && nullptr == lastType) {
         // TODO: write error message
         return nullptr;
-      } else if (nullptr == paramType) {
-        paramType = lastType;
-      } else {
-        lastType = paramType;
       }
 
+      Identifier paramName = nullptr;
       if (TokenType::t_identifier != m_tokens->getCurr()) {
-        // TODO: write error message
-        return nullptr;
+        if (nullptr != lastType && paramType->isSimpleType()) {
+          paramName = std::make_unique<IdentifierNode>(paramType->m_name[0]);
+          paramType = lastType;
+        } else {
+          // TODO: write error message
+          return nullptr;
+        }
+      } else {
+        paramName = parseIdentifier();
+        m_tokens->getNext(); // consume identifier
       }
-      Identifier paramName = parseIdentifier();
       parameters.push_back(
           std::make_unique<ParameterNode>(paramType, std::move(paramName)));
-      m_tokens->getNext(); // consume idnetifier
+      lastType = paramType;
     }
 
     if (TokenType::t_close_paren != m_tokens->getCurr()) {
@@ -740,14 +745,13 @@ Expression Parser::parseFunction() {
   }
 
   // parse body
-  Expression body =
-      (nullptr == retType) ? (parseExprssion()) : (parseBlock(true));
+  Expression body = parseBlock(nullptr != retType);
   if (nullptr == body) {
     // TODO: write error message
     return nullptr;
   }
 
-  return std::make_unique<FunctionLietralNode>(
+  return std::make_unique<FunctionLiteralNode>(
       std::move(name), std::move(parameters), retType, std::move(body));
 }
 }; // namespace rgl

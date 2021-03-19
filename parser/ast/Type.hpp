@@ -63,6 +63,11 @@ public:
                                 TypeProperties::_isShared);
   }
 
+  bool isSimpleType() const noexcept {
+    return (1 == m_name.size()) &&
+           (TypeProperties::_default == m_typeProperties);
+  }
+
   size_t getHash() const {
     size_t h = std::hash<std::string>{}(m_name[0]);
     for (size_t idx = 1; idx < m_name.size(); idx++) {
@@ -90,20 +95,7 @@ public:
     return true;
   }
 
-  std::string toString() const override {
-    std::string typePrefix =
-        (m_typeProperties & TypeProperties::_owning)    ? (":")
-        : (m_typeProperties & TypeProperties::_mutable) ? ("&")
-                                                        : ("");
-
-    if (m_typeProperties & TypeProperties::_isPointer) {
-      typePrefix +=
-          (m_typeProperties & TypeProperties::_isShared) ? ("{}") : ("<>");
-    }
-
-    return Formatter("Type<{}{}>", typePrefix,
-                     Formatter<>::joinContainer('.', m_name));
-  }
+  virtual std::string toString() const override;
 
   static TypePtr t_implicit();
   static TypePtr t_void();
