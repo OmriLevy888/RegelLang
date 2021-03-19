@@ -19,7 +19,7 @@ commas, and an optional comma may be placed after the last item, for example:
 Items may also be consumed out of lists. This can only be done if the list is
 mutable (declared using `var`). When consuming a list item, an exception to the
 way consuming works is made; since it is impossible to always know at compile
-time where accesses to the list will beb made and if they are made after such an
+time where accesses to the list will be made and if they are made after such an
 item has been consumed from the list, a compile time error cannot be generated,
 but in order to allow for consuming large items in lists, the value at that cell
 is immediately set to the default value for the type. All built in types have a
@@ -27,8 +27,38 @@ predefined default value and therefore all other types also have a default
 value which is simply having all its fields set to their default values. While
 accesses to the list in places outside the function in which it is modified
 can't always be traced, accesses to the list in the function in which the item
-was consumed from it may be flagged with a warning and optionaly cause an
+was consumed from it may be flagged with a warning and optionally cause an
 compile time error.
+
+Lists may hold a different amount of items at different points along the
+execution. This means that lists may have other lists appended to them or just
+items appended to them. Lists therefore are composed of three members, `size`,
+`capacity` and some pointer to the data. This means that accesses to the data
+have to go through that pointer. In reality, this shouldn't cause any noticeable
+overhead since when optimizations are applied, the data pointer is accessed only
+once and saved in some register for the duration of the accesses to the list and
+then each access is much faster and does not require getting the data pointer
+from the list each time. If this is not enough, arrays are here to save the day.
+Unlike lists, arrays have a fixed size, which has to be known at compile time.
+This size is encoded as part of the type signature of the array. To declare an
+array rather than a list, just add the size to the type signature `[T, <size>]`
+so for example to declare an array of `5` integers, the type signature could be
+`[i32, 5]`. List literals (as shown in the example above) are as their name
+indicates, lists. They can also be assigned to arrays instead. In case the
+amount of items is lesser than the size of the array, the empty items are set
+to the default value for the type. If there are more items than the array can
+hold a compile time error is raised. If the amount of items in the list literal
+(such as with complex list literals, discussed in their own chapter) cannot be
+known at compile time, a compile time error is raised.
+
+```
+  let constArray : [i32, 5] = [0, 1, 2, 3, 4];
+  var mutableArray : [i32, 10] = @constArray;
+  mutableArray[5:] = [5, 6, 7, 8, 9];
+  for let num in mutableArray {
+    print(num); // prints 0 1 2 3 4 5 6 7 8 9
+  } 
+```
 
 Another first class citizen container type in Regel is the map. Maps allow to
 create tables from one type to another type. Maps are basically hash tables and
