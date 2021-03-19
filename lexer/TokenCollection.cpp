@@ -8,6 +8,11 @@ void TokenCollection::saveAnchor() {
   m_anchors.push(m_actualIndex);
 }
 
+void TokenCollection::saveAnchorAndCurrentToken() {
+  saveAnchor();
+  m_backlog.emplace_back(m_curr, m_value);
+}
+
 void TokenCollection::restoreAnchor() {
   m_backlogIndex = m_anchors.top() - m_baseIndex;
   m_anchors.pop();
@@ -19,6 +24,9 @@ void TokenCollection::discardAnchor() {
   size_t newEnd = m_anchors.top() - m_baseIndex;
   m_backlog.erase(m_backlog.begin() + newEnd, m_backlog.end());
   m_anchors.pop();
+  if (0 == m_anchors.size()) {
+    m_usingBacklog = false;
+  }
 }
 
 size_t TokenCollection::peekAnchor() {

@@ -1,20 +1,25 @@
 #pragma once
+#include <stack>
+#include <vector>
+
 #include "common/ILoggable.hpp"
 #include "common/collections/source-objects/SourceProject.hpp"
 #include "lexer/ITokenGenerator.hpp"
 
-#include <stack>
-#include <vector>
-
 namespace rgl {
 class TokenCollection : public ILoggable {
-public:
+ public:
   TokenCollection(std::unique_ptr<ITokenGenerator> &&tokenGenerator)
-      : m_baseIndex(0), m_backlogIndex(0), m_actualIndex(0),
-        m_usingBacklog(false), m_tokenGenerator(std::move(tokenGenerator)),
-        m_backlog(), m_value(std::nullopt) {}
+      : m_baseIndex(0),
+        m_backlogIndex(0),
+        m_actualIndex(0),
+        m_usingBacklog(false),
+        m_tokenGenerator(std::move(tokenGenerator)),
+        m_backlog(),
+        m_value(std::nullopt) {}
 
   void saveAnchor();
+  void saveAnchorAndCurrentToken();
   void restoreAnchor();
   void discardAnchor();
   size_t peekAnchor();
@@ -36,7 +41,7 @@ public:
            ", usingBacklog: " + std::to_string(m_usingBacklog) + ">";
   }
 
-private:
+ private:
   std::unique_ptr<ITokenGenerator> m_tokenGenerator;
   Token m_curr;
   std::optional<TokenValue> m_value;
@@ -48,4 +53,4 @@ private:
   std::stack<size_t> m_anchors;
   std::vector<TokenValuePair> m_backlog;
 };
-} // namespace rgl
+}  // namespace rgl
