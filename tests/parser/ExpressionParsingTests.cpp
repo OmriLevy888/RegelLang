@@ -1,14 +1,17 @@
+#include <memory>
+
 #include "common/collections/source-objects/SourceFile.hpp"
 #include "common/collections/source-objects/SourceLine.hpp"
 #include "common/collections/source-objects/SourceProject.hpp"
 #include "common/collections/source-stream/TextSourceStream.hpp"
 #include "common/errors/ErrorManager.hpp"
+#include "gtest/gtest.h"
 #include "lexer/DummyTokenGenerator.hpp"
 #include "lexer/ITokenGenerator.hpp"
 #include "lexer/Token.hpp"
 #include "lexer/TokenCollection.hpp"
 #include "parser/Parser.hpp"
-#include "parser/ast/Type.hpp"
+#include "parser/ast/constructs/Type.hpp"
 #include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/ConditionalNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
@@ -23,11 +26,7 @@
 #include "parser/ast/statements/StatementNode.hpp"
 #include "parser/ast/statements/YieldNode.hpp"
 #include "tests/TestsCore.hpp"
-
 #include "tests/parser/ParserTestsUtilities.hpp"
-
-#include "gtest/gtest.h"
-#include <memory>
 
 using namespace rgl;
 
@@ -46,9 +45,9 @@ TEST(Parser, literal) {
                             {TokenType::t_string_literal, {"hello"}}});
 
   assertNode(parser->parseExprssion(),
-             std::make_unique<IntLiteralNode>(15, Type::t_int16()));
+             std::make_unique<IntLiteralNode>(15, BasicType::t_int16()));
   assertNode(parser->parseExprssion(),
-             std::make_unique<IntLiteralNode>(30, Type::t_int32()));
+             std::make_unique<IntLiteralNode>(30, BasicType::t_int32()));
   assertNode(parser->parseExprssion(),
              std::make_unique<BooleanLiteralNode>(true));
   assertNode(parser->parseExprssion(),
@@ -67,9 +66,9 @@ TEST(Parser, precedenceNoParens) {
                  BinOpType::b_plus,
                  std::make_unique<BinOpNode>(
                      BinOpType::b_asterisk,
-                     std::make_unique<IntLiteralNode>(2, Type::t_int32()),
-                     std::make_unique<IntLiteralNode>(3, Type::t_int32())),
-                 std::make_unique<IntLiteralNode>(1, Type::t_int32())));
+                     std::make_unique<IntLiteralNode>(2, BasicType::t_int32()),
+                     std::make_unique<IntLiteralNode>(3, BasicType::t_int32())),
+                 std::make_unique<IntLiteralNode>(1, BasicType::t_int32())));
 }
 
 TEST(Parser, dotPrecedenceNoParens) {
@@ -132,11 +131,11 @@ TEST(Parser, precedenceWithParens) {
   assertNode(parser->parseExprssion(),
              std::make_unique<BinOpNode>(
                  BinOpType::b_asterisk,
-                 std::make_unique<IntLiteralNode>(2, Type::t_int32()),
+                 std::make_unique<IntLiteralNode>(2, BasicType::t_int32()),
                  std::make_unique<ParenthesesNode>(std::make_unique<BinOpNode>(
                      BinOpType::b_plus,
-                     std::make_unique<IntLiteralNode>(3, Type::t_int32()),
-                     std::make_unique<IntLiteralNode>(1, Type::t_int32())))));
+                     std::make_unique<IntLiteralNode>(3, BasicType::t_int32()),
+                     std::make_unique<IntLiteralNode>(1, BasicType::t_int32())))));
 }
 
 TEST(Parser, selfModifyingBinOp) {
@@ -203,7 +202,7 @@ TEST(Parser, varNoValue) {
   assertNode(
       parser->parseExprssion(),
       std::make_unique<VarDeclNode>(std::make_unique<IdentifierNode>("a"),
-                                    Type::t_int32()->getOwningType(), nullptr));
+                                    BasicType::t_int32()->getOwningType(), nullptr));
 }
 
 TEST(Parser, varImplicitTypeWithValue) {
@@ -215,7 +214,7 @@ TEST(Parser, varImplicitTypeWithValue) {
   assertNode(parser->parseExprssion(),
              std::make_unique<VarDeclNode>(
                  std::make_unique<IdentifierNode>("a"),
-                 Type::t_implicit()->getMutableType(),
+                 BasicType::t_implicit()->getMutableType(),
                  std::make_unique<BooleanLiteralNode>(true)));
 }
 
@@ -232,8 +231,8 @@ TEST(Parser, letExplicitTypeWithValue) {
   assertNode(parser->parseExprssion(),
              std::make_unique<VarDeclNode>(
                  std::make_unique<IdentifierNode>("a"),
-                 makeType({"foo", "bar"}, TypeProperties::_owning),
-                 std::make_unique<IntLiteralNode>(10, Type::t_int32())));
+                 BasicType::make({"foo", "bar"}, TypeProperties::_owning),
+                 std::make_unique<IntLiteralNode>(10, BasicType::t_int32())));
 }
 
 TEST(Parser, emptyBlock) {
@@ -246,7 +245,7 @@ TEST(Parser, emptyBlock) {
   assertNode(
       parser->parseExprssion(),
       std::make_unique<VarDeclNode>(std::make_unique<IdentifierNode>("a"),
-                                    Type::t_implicit()->getOwningType(),
+                                    BasicType::t_implicit()->getOwningType(),
                                     std::make_unique<BlockNode>()));
 }
 
@@ -266,16 +265,16 @@ TEST(Parser, fullBlock) {
 
   std::vector<Statement> statements;
   statements.push_back(std::make_unique<YieldNode>(
-      std::make_unique<IntLiteralNode>(2, Type::t_int32())));
+      std::make_unique<IntLiteralNode>(2, BasicType::t_int32())));
 
   assertNode(parser->parseExprssion(),
              std::make_unique<VarDeclNode>(
                  std::make_unique<IdentifierNode>("a"),
-                 makeType({"b"}, BitField(TypeProperties::_mutable) |
+                 BasicType::make({"b"}, BitField(TypeProperties::_mutable) |
                                      TypeProperties::_owning),
                  std::make_unique<BinOpNode>(
                      BinOpType::b_plus,
-                     std::make_unique<IntLiteralNode>(1, Type::t_int32()),
+                     std::make_unique<IntLiteralNode>(1, BasicType::t_int32()),
                      std::make_unique<BlockNode>(std::move(statements)))));
 }
 
@@ -297,8 +296,6 @@ TEST(Parser, typeNoIdentifier) {
   ASSERT_EQ(parser->parseExprssion(), nullptr);
   ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
 }
-
-#include <iostream>
 
 TEST(Parser, compoundTypeNoIdentifier) {
   std::vector<TokenValuePair> tokens{

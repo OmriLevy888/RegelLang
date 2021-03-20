@@ -5,9 +5,9 @@
 #include "parser/ast/ASTNode.hpp"
 
 namespace rgl {
-std::unique_ptr<Parser>
-makeParser(std::vector<TokenValuePair> &&tokens,
-           std::shared_ptr<SourceProject> sourceProject = nullptr);
+std::unique_ptr<Parser> makeParser(
+    std::vector<TokenValuePair> &&tokens,
+    std::shared_ptr<SourceProject> sourceProject = nullptr);
 void assertNode(std::unique_ptr<ASTNode> node,
                 std::unique_ptr<ASTNode> expected);
-}; // namespace rgl
+};  // namespace rgl

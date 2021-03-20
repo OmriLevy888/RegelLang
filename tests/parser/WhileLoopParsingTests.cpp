@@ -22,7 +22,7 @@ TEST(Parser, simpleWhileLoop) {
              std::make_unique<WhileLoopNode>(
                  std::make_unique<BooleanLiteralNode>(true),
                  std::make_unique<YieldNode>(
-                     std::make_unique<IntLiteralNode>(1, Type::t_int32()))));
+                     std::make_unique<IntLiteralNode>(1, BasicType::t_int32()))));
 }
 
 TEST(Parser, whileLoopNoCond) {
@@ -38,7 +38,7 @@ TEST(Parser, whileLoopNoCond) {
       std::make_unique<WhileLoopNode>(
           nullptr, std::make_unique<YieldNode>(
 
-                       std::make_unique<IntLiteralNode>(1, Type::t_int32()))));
+                       std::make_unique<IntLiteralNode>(1, BasicType::t_int32()))));
 }
 
 TEST(Parser, whileLoopNoBody) {

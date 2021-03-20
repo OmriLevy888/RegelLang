@@ -2,7 +2,7 @@
 #include "common/Logger.hpp"
 #include "lexer/ITokenGenerator.hpp"
 #include "lexer/TokenCollection.hpp"
-#include "parser/ast/FileNode.hpp"
+#include "parser/ast/constructs/FileNode.hpp"
 #include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
@@ -11,26 +11,24 @@
 
 namespace rgl {
 class Parser : public ILoggable {
-public:
+ public:
   Parser(std::unique_ptr<TokenCollection> &&tokens)
       : m_tokens(std::move(tokens)) {
-    m_tokens->getNext(); // get the first token
+    m_tokens->getNext();  // get the first token
   }
-  std::unique_ptr<FileNode> parseFile();
+
+  File parseFile();
   Expression parseExprssion();
   Statement parseStatement();
+  TypePtr parseType(bool skipQualifiers = false);
 
   std::string toString() const override {
     return Formatter("Parser<{}>", m_tokens->toString());
   }
 
-private:
+ private:
   std::unique_ptr<TokenCollection> m_tokens;
-  std::unique_ptr<FileNode> m_ast;
-
   uint8_t m_lastPrecedence;
-
-  TypePtr parseType(bool skipQualifiers = false);
 
   Expression parsePrimary();
   Expression parseRest(Expression primary);
@@ -65,4 +63,4 @@ private:
 
   Expression parseFunction();
 };
-}; // namespace rgl
+};  // namespace rgl

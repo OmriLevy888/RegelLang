@@ -1,12 +1,13 @@
 #include "tests/parser/ParserTestsUtilities.hpp"
-#include "lexer/DummyTokenGenerator.hpp"
+
 #include "gtest/gtest.h"
+#include "lexer/DummyTokenGenerator.hpp"
 
 namespace rgl {
 
-std::unique_ptr<Parser>
-makeParser(std::vector<TokenValuePair> &&tokens,
-           std::shared_ptr<SourceProject> sourceProject) {
+std::unique_ptr<Parser> makeParser(
+    std::vector<TokenValuePair> &&tokens,
+    std::shared_ptr<SourceProject> sourceProject) {
   auto tokenGenerator =
       std::make_unique<DummyTokenGenerator>(std::move(tokens), sourceProject);
   auto tokenCollection =
@@ -22,4 +23,4 @@ void assertNode(std::unique_ptr<ASTNode> expr,
   std::cout << expr->toString() << std::endl;
   ASSERT_TRUE(expr->toString() == expected->toString());
 }
-}; // namespace rgl
+};  // namespace rgl

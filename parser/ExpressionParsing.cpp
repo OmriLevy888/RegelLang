@@ -126,16 +126,16 @@ Expression Parser::parseIntLiteral() {
     std::shared_ptr<Type> intType;
     switch (m_tokens->getCurr()) {
       case TokenType::t_int8_literal:
-        intType = Type::t_int8();
+        intType = BasicType::t_int8();
         break;
       case TokenType::t_int16_literal:
-        intType = Type::t_int16();
+        intType = BasicType::t_int16();
         break;
       case TokenType::t_int32_literal:
-        intType = Type::t_int32();
+        intType = BasicType::t_int32();
         break;
       case TokenType::t_int64_literal:
-        intType = Type::t_int64();
+        intType = BasicType::t_int64();
         break;
       default:
         return nullptr;
@@ -146,16 +146,16 @@ Expression Parser::parseIntLiteral() {
     std::shared_ptr<Type> uintType;
     switch (m_tokens->getCurr()) {
       case TokenType::t_uint8_literal:
-        uintType = Type::t_uint8();
+        uintType = BasicType::t_uint8();
         break;
       case TokenType::t_uint16_literal:
-        uintType = Type::t_uint16();
+        uintType = BasicType::t_uint16();
         break;
       case TokenType::t_uint32_literal:
-        uintType = Type::t_uint32();
+        uintType = BasicType::t_uint32();
         break;
       case TokenType::t_uint64_literal:
-        uintType = Type::t_uint64();
+        uintType = BasicType::t_uint64();
         break;
       default:
         return nullptr;
@@ -338,7 +338,7 @@ Expression Parser::parseVarDecl() {
   auto name = parseIdentifier();
   m_tokens->getNext();  // consume identifier
 
-  TypePtr type = Type::t_implicit();
+  TypePtr type = BasicType::t_implicit();
   if (TokenType::t_colon == m_tokens->getCurr()) {  // parse type
     m_tokens->getNext();                            // consume :
     type = parseType(true);
@@ -681,8 +681,10 @@ Expression Parser::parseFunction() {
       }
 
       // TODO: disable the ErrorManager
+      m_tokens->saveAnchorAndCurrentToken();
       TypePtr paramType = parseType();
       if (nullptr == paramType && nullptr == lastType) {
+        m_tokens->discardAnchor();
         // TODO: write error message
         return nullptr;
       }
@@ -690,13 +692,17 @@ Expression Parser::parseFunction() {
       Identifier paramName = nullptr;
       if (TokenType::t_identifier != m_tokens->getCurr()) {
         if (nullptr != lastType && paramType->isSimpleType()) {
-          paramName = std::make_unique<IdentifierNode>(paramType->m_name[0]);
+          m_tokens->restoreAnchor();
+          paramName = parseIdentifier();
+          m_tokens->getNext();  // consume identifier
           paramType = lastType;
         } else {
+          m_tokens->discardAnchor();
           // TODO: write error message
           return nullptr;
         }
       } else {
+        m_tokens->discardAnchor();
         paramName = parseIdentifier();
         m_tokens->getNext();  // consume identifier
       }

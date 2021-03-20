@@ -1,6 +1,6 @@
 #pragma once
 #include "parser/ast/ASTNode.hpp"
-#include "parser/ast/Type.hpp"
+#include "parser/ast/constructs/Type.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 
 namespace rgl {

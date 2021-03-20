@@ -1,6 +1,9 @@
+#include <memory>
+
 #include "common/collections/source-objects/SourceLine.hpp"
 #include "common/collections/source-objects/SourceProject.hpp"
 #include "common/errors/ErrorManager.hpp"
+#include "gtest/gtest.h"
 #include "lexer/DummyTokenGenerator.hpp"
 #include "lexer/Token.hpp"
 #include "parser/Parser.hpp"
@@ -15,8 +18,6 @@
 #include "parser/ast/statements/YieldNode.hpp"
 #include "tests/TestsCore.hpp"
 #include "tests/parser/ParserTestsUtilities.hpp"
-#include "gtest/gtest.h"
-#include <memory>
 
 using namespace rgl;
 
@@ -42,8 +43,8 @@ TEST(Parser, simpleStatement) {
   assertNode(parser->parseStatement(),
              std::make_unique<YieldNode>(std::make_unique<BinOpNode>(
                  BinOpType::b_plus,
-                 std::make_unique<IntLiteralNode>(5, Type::t_int32()),
-                 std::make_unique<IntLiteralNode>(5, Type::t_int32()))));
+                 std::make_unique<IntLiteralNode>(5, BasicType::t_int32()),
+                 std::make_unique<IntLiteralNode>(5, BasicType::t_int32()))));
   assertNode(parser->parseStatement(), std::make_unique<ReturnNode>());
 }
 

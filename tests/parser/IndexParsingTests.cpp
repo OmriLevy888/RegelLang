@@ -1,15 +1,14 @@
+#include <memory>
+
 #include "lexer/Token.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
+#include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
+#include "parser/ast/expressions/literals/IntLiteralNode.hpp"
+#include "parser/ast/expressions/ops/BinOpNode.hpp"
 #include "parser/ast/expressions/ops/IndexNode.hpp"
 #include "parser/ast/expressions/ops/InvokeNode.hpp"
 #include "tests/TestsCore.hpp"
 #include "tests/parser/ParserTestsUtilities.hpp"
-
-#include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
-#include "parser/ast/expressions/literals/IntLiteralNode.hpp"
-#include "parser/ast/expressions/ops/BinOpNode.hpp"
-
-#include <memory>
 
 using namespace rgl;
 
