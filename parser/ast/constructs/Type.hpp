@@ -23,9 +23,9 @@ using TypePtr = std::shared_ptr<Type>;
 
 class Type : public ConstructNode {
  public:
-  virtual bool isSimpleType() const noexcept { return false; }
-
   virtual bool operator==(TypePtr other) const = 0;
+
+  virtual bool isSimpleType() const noexcept { return false; }
 
   virtual size_t getHash() const;
 

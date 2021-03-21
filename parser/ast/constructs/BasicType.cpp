@@ -1,13 +1,15 @@
 #include "parser/ast/constructs/BasicType.hpp"
 
 namespace rgl {
-bool BasicType::isSimpleType() const noexcept {
-  return (1 == m_name.size()) && (TypeProperties::_default == m_typeProperties);
-}
-
 bool BasicType::operator==(TypePtr other) const {
   // TODO: implement this
   return false;
+}
+
+bool BasicType::isSimpleType() const noexcept {
+  return (m_name.size() == 1) &&
+         (m_typeProperties ==
+          BitField<TypeProperties>(TypeProperties::_default));
 }
 
 size_t BasicType::getHash() const {
@@ -37,10 +39,10 @@ TypePtr BasicType::getSharedPointerType() const {
 }
 
 std::string BasicType::toTreeStr(size_t spaces) const {
-  std::string typePrefix =
-      (m_typeProperties & TypeProperties::_owning)
-          ? (":")
-          : (m_typeProperties & TypeProperties::_mutable) ? ("&") : ("");
+  std::string typePrefix = (m_typeProperties & TypeProperties::_owning) ? (":")
+                           : (m_typeProperties & TypeProperties::_mutable)
+                               ? ("&")
+                               : ("");
 
   if (m_typeProperties & TypeProperties::_isPointer) {
     typePrefix +=

@@ -13,9 +13,9 @@ class BasicType : public Type {
       const std::vector<std::string> &name,
       BitField<TypeProperties> properties = TypeProperties::_default);
 
-  virtual bool isSimpleType() const noexcept override;
-
   virtual bool operator==(TypePtr other) const override;
+
+  virtual bool isSimpleType() const noexcept override;
 
   virtual size_t getHash() const override;
 

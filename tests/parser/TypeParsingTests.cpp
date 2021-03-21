@@ -1,4 +1,5 @@
 #include "lexer/Token.hpp"
+#include "parser/ast/constructs/FunctionType.hpp"
 #include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
@@ -49,7 +50,24 @@ TEST(Parser, compoundTypeParsing) {
             BasicType::make({"a", "b", "c"})->toString());
 }
 
-TEST(Parser, functionTypeParsing) {}
+#include <iostream>
+TEST(Parser, functionTypeParsing) {
+  auto parser = makeParser({{TokenType::t_func},
+                            {TokenType::t_open_paren},
+                            {TokenType::t_identifier, "i32"},
+                            {TokenType::t_comma},
+                            {TokenType::t_identifier, "float"},
+                            {TokenType::t_close_paren},
+                            {TokenType::t_arrow},
+                            {TokenType::t_identifier, "bool"}});
+
+  const auto foo = parser->parseType()->toString();
+  std::cout << foo << std::endl;
+  ASSERT_EQ(foo,
+            FunctionType::make({BasicType::t_int32(), BasicType::t_float()},
+                               BasicType::t_bool())
+                ->toString());
+}
 
 TEST(Parser, pointerTypeParsing) {
   auto parser = makeParser({{TokenType::t_lesser_than},
@@ -61,7 +79,8 @@ TEST(Parser, pointerTypeParsing) {
 
   std::vector<TypePtr> types{
       BasicType::make({"a"}, TypeProperties::_isPointer),
-      BasicType::make({"b"}, BitField<TypeProperties>{TypeProperties::_isPointer} |
+      BasicType::make({"b"},
+                      BitField<TypeProperties>{TypeProperties::_isPointer} |
                           TypeProperties::_isShared)};
   for (const auto &type : types) {
     ASSERT_EQ(parser->parseType()->toString(), type->toString());

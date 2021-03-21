@@ -14,8 +14,6 @@ size_t FunctionType::getHash() const {
   return h;
 }
 
-std::string FunctionType::toTreeStr(size_t spaces) const { return ""; }
-
 TypePtr FunctionType::getOwningType() const {
   return FunctionType::make(m_params, m_retType,
                             m_typeProperties | TypeProperties::_owning);
@@ -36,5 +34,23 @@ TypePtr FunctionType::getSharedPointerType() const {
   return FunctionType::make(m_params, m_retType,
                             m_typeProperties | TypeProperties::_isPointer |
                                 TypeProperties::_isShared);
+}
+
+std::string FunctionType::toTreeStr(size_t spaces) const {
+  std::string typePrefix =
+      (m_typeProperties & TypeProperties::_owning)
+          ? (":")
+          : (m_typeProperties & TypeProperties::_mutable) ? ("&") : ("");
+
+  if (m_typeProperties & TypeProperties::_isPointer) {
+    typePrefix +=
+        (m_typeProperties & TypeProperties::_isShared) ? ("{}") : ("<>");
+  }
+
+  return Formatter(
+      "FunctionType<{}func ({}) => {}>", typePrefix,
+      Formatter<>::joinContainer(", ", m_params, [spaces](auto paramType) {
+        return paramType->toTreeStr(spaces);
+      }), m_retType->toTreeStr(spaces));
 }
 };  // namespace rgl

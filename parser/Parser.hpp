@@ -30,6 +30,10 @@ class Parser : public ILoggable {
   std::unique_ptr<TokenCollection> m_tokens;
   uint8_t m_lastPrecedence;
 
+  std::optional<BitField<TypeProperties>> parseTypeModifiers();
+  TypePtr parseBasicType(BitField<TypeProperties> properties);
+  TypePtr parseFunctionType(BitField<TypeProperties> properties);
+
   Expression parsePrimary();
   Expression parseRest(Expression primary);
   Expression parseImplicitStatementExpression();
