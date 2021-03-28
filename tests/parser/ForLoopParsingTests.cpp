@@ -28,7 +28,7 @@ TEST(Parser, emptyForLoop) {
                             {TokenType::t_close_bracket}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<ForLoopNode>(
           nullptr, nullptr, nullptr,
           std::make_unique<ExpressionStatementNode>(
@@ -55,7 +55,7 @@ TEST(Parser, fullForLoop) {
                             {TokenType::t_semicolon}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<ForLoopNode>(
           std::make_unique<VarDeclNode>(
               std::make_unique<IdentifierNode>("idx"),
@@ -85,7 +85,7 @@ TEST(Parser, forLoopNoInit) {
                             {TokenType::t_break},
                             {TokenType::t_semicolon}});
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<ForLoopNode>(
           nullptr,
           std::make_unique<BinOpNode>(
@@ -113,7 +113,7 @@ TEST(Parser, forLoopNoCond) {
                             {TokenType::t_break},
                             {TokenType::t_semicolon}});
 
-  assertNode(parser->parseExprssion(),
+  assertNode(parser->parseExpression(),
              std::make_unique<ForLoopNode>(
                  std::make_unique<VarDeclNode>(
                      std::make_unique<IdentifierNode>("idx"),
@@ -145,7 +145,7 @@ TEST(Parser, forLoopNoAdvance) {
                             {TokenType::t_close_bracket}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<ForLoopNode>(
           std::make_unique<VarDeclNode>(
               std::make_unique<IdentifierNode>("idx"),
@@ -172,7 +172,7 @@ TEST(Parser, forLoopNoInitNoAdvance) {
                             {TokenType::t_close_bracket}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<ForLoopNode>(
           nullptr,
           std::make_unique<BinOpNode>(
@@ -193,7 +193,7 @@ TEST(Parser, forLoopNoInitNoCond) {
                             {TokenType::t_break},
                             {TokenType::t_semicolon}});
 
-  assertNode(parser->parseExprssion(),
+  assertNode(parser->parseExpression(),
              std::make_unique<ForLoopNode>(
                  nullptr, nullptr,
                  std::make_unique<UnaryOpNode>(
@@ -217,7 +217,7 @@ TEST(Parser, forLoopNoCondNoAdvance) {
                             {TokenType::t_semicolon},
                             {TokenType::t_close_bracket}});
 
-  assertNode(parser->parseExprssion(),
+  assertNode(parser->parseExpression(),
              std::make_unique<ForLoopNode>(
                  std::make_unique<VarDeclNode>(
                      std::make_unique<IdentifierNode>("idx"),
@@ -240,7 +240,7 @@ TEST(Parser, forLoopInOpInInit) {
                             {TokenType::t_close_bracket}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<ForLoopNode>(
           std::make_unique<BinOpNode>(BinOpType::b_in,
                                       std::make_unique<IdentifierNode>("a"),

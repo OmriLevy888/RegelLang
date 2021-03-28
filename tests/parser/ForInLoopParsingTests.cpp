@@ -28,7 +28,7 @@ TEST(Parser, simpleForInLoop) {
                             {TokenType::t_identifier, "item"},
                             {TokenType::t_semicolon}});
 
-  assertNode(parser->parseExprssion(),
+  assertNode(parser->parseExpression(),
              std::make_unique<ForInLoopNode>(
                  PassType::p_const, std::make_unique<IdentifierNode>("item"),
                  std::make_unique<IdentifierNode>("iterrable"),
@@ -46,7 +46,7 @@ TEST(Parser, consumeForInLoop) {
                             {TokenType::t_identifier, "item"},
                             {TokenType::t_semicolon}});
 
-  assertNode(parser->parseExprssion(),
+  assertNode(parser->parseExpression(),
              std::make_unique<ForInLoopNode>(
                  PassType::p_consume, std::make_unique<IdentifierNode>("item"),
                  std::make_unique<IdentifierNode>("iterrable"),
@@ -64,7 +64,7 @@ TEST(Parser, mutableForInLoop) {
                             {TokenType::t_identifier, "item"},
                             {TokenType::t_semicolon}});
 
-  assertNode(parser->parseExprssion(),
+  assertNode(parser->parseExpression(),
              std::make_unique<ForInLoopNode>(
                  PassType::p_mutable, std::make_unique<IdentifierNode>("item"),
                  std::make_unique<IdentifierNode>("iterrable"),

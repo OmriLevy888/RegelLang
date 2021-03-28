@@ -18,7 +18,7 @@ TEST(Parser, simpleWhileLoop) {
                             {TokenType::t_int32_literal, 1},
                             {TokenType::t_semicolon}});
 
-  assertNode(parser->parseExprssion(),
+  assertNode(parser->parseExpression(),
              std::make_unique<WhileLoopNode>(
                  std::make_unique<BooleanLiteralNode>(true),
                  std::make_unique<YieldNode>(
@@ -34,7 +34,7 @@ TEST(Parser, whileLoopNoCond) {
                             {TokenType::t_close_bracket}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<WhileLoopNode>(
           nullptr, std::make_unique<YieldNode>(
 
@@ -46,7 +46,7 @@ TEST(Parser, whileLoopNoBody) {
                             {TokenType::t_boolean, true},
                             {TokenType::t_semicolon}});
 
-  assertNode(parser->parseExprssion(),
+  assertNode(parser->parseExpression(),
              std::make_unique<WhileLoopNode>(
                  std::make_unique<BooleanLiteralNode>(true),
                  std::make_unique<ExpressionStatementNode>()));

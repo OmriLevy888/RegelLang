@@ -18,7 +18,7 @@ class Parser : public ILoggable {
   }
 
   File parseFile();
-  Expression parseExprssion();
+  Expression parseExpression();
   Statement parseStatement();
   TypePtr parseType(bool skipQualifiers = false);
 

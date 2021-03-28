@@ -50,7 +50,6 @@ TEST(Parser, compoundTypeParsing) {
             BasicType::make({"a", "b", "c"})->toString());
 }
 
-#include <iostream>
 TEST(Parser, functionTypeParsing) {
   auto parser = makeParser({{TokenType::t_func},
                             {TokenType::t_open_paren},
@@ -61,9 +60,7 @@ TEST(Parser, functionTypeParsing) {
                             {TokenType::t_arrow},
                             {TokenType::t_identifier, "bool"}});
 
-  const auto foo = parser->parseType()->toString();
-  std::cout << foo << std::endl;
-  ASSERT_EQ(foo,
+  ASSERT_EQ(parser->parseType()->toString(),
             FunctionType::make({BasicType::t_int32(), BasicType::t_float()},
                                BasicType::t_bool())
                 ->toString());
@@ -104,4 +101,19 @@ TEST(Parser, typeModifiersParsing) {
   for (const auto &type : types) {
     ASSERT_EQ(parser->parseType()->toString(), type->toString());
   }
+}
+
+TEST(Parser, functionTypeMissingComma) {
+  std::vector<TokenValuePair> tokens;
+
+  auto parser = makeParser("TEST::Parser.functionTypeMissingComma",
+                           {{{0, TokenType::t_func, 0, 4}},
+                            {{1, TokenType::t_open_paren, 5, 1}},
+                            {{2, TokenType::t_identifier, 6, 3}, "i32"},
+                            {{3, TokenType::t_identifier, 10, 5}, "float"},
+                            {{4, TokenType::t_close_paren, 16, 1}}},
+                           {"func (i32 float)"});
+
+  ASSERT_EQ(parser->parseType(), nullptr);
+  ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
 }

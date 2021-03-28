@@ -40,7 +40,7 @@ TEST(Parser, simpleSwitchCase) {
       std::make_unique<YieldNode>(
           std::make_unique<BooleanLiteralNode>(false))));
 
-  assertNode(parser->parseExprssion(),
+  assertNode(parser->parseExpression(),
              std::make_unique<SwitchNode>(std::make_unique<IdentifierNode>("a"),
                                           nullptr, std::move(cases)));
 }
@@ -74,7 +74,7 @@ TEST(Parser, swithWithCaseExprType) {
           std::make_unique<BooleanLiteralNode>(false))));
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<SwitchNode>(std::make_unique<IdentifierNode>("a"),
                                    BasicType::make({"i32"}), std::move(cases)));
 }
@@ -114,7 +114,7 @@ TEST(Parser, switchCaseWithDefaultStatement) {
       std::make_unique<YieldNode>(
           std::make_unique<BooleanLiteralNode>(false))));
 
-  assertNode(parser->parseExprssion(),
+  assertNode(parser->parseExpression(),
              std::make_unique<SwitchNode>(std::make_unique<IdentifierNode>("a"),
                                           nullptr, std::move(cases)));
 }

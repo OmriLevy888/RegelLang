@@ -112,7 +112,10 @@ TypePtr Parser::parseFunctionType(BitField<TypeProperties> properties) {
       if (0 != paramTypes.size()) {  // if not the first parameter, make sure
         // the is a comma
         if (TokenType::t_comma != m_tokens->getCurr()) {
-          // TODO: write error message
+          ErrorManager::logError(
+              ErrorTypes::E_BAD_TOKEN,
+              {Formatter("Expected ',', found {}", tokenToString(m_tokens)),
+               m_tokens, "Did you forget a comma (',')?"});
           return nullptr;
         }
         m_tokens->getNext();  // consume ,
@@ -120,14 +123,16 @@ TypePtr Parser::parseFunctionType(BitField<TypeProperties> properties) {
 
       auto currType = parseType();
       if (nullptr == currType) {
-        // TODO: write error
         return nullptr;
       }
       paramTypes.push_back(currType);
     }
 
     if (TokenType::t_close_paren != m_tokens->getCurr()) {
-      // TODO: write error message
+      ErrorManager::logError(
+          ErrorTypes::E_BAD_TOKEN,
+          {Formatter("Expected ), found {}", tokenToString(m_tokens)),
+           m_tokens});
       return nullptr;
     }
     m_tokens->getNext();  // consume )
@@ -137,7 +142,6 @@ TypePtr Parser::parseFunctionType(BitField<TypeProperties> properties) {
                                      // explicit return type
     auto currType = parseType();
     if (nullptr == currType) {
-      // TODO: write error message
       return nullptr;
     }
     paramTypes.push_back(currType);
@@ -148,7 +152,6 @@ TypePtr Parser::parseFunctionType(BitField<TypeProperties> properties) {
     m_tokens->getNext();  // consume =>
     retType = parseType();
     if (nullptr == retType) {
-      // TODO: write error message
       return nullptr;
     }
   }

@@ -15,6 +15,22 @@ std::unique_ptr<Parser> makeParser(
   return std::make_unique<Parser>(std::move(tokenCollection));
 }
 
+std::unique_ptr<Parser> makeParser(const std::string &testName,
+                                   std::vector<TokenValuePair> &&tokens,
+                                   std::vector<std::string> &&source,
+                                   const size_t firstLineNo) {
+  auto project = std::make_shared<SourceProject>(testName);
+
+  SourceFile file{testName};
+  file.m_lines.reserve(source.size());
+  for (size_t idx = 0; idx < source.size(); idx++) {
+    file.m_lines.emplace_back(std::move(source[idx]), tokens, firstLineNo + idx);
+  }
+
+  project->addFile(std::move(file));
+  return std::move(makeParser(std::move(tokens), project));
+}
+
 void assertNode(std::unique_ptr<ASTNode> expr,
                 std::unique_ptr<ASTNode> expected) {
   ASSERT_TRUE(expr != nullptr);

@@ -22,7 +22,7 @@ TEST(Parser, simpleIf) {
                             {TokenType::t_semicolon},
                             {TokenType::t_close_bracket}});
 
-  assertNode(parser->parseExprssion(),
+  assertNode(parser->parseExpression(),
              std::make_unique<ConditionalNode>(
                  std::make_unique<BooleanLiteralNode>(false),
                  std::make_unique<ExpressionStatementNode>(
@@ -36,7 +36,7 @@ TEST(Parser, sinlgeStatementIf) {
                             {TokenType::t_semicolon}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<ConditionalNode>(
           std::make_unique<IntLiteralNode>(5, BasicType::t_int32()),
           std::make_unique<ExpressionStatementNode>(
@@ -57,7 +57,7 @@ TEST(Parser, elifNoElse) {
                             {TokenType::t_close_bracket}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<ConditionalNode>(
           std::make_unique<BooleanLiteralNode>(true),
           std::make_unique<ExpressionStatementNode>(
@@ -81,7 +81,7 @@ TEST(Parser, elseNoElif) {
                             {TokenType::t_semicolon}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<ConditionalNode>(
           std::make_unique<BooleanLiteralNode>(true),
           std::make_unique<YieldNode>(
@@ -108,7 +108,7 @@ TEST(Parser, multipleElifsAndElse) {
                             {TokenType::t_semicolon}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<ConditionalNode>(
           std::make_unique<BooleanLiteralNode>(false),
           std::make_unique<ExpressionStatementNode>(
@@ -143,7 +143,7 @@ TEST(Parser, compoundElif) {
                             {TokenType::t_int32_literal, 2},
                             {TokenType::t_semicolon}});
 
-  assertNode(parser->parseExprssion(),
+  assertNode(parser->parseExpression(),
              std::make_unique<ConditionalNode>(
                  std::make_unique<BooleanLiteralNode>(false),
                  std::make_unique<ExpressionStatementNode>(
@@ -201,7 +201,7 @@ TEST(Parser, compoundElse) {
           std::make_unique<BooleanLiteralNode>(false),
           std::make_unique<ReturnNode>(), std::make_unique<BreakNode>())));
 
-  assertNode(parser->parseExprssion(),
+  assertNode(parser->parseExpression(),
              std::make_unique<ConditionalNode>(
                  std::make_unique<BooleanLiteralNode>(false),
                  std::make_unique<ReturnNode>(),

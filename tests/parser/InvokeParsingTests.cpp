@@ -18,7 +18,7 @@ TEST(Parser, invokeNoParams) {
                             {TokenType::t_close_paren}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<InvokeNode>(std::make_unique<IdentifierNode>("foo")));
 }
 
@@ -29,7 +29,7 @@ TEST(Parser, invokeOneParam) {
                             {TokenType::t_close_paren}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<InvokeNode>(std::make_unique<IdentifierNode>("foo"),
                                    std::make_unique<IdentifierNode>("a")));
 }
@@ -46,7 +46,7 @@ TEST(Parser, invokeMultipleParams) {
   params.push_back(std::make_unique<IdentifierNode>("a"));
   params.push_back(std::make_unique<IdentifierNode>("b"));
 
-  assertNode(parser->parseExprssion(),
+  assertNode(parser->parseExpression(),
              std::make_unique<InvokeNode>(
                  std::make_unique<IdentifierNode>("foo"), std::move(params)));
 }
@@ -59,7 +59,7 @@ TEST(Parser, invokeLastParamWithComma) {
                             {TokenType::t_close_paren}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<InvokeNode>(std::make_unique<IdentifierNode>("foo"),
                                    std::make_unique<IdentifierNode>("a")));
 }
@@ -73,7 +73,7 @@ TEST(Parser, invokeWithBinOp) {
                             {TokenType::t_identifier, "b"}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<BinOpNode>(
           BinOpType::b_plus,
           std::make_unique<InvokeNode>(std::make_unique<IdentifierNode>("foo"),

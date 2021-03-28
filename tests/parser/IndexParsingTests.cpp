@@ -19,7 +19,7 @@ TEST(Parser, simpleIndex) {
                             {TokenType::t_close_square}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<IndexNode>(std::make_unique<IdentifierNode>("a"),
                                   std::make_unique<IdentifierNode>("b")));
 }
@@ -33,7 +33,7 @@ TEST(Parser, indexWithBinOp) {
                             {TokenType::t_identifier, "c"}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<BinOpNode>(
           BinOpType::b_plus,
           std::make_unique<IndexNode>(std::make_unique<IdentifierNode>("a"),

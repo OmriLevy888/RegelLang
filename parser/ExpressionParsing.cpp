@@ -31,7 +31,7 @@
 #include "parser/ast/expressions/ops/UnaryOpNode.hpp"
 
 namespace rgl {
-Expression Parser::parseExprssion() {
+Expression Parser::parseExpression() {
   m_lastPrecedence = 0;
   auto primary = parsePrimary();
   if (nullptr == primary) {
@@ -201,7 +201,7 @@ Expression Parser::parseBoolLiteral() {
 Expression Parser::parseParentheses() {
   if (TokenType::t_open_paren == m_tokens->getCurr()) {
     m_tokens->getNext();  // consume (
-    auto innerExpr = parseExprssion();
+    auto innerExpr = parseExpression();
     if (nullptr == innerExpr) {
       // TODO: write error message
       return nullptr;
@@ -222,7 +222,7 @@ Expression Parser::parseParentheses() {
 Expression Parser::parseBinOp(Expression primary) {
   const Token op = m_tokens->getCurr();
   m_tokens->getNext();  // consume bin-op
-  auto rhs = parseExprssion();
+  auto rhs = parseExpression();
   if (nullptr == rhs) {
     // TODO: write error message
     return nullptr;
@@ -246,7 +246,7 @@ Expression Parser::parseBinOp(Expression primary) {
 Expression Parser::parsePreOp() {
   UnaryOpType opType = ParserUtilities::tokToPreOpType(m_tokens->getCurr());
   m_tokens->getNext();  // consume pre-op
-  auto expr = parseExprssion();
+  auto expr = parseExpression();
   if (nullptr == expr) {
     // TODO: write error message
     return nullptr;
@@ -280,7 +280,7 @@ Expression Parser::parseInvoke(Expression primary) {
   if (TokenType::t_close_paren != m_tokens->getCurr()) {
     do {
       hadComma = false;
-      auto param = parseExprssion();
+      auto param = parseExpression();
       if (nullptr == param) {
         // TODO: write error message
         return nullptr;
@@ -310,7 +310,7 @@ Expression Parser::parseInvoke(Expression primary) {
 Expression Parser::parseIndex(Expression primary) {
   m_tokens->getNext();  // consume [
 
-  auto index = parseExprssion();
+  auto index = parseExpression();
   if (nullptr == index) {
     // TODO: write error message
     return nullptr;
@@ -352,7 +352,7 @@ Expression Parser::parseVarDecl() {
   if (TokenType::t_equal == m_tokens->getCurr()) {  // parse initial value
     m_tokens->getNext();                            // consume =
 
-    expr = parseExprssion();
+    expr = parseExpression();
     if (nullptr == expr) {
       // TODO: write error message
       return nullptr;
@@ -417,7 +417,7 @@ Block Parser::parseBlock(bool forceBrackets) {
 
 Expression Parser::parseConditional() {
   m_tokens->getNext();  // consume if
-  Expression cond = parseExprssion();
+  Expression cond = parseExpression();
   if (nullptr == cond) {
     // TODO: write error message
     return nullptr;
@@ -473,7 +473,7 @@ Expression Parser::parseForLoop() {
 
   Expression init;
   if (TokenType::t_semicolon != m_tokens->getCurr()) {
-    init = parseExprssion();
+    init = parseExpression();
     if (nullptr == init) {
       ErrorManager::getErrorType();  // consume error
       return parseForInLoop();
@@ -488,7 +488,7 @@ Expression Parser::parseForLoop() {
 
   Expression cond;
   if (TokenType::t_semicolon != m_tokens->getCurr()) {
-    cond = parseExprssion();
+    cond = parseExpression();
     if (nullptr == cond) {
       // TODO: write error message
       return nullptr;
@@ -502,7 +502,7 @@ Expression Parser::parseForLoop() {
 
   Expression advance;
   if (TokenType::t_open_bracket != m_tokens->getCurr()) {
-    advance = parseExprssion();
+    advance = parseExpression();
     if (nullptr == advance) {
       // TODO: write error message
       return nullptr;
@@ -549,7 +549,7 @@ Expression Parser::parseForInLoop() {
   }
   m_tokens->getNext();  // consume in
 
-  Expression iterrable = parseExprssion();
+  Expression iterrable = parseExpression();
   if (nullptr == iterrable) {
     // TODO: write error message
     return nullptr;
@@ -574,7 +574,7 @@ Expression Parser::parseWhileLoop() {
 
   Expression cond;
   if (TokenType::t_open_bracket != m_tokens->getCurr()) {
-    cond = parseExprssion();
+    cond = parseExpression();
     if (nullptr == cond) {
       // TODO: write error message
       return nullptr;
@@ -593,7 +593,7 @@ Expression Parser::parseWhileLoop() {
 Switch Parser::parseSwitch() {
   m_tokens->getNext();  // consume switch keyword
 
-  auto expr = parseExprssion();
+  auto expr = parseExpression();
   if (nullptr == expr) {
     // TODO: write error message
     return nullptr;
@@ -631,7 +631,7 @@ Switch Parser::parseSwitch() {
 }
 
 SwitchCase Parser::parseSwitchCase() {
-  auto expr = parseExprssion();
+  auto expr = parseExpression();
   if (nullptr == expr) {
     if (TokenType::t_underscore != m_tokens->getCurr()) {
       // TODO: write error message

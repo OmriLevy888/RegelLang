@@ -62,49 +62,32 @@ TEST(Parser, expressionStatement) {
 }
 
 TEST(Parser, expressionStatementMissingSemicolonError) {
-  std::vector<TokenValuePair> tokens{
-      {{0, TokenType::t_identifier, 0, 1, 0}, "a"},
-      {{0, TokenType::t_for, 0, 3, 1}}};
-  auto project = std::make_shared<SourceProject>(
-      "TEST::Parser.expressionStatementMissingSemicolonError");
-  SourceFile file{"TEST::Parser.expressionStatementMissingSemicolonError"};
-  file.m_lines.push_back(SourceLine("a", tokens, 0));
-  file.m_lines.push_back(SourceLine("for", tokens, 1));
-  project->addFile(std::move(file));
-  auto parser = makeParser(std::move(tokens), project);
+  auto parser =
+      makeParser("TEST::Parser.expressionStatementMissingSemicolonError",
+                 {{{0, TokenType::t_identifier, 0, 1, 0}, "a"},
+                  {{0, TokenType::t_for, 0, 3, 1}}},
+                 {"a", "for"});
 
   ASSERT_EQ(parser->parseStatement(), nullptr);
   ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
 }
 
 TEST(Parser, keywordStatementMissingSemicolonError) {
-  std::vector<TokenValuePair> tokens{{{0, TokenType::t_break, 4, 5, 1}},
-                                     {{1, TokenType::t_eof, 9, 1, 1}}};
-  auto project = std::make_shared<SourceProject>(
-      "TEST::Parser.keywordStatementMissingSemicolonError");
-  SourceFile file{"TEST::Parser.keywordStatementMissingSemicolonError"};
-  file.m_lines.push_back(
-      SourceLine("for var idx = 0; idx < 3; idx++", tokens, 0));
-  file.m_lines.push_back(SourceLine("    break", tokens, 1));
-  project->addFile(std::move(file));
-  auto parser = makeParser(std::move(tokens), project);
+  auto parser = makeParser(
+      "TEST::Parser.keywordStatementMissingSemicolonError",
+      {{{0, TokenType::t_break, 4, 5, 1}}, {{1, TokenType::t_eof, 9, 1, 1}}},
+      {"for var idx = 0; idx < 3; idx++ ", "    break"});
 
   ASSERT_EQ(parser->parseStatement(), nullptr);
   ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
 }
 
 TEST(Parser, simpleStatementMissingSemicolonError) {
-  std::vector<TokenValuePair> tokens{
-      {{0, TokenType::t_return, 4, 6, 0}},
-      {{1, TokenType::t_identifier, 11, 1, 0}, "a"},
-      {{0, TokenType::t_close_bracket, 0, 1, 1}}};
-  auto project = std::make_shared<SourceProject>(
-      "TEST::Parser.simpleStatementMissingSemicolonError");
-  SourceFile file{"TEST::Parser.simpleStatementMissingSemicolonError"};
-  file.m_lines.push_back(SourceLine("    return a", tokens, 0));
-  file.m_lines.push_back(SourceLine("}", tokens, 1));
-  project->addFile(std::move(file));
-  auto parser = makeParser(std::move(tokens), project);
+  auto parser = makeParser("TEST::Parser.simpleStatementMissingSemicolonError",
+                           {{{0, TokenType::t_return, 4, 6, 0}},
+                            {{1, TokenType::t_identifier, 11, 1, 0}, "a"},
+                            {{0, TokenType::t_close_bracket, 0, 1, 1}}},
+                           {"    return a", "}"});
 
   ASSERT_EQ(parser->parseStatement(), nullptr);
   ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
