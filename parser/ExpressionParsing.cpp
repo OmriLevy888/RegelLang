@@ -674,7 +674,10 @@ Expression Parser::parseFunction() {
       if (nullptr != lastType) {
         // if not the first parameter
         if (TokenType::t_comma != m_tokens->getCurr()) {
-          // TODO: write error message
+          ErrorManager::logError(
+              ErrorTypes::E_BAD_TOKEN,
+              {Formatter("Expected ',', found {}", tokenToString(m_tokens)),
+               m_tokens, "Did you forget a comma (',')?"});
           return nullptr;
         }
         m_tokens->getNext();  // consume ,
@@ -685,7 +688,6 @@ Expression Parser::parseFunction() {
       TypePtr paramType = parseType();
       if (nullptr == paramType && nullptr == lastType) {
         m_tokens->discardAnchor();
-        // TODO: write error message
         return nullptr;
       }
 
@@ -698,7 +700,10 @@ Expression Parser::parseFunction() {
           paramType = lastType;
         } else {
           m_tokens->discardAnchor();
-          // TODO: write error message
+          ErrorManager::logError(ErrorTypes::E_BAD_TOKEN,
+                                 {Formatter("Expected identifier, found {}",
+                                            tokenToString(m_tokens)),
+                                  m_tokens});
           return nullptr;
         }
       } else {
@@ -712,7 +717,10 @@ Expression Parser::parseFunction() {
     }
 
     if (TokenType::t_close_paren != m_tokens->getCurr()) {
-      // TODO: write error message
+      ErrorManager::logError(
+          ErrorTypes::E_BAD_TOKEN,
+          {Formatter("Expected ), found {}", tokenToString(m_tokens)),
+           m_tokens});
       return nullptr;
     }
     m_tokens->getNext();  // consume )
@@ -726,7 +734,10 @@ Expression Parser::parseFunction() {
       m_tokens->discardAnchor();
 
       if (TokenType::t_identifier != m_tokens->getCurr()) {
-        // TODO: write error message
+        ErrorManager::logError(ErrorTypes::E_BAD_TOKEN,
+                               {Formatter("Expected identifier, found {}",
+                                          tokenToString(m_tokens)),
+                                m_tokens});
         return nullptr;
       }
       Identifier paramName = parseIdentifier();
@@ -745,15 +756,13 @@ Expression Parser::parseFunction() {
     m_tokens->getNext();  // consume =>
     retType = parseType();
     if (nullptr == retType) {
-      // TODO: write error message
       return nullptr;
     }
   }
 
   // parse body
-  Expression body = parseBlock(nullptr != retType);
+  Expression body = parseBlock((nullptr != retType) || (!multipleParams && 0 != parameters.size()));
   if (nullptr == body) {
-    // TODO: write error message
     return nullptr;
   }
 

@@ -312,3 +312,13 @@ TEST(Parser, functionLiteralNoParensNoParamsWithRetType) {
                  nullptr, std::vector<Parameter>{}, BasicType::t_int32(),
                  std::make_unique<BlockNode>()));
 }
+
+TEST(Parser, functionLiteralMissingParameterName) {}
+
+TEST(Parser, functionLiteralSingleParamNoParensNoBrackets) {}
+
+TEST(Parser, functionLiteralRetTypeNoBrackets) {}
+
+TEST(Parser, functionLiteralMissingComma) {}
+
+TEST(Parser, functionLiteralMissingCloseParen) {}
