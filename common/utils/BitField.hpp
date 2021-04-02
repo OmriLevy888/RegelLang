@@ -54,7 +54,7 @@ public:
   }
 
   bool operator==(const BitField<TEnum> &other) const {
-    return m_value = other.m_value;
+    return m_value == other.m_value;
   }
   bool operator!=(const BitField<TEnum> &other) const {
     return m_value != other.m_value;

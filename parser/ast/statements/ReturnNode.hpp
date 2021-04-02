@@ -12,7 +12,7 @@ public:
   virtual std::string toTreeStr(size_t spaces) const override {
     std::string inner = "";
     if (nullptr != m_expr) {
-      inner = Formatter("expr:{}", m_expr->toTreeStr(spaces + 16));
+      inner = Formatter("expr:{}", m_expr->toTreeStr(spaces + 12));
     }
     return Formatter("Return<{}>", inner);
   }

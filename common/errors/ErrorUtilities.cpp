@@ -2,7 +2,6 @@
 #include "common/Formatter.hpp"
 #include "common/collections/source-objects/SourceProject.hpp"
 #include "lexer/TokenCollection.hpp"
-
 namespace rgl {
 std::string tokenToString(Token tok,
                           std::shared_ptr<SourceProject> sourceProject) {

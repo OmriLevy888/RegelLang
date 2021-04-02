@@ -36,7 +36,7 @@ Statement Parser::parseStatement() {
 
     return std::make_unique<ExpressionStatementNode>(std::move(implExpr));
   } else {
-    auto expr = parseExprssion();
+    auto expr = parseExpression();
     if (nullptr == expr) {
       return nullptr;
     } else if (TokenType::t_semicolon != m_tokens->getCurr()) {
@@ -81,7 +81,7 @@ Statement Parser::parseSimpleStatement() {
 
   Expression expr;
   if (TokenType::t_semicolon != m_tokens->getNext()) {
-    expr = parseExprssion();
+    expr = parseExpression();
     if (nullptr == expr) {
       return nullptr;
     }

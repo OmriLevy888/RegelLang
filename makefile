@@ -1,5 +1,7 @@
 LLVM_DIR=~/Installations/llvm/llvm-8.0.0-prebuilt/
 CPPC=$(LLVM_DIR)bin/clang++
+LLVM_PROFDATA=$(LLVM_DIR)bin/llvm-profdata
+LLVM_COV=$(LLVM_DIR)bin/llvm-cov
 RELEASE_OBJDIR=obj/release/
 DEBUG_OBJDIR=obj/debug/
 TEST_OBJDIR=obj/tests/
@@ -19,11 +21,11 @@ LDFLAGS=$(shell $(LLVM_DIR)bin/llvm-config --ldflags --libs) -lpthread -lncurses
 
 DEBUG_CPPFLAGS=-g
 DEBUG_POSTFIX=-debug 
-TEST_CPPFLAGS=-DRGL_TESTS -Itests/deps/include/ -g
+TEST_CPPFLAGS=-fprofile-instr-generate -fcoverage-mapping -DRGL_TESTS -Itests/deps/include/ -g
 TEST_POSTFIX=-tests 
-TEST_LDFLAGS=-Ldeps/lib/gtest/ -lgtest -lgtest_main
+TEST_LDFLAGS=-fprofile-instr-generate -fcoverage-mapping -Ldeps/lib/gtest/ -lgtest
 
-.PHONY: clean rglc debug tests cloc
+.PHONY: clean rglc debug tests cloc coverage
 
 rglc: $(RELEASE_OBJS)
 	$(eval MAINOBJ := $(RELEASE_OBJDIR)rglc.o)
@@ -69,3 +71,10 @@ clean:
 
 cloc:
 	cloc cli codegen common lang-spec lexer parser source tests
+
+coverage: tests
+	@./$(OUTDIR)rglc$(TEST_POSTFIX) >/dev/null 2>&1
+
+	@$(LLVM_PROFDATA) merge -output=merged.profraw default.profraw
+	@$(LLVM_COV) report ./$(OUTDIR)rglc$(TEST_POSTFIX) -instr-profile=merged.profraw $(RELEASE_SRCDIRS) -use-color
+	@$(LLVM_COV) show ./$(OUTDIR)rglc$(TEST_POSTFIX) -instr-profile=merged.profraw $(RELEASE_SRCDIRS) -use-color -format html > coverage.html

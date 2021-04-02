@@ -1,8 +1,7 @@
-#include "lexer/Token.hpp"
-#include "parser/ast/Type.hpp"
-#include "tests/TestsCore.hpp"
-#include "tests/parser/ParserTestsUtilities.hpp"
+#include <memory>
 
+#include "lexer/Token.hpp"
+#include "parser/ast/constructs/Type.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/SwitchCaseNode.hpp"
 #include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
@@ -10,8 +9,8 @@
 #include "parser/ast/expressions/ops/BinOpNode.hpp"
 #include "parser/ast/statements/ExpressionStatementNode.hpp"
 #include "parser/ast/statements/YieldNode.hpp"
-
-#include <memory>
+#include "tests/TestsCore.hpp"
+#include "tests/parser/ParserTestsUtilities.hpp"
 
 using namespace rgl;
 
@@ -33,15 +32,15 @@ TEST(Parser, simpleSwitchCase) {
 
   std::vector<SwitchCase> cases;
   cases.push_back(std::make_unique<SwitchCaseNode>(
-      std::make_unique<IntLiteralNode>(0, Type::t_int32()),
+      std::make_unique<IntLiteralNode>(0, BasicType::t_int32()),
       std::make_unique<YieldNode>(std::make_unique<BooleanLiteralNode>(true))));
 
   cases.push_back(std::make_unique<SwitchCaseNode>(
-      std::make_unique<IntLiteralNode>(1, Type::t_int32()),
+      std::make_unique<IntLiteralNode>(1, BasicType::t_int32()),
       std::make_unique<YieldNode>(
           std::make_unique<BooleanLiteralNode>(false))));
 
-  assertNode(parser->parseExprssion(),
+  assertNode(parser->parseExpression(),
              std::make_unique<SwitchNode>(std::make_unique<IdentifierNode>("a"),
                                           nullptr, std::move(cases)));
 }
@@ -66,17 +65,18 @@ TEST(Parser, swithWithCaseExprType) {
 
   std::vector<SwitchCase> cases;
   cases.push_back(std::make_unique<SwitchCaseNode>(
-      std::make_unique<IntLiteralNode>(0, Type::t_int32()),
+      std::make_unique<IntLiteralNode>(0, BasicType::t_int32()),
       std::make_unique<YieldNode>(std::make_unique<BooleanLiteralNode>(true))));
 
   cases.push_back(std::make_unique<SwitchCaseNode>(
-      std::make_unique<IntLiteralNode>(1, Type::t_int32()),
+      std::make_unique<IntLiteralNode>(1, BasicType::t_int32()),
       std::make_unique<YieldNode>(
           std::make_unique<BooleanLiteralNode>(false))));
 
-  assertNode(parser->parseExprssion(),
-             std::make_unique<SwitchNode>(std::make_unique<IdentifierNode>("a"),
-                                          makeType({"i32"}), std::move(cases)));
+  assertNode(
+      parser->parseExpression(),
+      std::make_unique<SwitchNode>(std::make_unique<IdentifierNode>("a"),
+                                   BasicType::make({"i32"}), std::move(cases)));
 }
 
 TEST(Parser, switchCaseWithDefaultStatement) {
@@ -102,11 +102,11 @@ TEST(Parser, switchCaseWithDefaultStatement) {
 
   std::vector<SwitchCase> cases;
   cases.push_back(std::make_unique<SwitchCaseNode>(
-      std::make_unique<IntLiteralNode>(0, Type::t_int32()),
+      std::make_unique<IntLiteralNode>(0, BasicType::t_int32()),
       std::make_unique<YieldNode>(std::make_unique<BooleanLiteralNode>(true))));
 
   cases.push_back(std::make_unique<SwitchCaseNode>(
-      std::make_unique<IntLiteralNode>(1, Type::t_int32()),
+      std::make_unique<IntLiteralNode>(1, BasicType::t_int32()),
       std::make_unique<YieldNode>(std::make_unique<BooleanLiteralNode>(true))));
 
   cases.push_back(std::make_unique<SwitchCaseNode>(
@@ -114,7 +114,7 @@ TEST(Parser, switchCaseWithDefaultStatement) {
       std::make_unique<YieldNode>(
           std::make_unique<BooleanLiteralNode>(false))));
 
-  assertNode(parser->parseExprssion(),
+  assertNode(parser->parseExpression(),
              std::make_unique<SwitchNode>(std::make_unique<IdentifierNode>("a"),
                                           nullptr, std::move(cases)));
 }

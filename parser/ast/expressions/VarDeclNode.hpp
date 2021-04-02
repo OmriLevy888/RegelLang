@@ -5,8 +5,7 @@
 namespace rgl {
 class VarDeclNode : public ExpressionNode {
 public:
-  VarDeclNode(std::unique_ptr<IdentifierNode> name, TypePtr type,
-              Expression expr)
+  VarDeclNode(Identifier name, TypePtr type, Expression expr)
       : m_name(std::move(name)), m_type(type), m_expr(std::move(expr)) {}
 
   virtual std::string toTreeStr(size_t spaces) const override {
@@ -21,7 +20,7 @@ public:
   }
 
 private:
-  std::unique_ptr<IdentifierNode> m_name;
+  Identifier m_name;
   TypePtr m_type;
   Expression m_expr;
 };

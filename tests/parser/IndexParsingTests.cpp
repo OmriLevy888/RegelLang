@@ -1,15 +1,14 @@
+#include <memory>
+
 #include "lexer/Token.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
+#include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
+#include "parser/ast/expressions/literals/IntLiteralNode.hpp"
+#include "parser/ast/expressions/ops/BinOpNode.hpp"
 #include "parser/ast/expressions/ops/IndexNode.hpp"
 #include "parser/ast/expressions/ops/InvokeNode.hpp"
 #include "tests/TestsCore.hpp"
 #include "tests/parser/ParserTestsUtilities.hpp"
-
-#include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
-#include "parser/ast/expressions/literals/IntLiteralNode.hpp"
-#include "parser/ast/expressions/ops/BinOpNode.hpp"
-
-#include <memory>
 
 using namespace rgl;
 
@@ -20,7 +19,7 @@ TEST(Parser, simpleIndex) {
                             {TokenType::t_close_square}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<IndexNode>(std::make_unique<IdentifierNode>("a"),
                                   std::make_unique<IdentifierNode>("b")));
 }
@@ -34,7 +33,7 @@ TEST(Parser, indexWithBinOp) {
                             {TokenType::t_identifier, "c"}});
 
   assertNode(
-      parser->parseExprssion(),
+      parser->parseExpression(),
       std::make_unique<BinOpNode>(
           BinOpType::b_plus,
           std::make_unique<IndexNode>(std::make_unique<IdentifierNode>("a"),

@@ -1,59 +1,79 @@
 #include "lexer/Token.hpp"
 #include "parser/Parser.hpp"
 #include "parser/ParserUtilities.hpp"
-#include "parser/ast/Type.hpp"
-#include "parser/ast/constructs/ParameterNode.hpp"
+#include "parser/ast/constructs/FunctionType.hpp"
+#include "parser/ast/constructs/Type.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 
 namespace rgl {
 TypePtr Parser::parseType(bool skipQualifiers) {
-  BitField<TypeProperties> typeProperties = TypeProperties::_default;
+  std::optional<BitField<TypeProperties>> properties = TypeProperties::_default;
   if (!skipQualifiers) {
-    switch (m_tokens->getCurr()) {
-    case TokenType::t_ampersand:
-      typeProperties = TypeProperties::_mutable;
-      m_tokens->getNext(); // consume type qualifier
-      break;
-    case TokenType::t_colon:
-      typeProperties = TypeProperties::_owning;
-      m_tokens->getNext(); // consume type qualifier
-      break;
-    default:
-      break;
+    properties = parseTypeModifiers();
+    if (!properties.has_value()) {
+      // TODO: add error message
+      return nullptr;
     }
   } else {
-    typeProperties = TypeProperties::_owning;
+    properties = TypeProperties::_owning;
   }
 
   switch (m_tokens->getCurr()) {
-  case TokenType::t_lesser_than: // <>T unique pointer
-    if (TokenType::t_greater_than != m_tokens->getNext()) {
-      ErrorManager::logError(
-          ErrorTypes::E_BAD_TOKEN,
-          {Formatter("Expected '>', found {}", tokenToString(m_tokens)),
-           m_tokens});
-      return nullptr;
-    }
-    typeProperties |= TypeProperties::_isPointer;
-    m_tokens->getNext(); // consume >
-    break;
-  case TokenType::t_open_bracket: // {}T shared pointer :TODO: add {TKey =>
-                                  // TVal} map
-    if (TokenType::t_greater_than != m_tokens->getNext()) {
-      ErrorManager::logError(
-          ErrorTypes::E_BAD_TOKEN,
-          {Formatter("Expected '>', found {}", tokenToString(m_tokens)),
-           m_tokens});
-      return nullptr;
-    }
-    typeProperties |= TypeProperties::_isPointer;
-    typeProperties |= TypeProperties::_isShared;
-    break;
-    // TODO: add [T] list
-  default:
-    break;
+    case TokenType::t_func:
+      m_tokens->getNext();  // consume func keyword
+      return parseFunctionType(properties.value());
+    default:
+      return parseBasicType(properties.value());
+  }
+}
+
+std::optional<BitField<TypeProperties>> Parser::parseTypeModifiers() {
+  BitField<TypeProperties> properties = TypeProperties::_default;
+  switch (m_tokens->getCurr()) {
+    case TokenType::t_ampersand:
+      properties = TypeProperties::_mutable;
+      m_tokens->getNext();  // consume type qualifier
+      break;
+    case TokenType::t_colon:
+      properties = TypeProperties::_owning;
+      m_tokens->getNext();  // consume type qualifier
+      break;
+    default:
+      break;
   }
 
+  switch (m_tokens->getCurr()) {
+    case TokenType::t_lesser_than:  // <>T unique pointer
+      if (TokenType::t_greater_than != m_tokens->getNext()) {
+        ErrorManager::logError(
+            ErrorTypes::E_BAD_TOKEN,
+            {Formatter("Expected '>', found {}", tokenToString(m_tokens)),
+             m_tokens});
+        return std::nullopt;
+      }
+      properties |= TypeProperties::_isPointer;
+      m_tokens->getNext();  // consume >
+      break;
+    case TokenType::t_open_bracket:
+      if (TokenType::t_close_bracket != m_tokens->getNext()) {
+        ErrorManager::logError(
+            ErrorTypes::E_BAD_TOKEN,
+            {Formatter("Expected '}', found {}", tokenToString(m_tokens)),
+             m_tokens});
+        return std::nullopt;
+      }
+      properties |= TypeProperties::_isPointer;
+      properties |= TypeProperties::_isShared;
+      m_tokens->getNext();  // consume }
+      break;
+    default:
+      break;
+  }
+
+  return properties;
+}
+
+TypePtr Parser::parseBasicType(BitField<TypeProperties> properties) {
   std::vector<std::string> name;
   if (!ParserUtilities::isIdentifier(m_tokens->getCurr())) {
     ErrorManager::logError(
@@ -64,7 +84,7 @@ TypePtr Parser::parseType(bool skipQualifiers) {
   }
   name.push_back(
       std::get<std::string>(std::move(m_tokens->getCurrValue().value())));
-  m_tokens->getNext(); // consume first identifier
+  m_tokens->getNext();  // consume first identifier
 
   while (TokenType::t_dot == m_tokens->getCurr()) {
     if (TokenType::t_identifier != m_tokens->getNext()) {
@@ -77,39 +97,65 @@ TypePtr Parser::parseType(bool skipQualifiers) {
 
     name.push_back(
         std::get<std::string>(std::move(m_tokens->getCurrValue().value())));
-    m_tokens->getNext(); // consume current identifier
+    m_tokens->getNext();  // consume current identifier
   }
 
-  return makeType(std::move(name), typeProperties);
+  return BasicType::make(std::move(name), properties);
 }
 
-Parameter Parser::parseParameter() {
-  const bool isConsume = TokenType::t_colon == m_tokens->getCurr();
-  if (isConsume) {
-    m_tokens->getNext(); // consume :
+TypePtr Parser::parseFunctionType(BitField<TypeProperties> properties) {
+  bool multipleParamTypes = (TokenType::t_open_paren == m_tokens->getCurr());
+  std::vector<TypePtr> paramTypes;
+  if (multipleParamTypes) {
+    m_tokens->getNext();  // consume (
+    while (TokenType::t_close_paren != m_tokens->getCurr()) {
+      if (0 != paramTypes.size()) {  // if not the first parameter, make sure
+        // the is a comma
+        if (TokenType::t_comma != m_tokens->getCurr()) {
+          ErrorManager::logError(
+              ErrorTypes::E_BAD_TOKEN,
+              {Formatter("Expected ',', found {}", tokenToString(m_tokens)),
+               m_tokens, "Did you forget a comma (',')?"});
+          return nullptr;
+        }
+        m_tokens->getNext();  // consume ,
+      }
+
+      auto currType = parseType();
+      if (nullptr == currType) {
+        return nullptr;
+      }
+      paramTypes.push_back(currType);
+    }
+
+    if (TokenType::t_close_paren != m_tokens->getCurr()) {
+      ErrorManager::logError(
+          ErrorTypes::E_BAD_TOKEN,
+          {Formatter("Expected ), found {}", tokenToString(m_tokens)),
+           m_tokens});
+      return nullptr;
+    }
+    m_tokens->getNext();  // consume )
+  } else if (TokenType::t_arrow !=
+             m_tokens->getCurr()) {  // function types may have zero parameters
+                                     // and no parentheses only if there is an
+                                     // explicit return type
+    auto currType = parseType();
+    if (nullptr == currType) {
+      return nullptr;
+    }
+    paramTypes.push_back(currType);
   }
 
-  auto type = parseType(isConsume);
-  if (nullptr == type) {
-    return nullptr;
+  TypePtr retType = BasicType::t_void();
+  if (TokenType::t_arrow == m_tokens->getCurr()) {
+    m_tokens->getNext();  // consume =>
+    retType = parseType();
+    if (nullptr == retType) {
+      return nullptr;
+    }
   }
 
-  bool isSingleIdentifierType = 1 == type->m_name.size();
-  Identifier name;
-  if (!isSingleIdentifierType &&
-      TokenType::t_identifier != m_tokens->getCurr()) {
-    // TODO: add error message, expected identifier
-    return nullptr;
-  } else if (isSingleIdentifierType &&
-             TokenType::t_identifier !=
-                 m_tokens->getCurr()) { // the type is actually the parameter
-                                        // name
-    name = std::make_unique<IdentifierNode>(type->m_name[0]);
-  } else if (TokenType::t_identifier == m_tokens->getCurr()) {
-    name = parseIdentifier();
-    m_tokens->getNext(); // consume identifier
-  }
-
-  return std::make_unique<ParameterNode>(std::move(name), type);
-}
-}; // namespace rgl
+  return FunctionType::make(std::move(paramTypes), retType, properties);
+}  // namespace rgl
+};  // namespace rgl

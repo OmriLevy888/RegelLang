@@ -1,12 +1,12 @@
 #pragma once
 #include "common/Core.hpp"
 #include "parser/ast/ASTNode.hpp"
-#include "parser/ast/Type.hpp"
+#include "parser/ast/constructs/BasicType.hpp"
 
 namespace rgl {
 class ExpressionNode : public ASTNode {
 public:
-  virtual TypePtr getType() const { return Type::t_void(); }
+  virtual TypePtr getType() const { return BasicType::t_void(); }
   // TODO: add getValue function that returns an LLVMValue
   // TODO: add getStorageLocation function that return an LLVMValue
 

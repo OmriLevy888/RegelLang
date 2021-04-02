@@ -1,6 +1,6 @@
 #pragma once
 #include "common/Formatter.hpp"
-#include "parser/ast/Type.hpp"
+#include "parser/ast/constructs/Type.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 
 namespace rgl {
