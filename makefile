@@ -17,7 +17,7 @@ TEST_OBJS=$(patsubst %.cpp,$(TEST_OBJDIR)%.o,$(shell find $(TEST_SRCDIRS) -type 
 CPPFLAGS=-I. -Ideps/include/ -std=c++17 -c
 _CXXFLAGS=$(shell $(LLVM_DIR)bin/llvm-config --cxxflags)
 CXXFLAGS=$(patsubst -fno-exceptions,,$(_CXXFLAGS))
-LDFLAGS= -lpthread -lncurses
+LDFLAGS=$(shell $(LLVM_DIR)bin/llvm-config --ldflags --libs) -lpthread -lncurses
 
 DEBUG_CPPFLAGS=-g
 DEBUG_POSTFIX=-debug 
