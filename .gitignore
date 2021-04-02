@@ -33,3 +33,6 @@
 
 bin/
 obj/
+
+*.profraw
+coverage.html
