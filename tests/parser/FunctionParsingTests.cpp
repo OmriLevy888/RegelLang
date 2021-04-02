@@ -273,22 +273,6 @@ TEST(Parser, functionLiteralNoNameNoParensNoParams) {
                  std::make_unique<BlockNode>()));
 }
 
-TEST(Parser, functionLiteralNoNameNoParensNoParamsNoRetTypeNoBrackets) {
-  auto parser = makeParser({{TokenType::t_func},
-                            {TokenType::t_return},
-                            {TokenType::t_int32_literal, 5},
-                            {TokenType::t_semicolon}});
-
-  std::vector<Statement> statements;
-  statements.push_back(std::make_unique<ReturnNode>(
-      std::make_unique<IntLiteralNode>(5, BasicType::t_int32())));
-
-  assertNode(parser->parseExpression(),
-             std::make_unique<FunctionLiteralNode>(
-                 nullptr, std::vector<Parameter>{}, nullptr,
-                 std::make_unique<BlockNode>(std::move(statements))));
-}
-
 TEST(Parser, functionLiteralNoNameNoParensNoParamsNoRetType) {
   auto parser = makeParser({{TokenType::t_func},
                             {TokenType::t_open_bracket},
@@ -313,12 +297,78 @@ TEST(Parser, functionLiteralNoParensNoParamsWithRetType) {
                  std::make_unique<BlockNode>()));
 }
 
-TEST(Parser, functionLiteralMissingParameterName) {}
+TEST(Parser, functionLiteralMissingParameterName) {
+  auto parser = makeParser("TEST::Parser.functionLiteralMissingParameterName",
+                           {{{0, TokenType::t_func, 0, 4}},
+                            {{1, TokenType::t_identifier, 5, 3}, "foo"},
+                            {{2, TokenType::t_open_paren, 8, 1}},
+                            {{3, TokenType::t_identifier, 9, 3}, "i32"},
+                            {{4, TokenType::t_close_paren, 12, 1}},
+                            {{5, TokenType::t_open_bracket, 14, 1}},
+                            {{6, TokenType::t_close_bracket, 15, 1}}},
+                           {"func foo(i32) {}"});
 
-TEST(Parser, functionLiteralSingleParamNoParensNoBrackets) {}
+    ASSERT_EQ(parser->parseExpression(), nullptr);
+    ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
+}
 
-TEST(Parser, functionLiteralRetTypeNoBrackets) {}
+TEST(Parser, functionLiteralSingleParamNoParensNoBrackets) {
+    auto parser = makeParser("TEST::Parser.functionLiteralSingleParamNoParensNoBrackets",
+                           {{{0, TokenType::t_func, 0, 4}},
+                            {{1, TokenType::t_identifier, 5, 3}, "i32"},
+                            {{2, TokenType::t_identifier, 9, 1}, "a"},
+                            {{3, TokenType::t_return, 11, 6}},
+                            {{4, TokenType::t_identifier, 18, 1}, "a"},
+                            {{5, TokenType::t_semicolon, 19, 1}}},
+                           {"func i32 a return a;"});
 
-TEST(Parser, functionLiteralMissingComma) {}
+    ASSERT_EQ(parser->parseExpression(), nullptr);
+    ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
+}
 
-TEST(Parser, functionLiteralMissingCloseParen) {}
+TEST(Parser, functionLiteralRetTypeNoBrackets) {
+    auto parser = makeParser("TEST::Parser.functionLiteralRetTypeNoBrackets",
+                           {{{0, TokenType::t_func, 0, 4}},
+                            {{1, TokenType::t_open_paren, 6, 1}},
+                            {{2, TokenType::t_close_paren, 7, 1}},
+                            {{3, TokenType::t_arrow, 9, 2}},
+                            {{4, TokenType::t_identifier, 12, 3}, "i32"},
+                            {{5, TokenType::t_return, 16, 6}},
+                            {{6, TokenType::t_identifier, 22, 1}, "a"},
+                            {{7, TokenType::t_semicolon, 23, 1}}},
+                           {"func () => i32 return 5;"});
+
+    ASSERT_EQ(parser->parseExpression(), nullptr);
+    ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
+}
+
+TEST(Parser, functionLiteralMissingParameterComma) {
+    auto parser = makeParser("TEST::Parser.functionLiteralMissingParameterComma",
+                           {{{0, TokenType::t_func, 0, 4}},
+                            {{1, TokenType::t_open_paren, 5, 1}},
+                            {{2, TokenType::t_identifier, 6, 3}, "u64"},
+                            {{3, TokenType::t_identifier, 10, 1}, "a"},
+                            {{4, TokenType::t_identifier, 12, 3}, "i64"},
+                            {{5, TokenType::t_identifier, 16, 1}, "b"},
+                            {{6, TokenType::t_close_paren, 17, 1}},
+                            {{7, TokenType::t_open_bracket, 19, 1}},
+                            {{7, TokenType::t_close_bracket, 20, 1}}},
+                           {"func (u64 a i64 b) {}"});
+
+    ASSERT_EQ(parser->parseExpression(), nullptr);
+    ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
+}
+
+TEST(Parser, functionLiteralMissingCloseParen) {
+    auto parser = makeParser("TEST::Parser.functionLiteralMissingCloseParen",
+                           {{{TokenType::t_func, 0, 4}},
+                            {{TokenType::t_open_paren, 5, 1}},
+                            {{TokenType::t_identifier, 6, 5}, "float"},
+                            {{TokenType::t_identifier, 12, 1}, "a"},
+                            {{TokenType::t_open_bracket, 14, 1}},
+                            {{TokenType::t_close_bracket, 15, 1}}},
+                           {"func (float a {}"});
+
+    ASSERT_EQ(parser->parseExpression(), nullptr);
+    ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
+}

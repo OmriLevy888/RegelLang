@@ -15,20 +15,25 @@ public:
 
   SourceLine(const std::string &repr) : m_repr(repr) {}
   SourceLine(std::string &&repr) : m_repr(std::move(repr)) {}
-  SourceLine(std::string &&repr, const std::vector<TokenValuePair> tokens)
+  SourceLine(std::string &&repr, const std::vector<TokenValuePair> &tokens)
       : m_repr(repr) {
     m_tokens.reserve(tokens.size());
     for (const auto &token : tokens) {
       m_tokens.push_back(token.m_token);
     }
   }
-  SourceLine(std::string &&repr, const std::vector<TokenValuePair> tokens,
+  SourceLine(std::string &&repr, const std::vector<TokenValuePair> &tokens,
              const size_t lineNo)
       : m_repr(repr) {
     m_tokens.reserve(tokens.size());
-    for (const auto &token : tokens) {
+    size_t tokenIdx = 0;
+    for (auto token : tokens) {
       if (lineNo != token.m_token.getLineNo()) {
         continue;
+      }
+
+      if (0 == token.m_token.getTokenIdx()) {
+        token.m_token.setTokenIdx(tokenIdx++);
       }
       m_tokens.push_back(token.m_token);
     }

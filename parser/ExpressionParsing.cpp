@@ -761,7 +761,18 @@ Expression Parser::parseFunction() {
   }
 
   // parse body
-  Expression body = parseBlock((nullptr != retType) || (!multipleParams && 0 != parameters.size()));
+  const bool enforceBrackets = (nullptr != retType) || !multipleParams;
+  if (enforceBrackets && TokenType::t_open_bracket != m_tokens->getCurr()) {
+    ErrorManager::logError(
+        ErrorTypes::E_BAD_TOKEN,
+        {Formatter("A function which {} must enclose its body in brackets",
+                   (nullptr != retType) ? ("has an explicit return type")
+                                        : ("has no parentheses")),
+         m_tokens});
+    return nullptr;
+  }
+
+  Expression body = parseBlock(enforceBrackets);
   if (nullptr == body) {
     return nullptr;
   }
