@@ -5,30 +5,14 @@
 #include "parser/ast/statements/StatementNode.hpp"
 
 namespace rgl {
-enum class PassType : uint8_t { p_const, p_mutable, p_consume };
-static std::string passTypeToStr(PassType type) {
-  switch (type) {
-  case PassType::p_const:
-    return "p_const";
-  case PassType::p_mutable:
-    return "p_mutable";
-  case PassType::p_consume:
-    return "p_consume";
-  default:
-    return "p_err";
-  }
-}
-
 class ForInLoopNode : public ExpressionNode {
-public:
-  ForInLoopNode(PassType type, Identifier identifier, Expression iterrable,
-                Block body)
-      : m_type(type), m_identifier(std::move(identifier)),
-        m_iterrable(std::move(iterrable)), m_body(std::move(body)) {}
-  ForInLoopNode(PassType type, Identifier identifier, Expression iterrable,
-                Statement body)
-      : m_type(type), m_identifier(std::move(identifier)),
-        m_iterrable(std::move(iterrable)) {
+ public:
+  ForInLoopNode(Identifier identifier, Expression iterable, Block body)
+      : m_identifier(std::move(identifier)),
+        m_iterable(std::move(iterable)),
+        m_body(std::move(body)) {}
+  ForInLoopNode(Identifier identifier, Expression iterable, Statement body)
+      : m_identifier(std::move(identifier)), m_iterable(std::move(iterable)) {
     std::vector<Statement> statements;
     statements.push_back(std::move(body));
     m_body = std::make_unique<BlockNode>(std::move(statements));
@@ -36,17 +20,15 @@ public:
 
   virtual std::string toTreeStr(size_t spaces) const override {
     std::string spacesStr(spaces + 14, ' ');
-    return Formatter(
-        "ForInLoopNode<type:{},\n{}identifier:{}\n{}iterrable:{},\n{}body:{}>",
-        passTypeToStr(m_type), spacesStr, m_identifier->toTreeStr(spaces + 25),
-        spacesStr, m_iterrable->toTreeStr(spaces + 24), spacesStr,
-        m_body->toTreeStr(spaces + 19));
+    return Formatter("ForInLoopNode<identifier:{}\n{}iterable:{},\n{}body:{}>",
+                     m_identifier->toTreeStr(spaces + 25), spacesStr,
+                     m_iterable->toTreeStr(spaces + 24), spacesStr,
+                     m_body->toTreeStr(spaces + 19));
   }
 
-private:
-  PassType m_type;
+ private:
   Identifier m_identifier;
-  Expression m_iterrable;
+  Expression m_iterable;
   Block m_body;
 };
-}; // namespace rgl
+};  // namespace rgl

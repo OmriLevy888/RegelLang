@@ -1,9 +1,11 @@
 #include "lexer/Lexer.hpp"
-#include "lexer/Token.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cctype>
 #include <string>
+
+#include "lexer/Token.hpp"
 
 namespace rgl {
 TokenValuePair Lexer::getNext() {
@@ -27,7 +29,7 @@ Token Lexer::getNextImpl() {
       (!skipWhiteSpace())) {
     // new line
     std::string line;
-    if (!m_sourceStream->readLine(line)) { // eof
+    if (!m_sourceStream->readLine(line)) {  // eof
       const uint32_t reprStartIdx = m_currLine->m_repr.size();
       m_eof = makeToken(TokenType::t_eof, reprStartIdx, 1);
       addToken(m_eof);
@@ -43,8 +45,7 @@ Token Lexer::getNextImpl() {
     return getNextImpl();
   }
 
-  if (lexComment())
-    return getNextImpl();
+  if (lexComment()) return getNextImpl();
 
   Token ret;
   // lexing happens here...
@@ -95,18 +96,17 @@ bool Lexer::lexComment() {
     return true;
   }
 
-  if (m_pos + 2 > m_currLine->m_repr.size())
-    return false;
+  if (m_pos + 2 > m_currLine->m_repr.size()) return false;
 
   const char first = m_currLine->m_repr[m_pos];
   const char second = m_currLine->m_repr[m_pos + 1];
 
   if (first == '/' &&
-      second == '/') { // found a single line comment till the end of the line
+      second == '/') {  // found a single line comment till the end of the line
     m_pos = m_currLine->m_repr.size();
     return true;
   } else if (first == '/' &&
-             second == '*') { // found the start of a multiline comment
+             second == '*') {  // found the start of a multiline comment
     m_state = LexerState::multilineComment;
     return lexComment();
   }
@@ -184,47 +184,50 @@ bool Lexer::lexIdentifier(Token &ret) {
 bool Lexer::lexSpecialCharacter(Token &ret) {
   const char curr = m_currLine->m_repr[m_pos];
   switch (m_currLine->m_repr[m_pos]) {
-  case '_':
-    ret = makeToken(TokenType::t_underscore, m_pos, 1);
-    break;
-  case ';':
-    ret = makeToken(TokenType::t_semicolon, m_pos, 1);
-    break;
-  case ':':
-    ret = makeToken(TokenType::t_colon, m_pos, 1);
-    break;
-  case '#':
-    ret = makeToken(TokenType::t_pound, m_pos, 1);
-    break;
-  case '{':
-    ret = makeToken(TokenType::t_open_bracket, m_pos, 1);
-    break;
-  case '}':
-    ret = makeToken(TokenType::t_close_bracket, m_pos, 1);
-    break;
-  case '(':
-    ret = makeToken(TokenType::t_open_paren, m_pos, 1);
-    break;
-  case ')':
-    ret = makeToken(TokenType::t_close_paren, m_pos, 1);
-    break;
-  case '[':
-    ret = makeToken(TokenType::t_open_square, m_pos, 1);
-    break;
-  case ']':
-    ret = makeToken(TokenType::t_close_square, m_pos, 1);
-    break;
-  case '.':
-    ret = makeToken(TokenType::t_dot, m_pos, 1);
-    break;
-  case '?':
-    ret = makeToken(TokenType::t_question_mark, m_pos, 1);
-    break;
-  case ',':
-    ret = makeToken(TokenType::t_comma, m_pos, 1);
-    break;
-  default:
-    return false;
+    case '_':
+      ret = makeToken(TokenType::t_underscore, m_pos, 1);
+      break;
+    case ';':
+      ret = makeToken(TokenType::t_semicolon, m_pos, 1);
+      break;
+    case ':':
+      ret = makeToken(TokenType::t_colon, m_pos, 1);
+      break;
+    case '#':
+      ret = makeToken(TokenType::t_pound, m_pos, 1);
+      break;
+    case '{':
+      ret = makeToken(TokenType::t_open_bracket, m_pos, 1);
+      break;
+    case '}':
+      ret = makeToken(TokenType::t_close_bracket, m_pos, 1);
+      break;
+    case '(':
+      ret = makeToken(TokenType::t_open_paren, m_pos, 1);
+      break;
+    case ')':
+      ret = makeToken(TokenType::t_close_paren, m_pos, 1);
+      break;
+    case '[':
+      ret = makeToken(TokenType::t_open_square, m_pos, 1);
+      break;
+    case ']':
+      ret = makeToken(TokenType::t_close_square, m_pos, 1);
+      break;
+    case '.':
+      ret = makeToken(TokenType::t_dot, m_pos, 1);
+      break;
+    case '?':
+      ret = makeToken(TokenType::t_question_mark, m_pos, 1);
+      break;
+    case ',':
+      ret = makeToken(TokenType::t_comma, m_pos, 1);
+      break;
+    case '@':
+      ret = makeToken(TokenType::t_at, m_pos, 1);
+      break;
+    default:
+      return false;
   }
   m_pos++;
   return true;
@@ -264,7 +267,7 @@ bool Lexer::lexOperator(Token &ret) {
       {"<<=", TokenType::t_shift_left_equal},
       {"=>", TokenType::t_arrow}};
   static const size_t MAX_OPERATOR_LEN =
-      3; // Change this when new operators longer than 3 characters are
+      3;  // Change this when new operators longer than 3 characters are
   // introduces, though this should probably never happen
   const size_t lenLeft = m_currLine->m_repr.size() - m_pos;
   const size_t len = std::min(MAX_OPERATOR_LEN, lenLeft);
@@ -294,8 +297,7 @@ bool Lexer::lexLiteral(Token &ret) {
 }
 
 bool Lexer::lexCharLiteral(Token &ret) {
-  if (m_currLine->m_repr[m_pos] != '\'')
-    return false;
+  if (m_currLine->m_repr[m_pos] != '\'') return false;
   const size_t originalPos = m_pos++;
   char value;
   if (!lexCharacter(value)) {
@@ -312,8 +314,7 @@ bool Lexer::lexCharLiteral(Token &ret) {
 }
 
 bool Lexer::lexStringLiteral(Token &ret) {
-  if (m_currLine->m_repr[m_pos] != '\"')
-    return false;
+  if (m_currLine->m_repr[m_pos] != '\"') return false;
   const size_t originalPos = m_pos++;
   std::string value;
   char curr;
@@ -340,28 +341,28 @@ bool Lexer::lexIntLiteral(Token &ret) {
   if (m_currLine->m_repr[m_pos] == '0' &&
       m_pos + 1 < m_currLine->m_repr.size()) {
     m_pos += 2;
-    switch (m_currLine->m_repr[m_pos - 1]) { // check base
-    case 'b':
-    case 'B':
-      base = 2;
-      break;
-    case 'o':
-    case 'O':
-      base = 8;
-      break;
-    case 'x':
-    case 'X':
-      base = 16;
-      break;
-    default:
-      m_pos -= 2; // to cancel the addition
-      break;
+    switch (m_currLine->m_repr[m_pos - 1]) {  // check base
+      case 'b':
+      case 'B':
+        base = 2;
+        break;
+      case 'o':
+      case 'O':
+        base = 8;
+        break;
+      case 'x':
+      case 'X':
+        base = 16;
+        break;
+      default:
+        m_pos -= 2;  // to cancel the addition
+        break;
     }
   }
 
   const size_t numStartPos = m_pos;
   for (; m_pos != m_currLine->m_repr.size();
-       m_pos++) { // search until found invalid digit character
+       m_pos++) {  // search until found invalid digit character
     char curr = m_currLine->m_repr[m_pos];
     if (std::distance(digits.cbegin(), std::find(digits.cbegin(), digits.cend(),
                                                  curr)) >= base) {
@@ -369,11 +370,11 @@ bool Lexer::lexIntLiteral(Token &ret) {
     }
   }
 
-  if (numStartPos == m_pos) { // if found no valid digits
+  if (numStartPos == m_pos) {  // if found no valid digits
     m_pos = originalPos;
     return false;
-  } else if (m_pos >= m_currLine->m_repr.size()) { // this means we exited the
-                                                   // loop cause the line ended
+  } else if (m_pos >= m_currLine->m_repr.size()) {  // this means we exited the
+                                                    // loop cause the line ended
     ret =
         makeToken(TokenType::t_int32_literal, originalPos, m_pos - originalPos);
     m_value =
@@ -382,55 +383,13 @@ bool Lexer::lexIntLiteral(Token &ret) {
   }
 
   if (m_currLine->m_repr[m_pos] == 'i' ||
-      m_currLine->m_repr[m_pos] == 'u') { // check literal type
+      m_currLine->m_repr[m_pos] == 'u') {  // check literal type
     const char type = m_currLine->m_repr[m_pos];
     if (m_currLine->m_repr.size() <=
-        m_pos + 1) { // if the type character is the last character
-      m_pos++; // m_pos now points outside the current line, so we move to the
-               // next line
+        m_pos + 1) {  // if the type character is the last character
+      m_pos++;  // m_pos now points outside the current line, so we move to the
+                // next line
       switch (type) {
-      case 'i':
-        ret = makeToken(TokenType::t_int32_literal, originalPos,
-                        m_pos - originalPos);
-        m_value = std::strtoll(m_currLine->m_repr.c_str() + numStartPos,
-                               nullptr, base);
-        return true;
-      case 'u':
-        ret = makeToken(TokenType::t_uint32_literal, originalPos,
-                        m_pos - originalPos);
-        m_value = std::strtoull(m_currLine->m_repr.c_str() + numStartPos,
-                                nullptr, base);
-        return true;
-      }
-    }
-
-    const char first = m_currLine->m_repr[m_pos + 1];
-    m_pos++;
-    if (m_currLine->m_repr.size() <=
-        m_pos + 1) { // if there is only one character after the type character
-      if (first == '8') {
-        m_pos++; // m_pos now points outside the current line, so we move to the
-                 // next line
-        switch (type) { // check which is the correct type
-        case 'i':
-          ret = makeToken(TokenType::t_int8_literal, originalPos,
-                          m_pos - originalPos);
-          m_value = std::strtoll(m_currLine->m_repr.c_str() + numStartPos,
-                                 nullptr, base);
-          return true;
-        case 'u':
-          ret = makeToken(TokenType::t_uint8_literal, originalPos,
-                          m_pos - originalPos);
-          m_value = std::strtoull(m_currLine->m_repr.c_str() + numStartPos,
-                                  nullptr, base);
-          return true;
-        }
-      } else if (std::isdigit(
-                     first)) { // an invalid size after the type character
-        m_pos = originalPos;
-        return false;
-      } else {
-        switch (type) { // check which is the correct type
         case 'i':
           ret = makeToken(TokenType::t_int32_literal, originalPos,
                           m_pos - originalPos);
@@ -443,6 +402,48 @@ bool Lexer::lexIntLiteral(Token &ret) {
           m_value = std::strtoull(m_currLine->m_repr.c_str() + numStartPos,
                                   nullptr, base);
           return true;
+      }
+    }
+
+    const char first = m_currLine->m_repr[m_pos + 1];
+    m_pos++;
+    if (m_currLine->m_repr.size() <=
+        m_pos + 1) {  // if there is only one character after the type character
+      if (first == '8') {
+        m_pos++;  // m_pos now points outside the current line, so we move to
+                  // the next line
+        switch (type) {  // check which is the correct type
+          case 'i':
+            ret = makeToken(TokenType::t_int8_literal, originalPos,
+                            m_pos - originalPos);
+            m_value = std::strtoll(m_currLine->m_repr.c_str() + numStartPos,
+                                   nullptr, base);
+            return true;
+          case 'u':
+            ret = makeToken(TokenType::t_uint8_literal, originalPos,
+                            m_pos - originalPos);
+            m_value = std::strtoull(m_currLine->m_repr.c_str() + numStartPos,
+                                    nullptr, base);
+            return true;
+        }
+      } else if (std::isdigit(
+                     first)) {  // an invalid size after the type character
+        m_pos = originalPos;
+        return false;
+      } else {
+        switch (type) {  // check which is the correct type
+          case 'i':
+            ret = makeToken(TokenType::t_int32_literal, originalPos,
+                            m_pos - originalPos);
+            m_value = std::strtoll(m_currLine->m_repr.c_str() + numStartPos,
+                                   nullptr, base);
+            return true;
+          case 'u':
+            ret = makeToken(TokenType::t_uint32_literal, originalPos,
+                            m_pos - originalPos);
+            m_value = std::strtoull(m_currLine->m_repr.c_str() + numStartPos,
+                                    nullptr, base);
+            return true;
         }
       }
     }
@@ -453,47 +454,47 @@ bool Lexer::lexIntLiteral(Token &ret) {
     uint32_t startIdx = originalPos;
     uint16_t reprLen = 0;
     switch (first) {
-    case '8':
-      tokType = (type == 'i') ? (TokenType::t_int8_literal)
-                              : (TokenType::t_uint8_literal);
-      reprLen = m_pos - startIdx;
-      break;
-    case '1':
-      if (second != '6') {
-        m_pos = originalPos;
-        return false;
-      }
-      tokType = (type == 'i') ? (TokenType::t_int16_literal)
-                              : (TokenType::t_uint16_literal);
-      m_pos++;
-      reprLen = m_pos - startIdx;
-      break;
-    case '3':
-      if (second != '2') {
-        m_pos = originalPos;
-        return false;
-      }
-      tokType = (type == 'i') ? (TokenType::t_int32_literal)
-                              : (TokenType::t_uint32_literal);
-      m_pos++;
-      reprLen = m_pos - startIdx;
-      break;
-    case '6':
-      if (second != '4') {
-        m_pos = originalPos;
-        return false;
-      }
-      tokType = (type == 'i') ? (TokenType::t_int64_literal)
-                              : (TokenType::t_uint64_literal);
-      m_pos++;
-      reprLen = m_pos - startIdx;
-      break;
-    default:
-      tokType = (type == 'i') ? (TokenType::t_int32_literal)
-                              : (TokenType::t_uint32_literal);
-      m_pos--;
-      reprLen = m_pos - startIdx;
-      break;
+      case '8':
+        tokType = (type == 'i') ? (TokenType::t_int8_literal)
+                                : (TokenType::t_uint8_literal);
+        reprLen = m_pos - startIdx;
+        break;
+      case '1':
+        if (second != '6') {
+          m_pos = originalPos;
+          return false;
+        }
+        tokType = (type == 'i') ? (TokenType::t_int16_literal)
+                                : (TokenType::t_uint16_literal);
+        m_pos++;
+        reprLen = m_pos - startIdx;
+        break;
+      case '3':
+        if (second != '2') {
+          m_pos = originalPos;
+          return false;
+        }
+        tokType = (type == 'i') ? (TokenType::t_int32_literal)
+                                : (TokenType::t_uint32_literal);
+        m_pos++;
+        reprLen = m_pos - startIdx;
+        break;
+      case '6':
+        if (second != '4') {
+          m_pos = originalPos;
+          return false;
+        }
+        tokType = (type == 'i') ? (TokenType::t_int64_literal)
+                                : (TokenType::t_uint64_literal);
+        m_pos++;
+        reprLen = m_pos - startIdx;
+        break;
+      default:
+        tokType = (type == 'i') ? (TokenType::t_int32_literal)
+                                : (TokenType::t_uint32_literal);
+        m_pos--;
+        reprLen = m_pos - startIdx;
+        break;
     }
     ret = makeToken(tokType, startIdx, reprLen);
     if (type == 'i') {
@@ -517,44 +518,44 @@ bool Lexer::lexRealLiteral(Token &ret) {
   const size_t originalPos = m_pos;
 
   for (; m_pos < m_currLine->m_repr.size(); m_pos++) {
-    if (!std::isdigit(m_currLine->m_repr[m_pos]))
-      break;
+    if (!std::isdigit(m_currLine->m_repr[m_pos])) break;
   }
 
-  if (m_currLine->m_repr[m_pos] == '.') { // found dot, look for fraction
+  if (m_currLine->m_repr[m_pos] == '.') {  // found dot, look for fraction
     foundDot = true;
     for (m_pos++; m_pos < m_currLine->m_repr.size(); m_pos++) {
-      if (!std::isdigit(m_currLine->m_repr[m_pos]))
-        break;
+      if (!std::isdigit(m_currLine->m_repr[m_pos])) break;
     }
   }
 
   TokenType tokType = TokenType::t_double_literal;
-  if (m_pos < m_currLine->m_repr.size()) { // check for f or d suffix
+  if (m_pos < m_currLine->m_repr.size()) {  // check for f or d suffix
     switch (m_currLine->m_repr[m_pos++]) {
-    case 'd':
-      ret = makeToken(TokenType::t_double_literal, originalPos,
-                      m_pos - originalPos);
-      m_value = std::strtod(m_currLine->m_repr.c_str() + originalPos, nullptr);
-      return true;
-    case 'f':
-      ret = makeToken(TokenType::t_float_literal, originalPos,
-                      m_pos - originalPos);
-      m_value = std::strtof(m_currLine->m_repr.c_str() + originalPos, nullptr);
-      return true;
-    default:
-      m_pos--;
-      break;
+      case 'd':
+        ret = makeToken(TokenType::t_double_literal, originalPos,
+                        m_pos - originalPos);
+        m_value =
+            std::strtod(m_currLine->m_repr.c_str() + originalPos, nullptr);
+        return true;
+      case 'f':
+        ret = makeToken(TokenType::t_float_literal, originalPos,
+                        m_pos - originalPos);
+        m_value =
+            std::strtof(m_currLine->m_repr.c_str() + originalPos, nullptr);
+        return true;
+      default:
+        m_pos--;
+        break;
     }
   }
 
-  if (!foundDot) { // if there is no real literal suffix or a decimal dot, this
-                   // is not a real literal
+  if (!foundDot) {  // if there is no real literal suffix or a decimal dot, this
+                    // is not a real literal
     m_pos = originalPos;
     return false;
   } else if (m_pos ==
              originalPos +
-                 1) { // if only found a dot, this is not a real literal
+                 1) {  // if only found a dot, this is not a real literal
     m_pos = originalPos;
     return false;
   }
@@ -569,54 +570,51 @@ bool Lexer::lexRealLiteral(Token &ret) {
 bool Lexer::lexCharacter(char &value) {
   const char curr = m_currLine->m_repr[m_pos];
   if ('\\' == curr) {
-    if (m_pos >= m_currLine->m_repr.length() - 1)
-      return false;
+    if (m_pos >= m_currLine->m_repr.length() - 1) return false;
 
     const char second = m_currLine->m_repr[m_pos + 1];
     m_pos += 2;
     switch (second) {
-    case 'a':
-      value = '\a';
-      return true;
-    case 'b':
-      value = '\b';
-      return true;
-    case 'e':
-      value = '\e';
-      return true;
-    case 'f':
-      value = '\f';
-      return true;
-    case 'n':
-      value = '\n';
-      return true;
-    case 'r':
-      value = '\r';
-      return true;
-    case 't':
-      value = '\t';
-      return true;
-    case 'v':
-      value = '\v';
-      return true;
-    case '\\':
-      value = '\\';
-      return true;
-    case '\'':
-      value = '\'';
-      return true;
-    case '\"':
-      value = '\"';
-      return true;
-    case '?':
-      value = '\?';
-      return true;
+      case 'a':
+        value = '\a';
+        return true;
+      case 'b':
+        value = '\b';
+        return true;
+      case 'e':
+        value = '\e';
+        return true;
+      case 'f':
+        value = '\f';
+        return true;
+      case 'n':
+        value = '\n';
+        return true;
+      case 'r':
+        value = '\r';
+        return true;
+      case 't':
+        value = '\t';
+        return true;
+      case 'v':
+        value = '\v';
+        return true;
+      case '\\':
+        value = '\\';
+        return true;
+      case '\'':
+        value = '\'';
+        return true;
+      case '\"':
+        value = '\"';
+        return true;
+      case '?':
+        value = '\?';
+        return true;
     }
     m_pos -= 2;
-    if (second != 'x' && second != 'X')
-      return false;
-    if (m_pos >= m_currLine->m_repr.length() - 3)
-      return false;
+    if (second != 'x' && second != 'X') return false;
+    if (m_pos >= m_currLine->m_repr.length() - 3) return false;
     const char third = m_currLine->m_repr[m_pos + 2];
     const char fourth = m_currLine->m_repr[m_pos + 3];
     if (isHex(third) && isHex(fourth)) {
@@ -648,4 +646,4 @@ uint8_t Lexer::digitToValue(const char digit) const noexcept {
   else
     return 0;
 }
-} // namespace rgl
+}  // namespace rgl

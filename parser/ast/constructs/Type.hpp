@@ -17,6 +17,7 @@ enum class TypeProperties : uint8_t {
 };
 
 TypeProperties operator~(TypeProperties property);
+std::string typePropertiesToString(BitField<TypeProperties> properties);
 
 class Type;
 using TypePtr = std::shared_ptr<Type>;

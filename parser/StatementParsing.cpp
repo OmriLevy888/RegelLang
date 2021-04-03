@@ -23,7 +23,7 @@ Statement Parser::parseStatement() {
     return parseKeywordStatement();
   } else if (ParserUtilities::isSimpleStatement(m_tokens->getCurr())) {
     return parseSimpleStatement();
-  } else if (ParserUtilities::isImplicityStatementExpression(
+  } else if (ParserUtilities::isImplicitlyStatementExpression(
                  m_tokens->getCurr())) {
     auto implExpr = parseImplicitStatementExpression();
     if (nullptr == implExpr) {
