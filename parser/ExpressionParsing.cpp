@@ -520,22 +520,6 @@ Expression Parser::parseForLoop() {
 }
 
 Expression Parser::parseForInLoop() {
-  PassType type = PassType::p_const;
-  if (TokenType::t_identifier != m_tokens->getCurr()) {
-    switch (m_tokens->getCurr()) {
-      case TokenType::t_colon:
-        type = PassType::p_consume;
-        break;
-      case TokenType::t_ampersand:
-        type = PassType::p_mutable;
-        break;
-      default:
-        // TODO: write error message
-        return nullptr;
-    }
-    m_tokens->getNext();  // consume pass type specifier
-  }
-
   if (TokenType::t_identifier != m_tokens->getCurr()) {
     // TODO: write error message
     return nullptr;
@@ -549,8 +533,8 @@ Expression Parser::parseForInLoop() {
   }
   m_tokens->getNext();  // consume in
 
-  Expression iterrable = parseExpression();
-  if (nullptr == iterrable) {
+  Expression iterable = parseExpression();
+  if (nullptr == iterable) {
     // TODO: write error message
     return nullptr;
   }
@@ -565,8 +549,8 @@ Expression Parser::parseForInLoop() {
     return nullptr;
   }
 
-  return std::make_unique<ForInLoopNode>(type, std::move(name),
-                                         std::move(iterrable), std::move(body));
+  return std::make_unique<ForInLoopNode>(std::move(name), std::move(iterable),
+                                         std::move(body));
 }
 
 Expression Parser::parseWhileLoop() {

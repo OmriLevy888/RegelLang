@@ -31,6 +31,6 @@ public:
 
   static bool isKeywordStatement(const Token &tok);
   static bool isSimpleStatement(const Token &tok);
-  static bool isImplicityStatementExpression(const Token &tok);
+  static bool isImplicitlyStatementExpression(const Token &tok);
 };
 }; // namespace rgl

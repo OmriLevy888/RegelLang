@@ -10,9 +10,13 @@ TypeProperties operator~(TypeProperties property) {
   return static_cast<TypeProperties>(~static_cast<TUnderlying>(property));
 }
 
-size_t Type::getHash() const {
-  return std::hash<uint8_t>{}(m_typeProperties);
+std::string typePropertiesToString(BitField<TypeProperties> properties) {
+  return (properties & TypeProperties::_owning)    ? (":")
+         : (properties & TypeProperties::_mutable) ? ("&")
+                                                   : ("");
 }
+
+size_t Type::getHash() const { return std::hash<uint8_t>{}(m_typeProperties); }
 
 std::unordered_map<std::unique_ptr<Type>, TypePtr> &getTypeBank() {
   static bool initialized = false;

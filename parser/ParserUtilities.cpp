@@ -107,6 +107,9 @@ bool ParserUtilities::isPreOp(const Token &tok) {
   case TokenType::t_plus_plus:
   case TokenType::t_minus_minus:
   case TokenType::t_exclamation:
+  case TokenType::t_ampersand:
+  case TokenType::t_colon:
+  case TokenType::t_at:
     return true;
   default:
     return false;
@@ -123,9 +126,13 @@ bool ParserUtilities::isPostOp(const Token &tok) {
 }
 std::unordered_map<TokenType, UnaryOpType> preOpMap{
     {TokenType::t_plus_plus, UnaryOpType::u_pre_plus_plus},
-    {TokenType::t_minus_minus, UnaryOpType::u_pre_minus_miuns},
+    {TokenType::t_minus_minus, UnaryOpType::u_pre_minus_minus},
 
     {TokenType::t_exclamation, UnaryOpType::u_pre_exclamation},
+
+    {TokenType::t_ampersand, UnaryOpType::u_pre_ampersand},
+    {TokenType::t_colon, UnaryOpType::u_pre_colon},
+    {TokenType::t_at, UnaryOpType::u_pre_at},
 };
 UnaryOpType ParserUtilities::tokToPreOpType(const Token &tok) {
   return preOpMap[tok];
@@ -162,7 +169,7 @@ bool ParserUtilities::isSimpleStatement(const Token &tok) {
   }
 }
 
-bool ParserUtilities::isImplicityStatementExpression(const Token &tok) {
+bool ParserUtilities::isImplicitlyStatementExpression(const Token &tok) {
   switch (tok) {
   case TokenType::t_if:
   case TokenType::t_for:
