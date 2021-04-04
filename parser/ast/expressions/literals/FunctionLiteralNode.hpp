@@ -44,4 +44,6 @@ private:
   TypePtr m_retType;
   Expression m_body;
 };
+
+using FunctionPtr = std::unique_ptr<FunctionLiteralNode>;
 }; // namespace rgl
