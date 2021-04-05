@@ -1,3 +1,5 @@
+#include "common/errors/ErrorManager.hpp"
+#include "common/errors/ErrorObject.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/literals/class-literal/ClassFieldNode.hpp"
 #include "parser/ast/expressions/literals/class-literal/MethodNode.hpp"
@@ -20,4 +22,6 @@ private:
   std::vector<FieldPtr> m_fields;
   std::vector<MethodPtr> m_methods;
 };
+
+using ClassPtr = std::unique_ptr<ClassLiteralNode>;
 }; // namespace rgl

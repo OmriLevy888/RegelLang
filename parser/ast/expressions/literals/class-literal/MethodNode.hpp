@@ -16,9 +16,13 @@ public:
 
 private:
   bool m_isExposed;
-  FunctionPtr m_func;
   BitField<MethodProperties> m_properties;
+  FunctionPtr m_func;
 };
 
 using MethodPtr = std::unique_ptr<MethodNode>;
 }; // namespace rgl
+
+namespace std {
+std::string to_string(rgl::BitField<rgl::MethodProperties> properties);
+}; // namespace std
