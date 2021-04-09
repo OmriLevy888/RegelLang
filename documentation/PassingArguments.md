@@ -42,7 +42,7 @@ aggree with the declaration:
 
 ```
 func main([string] args, envs) {
-  let a = 5;
+  a := 5;
   foo(a);  // invokes 1
   foo(&a); // invokes 2
   foo(:a); // invokes 3
@@ -50,22 +50,8 @@ func main([string] args, envs) {
 }
 ```
 
-In the alst invocation, the `@` prefix is used. It creates a copy of `a` and
+In the last invocation, the `@` prefix is used. It creates a copy of `a` and
 passes it to the function. Since the copy is not bound to any variable or
 constant, it is passed to the consuming function. If a consuming overload is not
 defined, it would be passed to the default overload (the one that takes `i32`).
 If neither is defined, a compiler error is generated.
-
-A copy or a consumption must always be explicit, therefore the following is
-illegal:
-```
-  var a = "hello";
-  var b = a; // compiler errr
-```
-The resoning behind this is that it makes it easy to see all the places a copy
-is made in the code by simply glancing over it.
-
-Since using the `let` keyword declares a constant, it may not be passed by
-mutable reference (using `&`). It may however be passed using `:`. This is not
-true for globals, which may only be passed by default (a constant reference) or
-by copying them.

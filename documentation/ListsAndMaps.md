@@ -52,10 +52,10 @@ hold a compile time error is raised. If the amount of items in the list literal
 known at compile time, a compile time error is raised.
 
 ```
-  let constArray : [i32, 5] = [0, 1, 2, 3, 4];
+  constArray : [i32, 5] = [0, 1, 2, 3, 4];
   var mutableArray : [i32, 10] = @constArray;
   mutableArray[5:] = [5, 6, 7, 8, 9];
-  for let num in mutableArray {
+  for num in mutableArray {
     print(num); // prints 0 1 2 3 4 5 6 7 8 9
   } 
 ```
@@ -69,7 +69,7 @@ Pairs are separated by commas and the last pair may also have an optional comma
 after it.
 
 ```
-  let constMap = {'a' => 0xa, 'b' => 0xb, 'c' => 0xc};
+  constMap := {'a' => 0xa, 'b' => 0xb, 'c' => 0xc};
   var mutableMap : {char => i32} = :constMap;
   mutableMap['d'..'g'] = 0xc..0x10;
 ```

@@ -1,26 +1,56 @@
 ## Constants & Variables
 ________________________________________________________________________________
 
-In Regel, there are two ways to make a declaration, either using the `let`
-keyword or the `var` keyword. Using the `let` keyword indicates a constant
-whereas the `var` keyword indicates a variable. After the declaration keyword
-comes and identifier to bind the declaration to. Identifiers in Regel may start
-with either a letter or an underscore and then contain any combination of
-letters, underscores and decimal digits.
+In Regel, there are two ways to make a declaration, either using the `var`
+keyword or none at all. Using no keyword indicates a constant whereas the `var`
+keyword indicates a variable. Then comes and identifier to bind the declaration
+to. Identifiers in Regel may start with either a letter or an underscore and
+then contain any combination of letters, underscores and decimal digits.
 
 ```
-let a = 5; // implicit type
+a := 5; // implicit type
 var b : i16 = 5; // explicit type
 ```
 
+To differentiate assignments from initializations, the `:=` syntax is used. Note
+that unlike some other languages, this is not an operator; the colon (`:`) and
+the equal sign (`=`) may be separated. When separated, the type comes between
+them, otherwise the type is inferred from the expression assigned during the
+declaration. It is considered a best practice to keep them together when there
+is no explicit type for consistency's sake.
+
+Another possibility is to declare a variable but not to bind any value to it.
+This is not done often since it keeps the variable uninitialized and is
+therefore dangerous. When the variable is uninitialized, Regel makes no promise
+of what its value may be. The syntax to declare an uninitialized constant or
+variable is simply to omit the `=` and provide no value. An explicit type has to
+be provided since there is no expression to derive the type from. Constant values
+may not be declared uninitialized.
+
+```
+// declared up here
+var a : i32;
+
+// this is dangerous, the compiler will try to generate errors when it can know
+// for sure an access is made to an uninitialized variable or a warning when it
+// isn't sure. in debug builds, the compiler will also generate code to check
+// whether the item is initialized during run time to help catch such bugs. this
+// code will not be present in release builds (can also be configured to be set
+// off in debug builds)
+print(a);
+
+// initialized here
+a = 5;
+```
+
 By default a type does not have to be specified unless it would otherwise be
-ambigious (see example in Conditionals) but can be specified when adding a colon
+ambiguous (see example in Conditionals) but can be specified when adding a colon
 after the identifier and then the type. `5` has the implicit type `i32` where as
 in the `var` declaration, the explicit specification of `i16` forces 5 to be
-truncated to 16 bits. Types can also be supplied using sufixes, so instead of
+truncated to 16 bits. Types can also be supplied using suffixes, so instead of
 declaring `b` to be of type `i16`, it is possible to force `5` to be of type
 `i16` by postfixing it with the type, therefore writing `5i16`. The built in
-sufixes are
+suffixes are
 
 | size    | signed integer | unsigned integer | floating point |
 | ------- | -------------- | ---------------- | -------------- |
