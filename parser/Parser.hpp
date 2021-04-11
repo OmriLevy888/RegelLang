@@ -11,10 +11,10 @@
 
 namespace rgl {
 class Parser : public ILoggable {
- public:
+public:
   Parser(std::unique_ptr<TokenCollection> &&tokens)
       : m_tokens(std::move(tokens)) {
-    m_tokens->getNext();  // get the first token
+    m_tokens->getNext(); // get the first token
   }
 
   File parseFile();
@@ -26,7 +26,7 @@ class Parser : public ILoggable {
     return Formatter("Parser<{}>", m_tokens->toString());
   }
 
- private:
+private:
   std::unique_ptr<TokenCollection> m_tokens;
   uint8_t m_lastPrecedence;
 
@@ -52,7 +52,7 @@ class Parser : public ILoggable {
   Expression parseInvoke(Expression primary);
   Expression parseIndex(Expression primary);
 
-  Expression parseVarDecl();
+  Expression parseVarDecl(bool skipVarKeyword = false);
   Block parseBlock(bool forceBrackets = false);
   Expression parseConditional();
   Expression parseForLoop();
@@ -67,4 +67,4 @@ class Parser : public ILoggable {
 
   Expression parseFunction();
 };
-};  // namespace rgl
+}; // namespace rgl

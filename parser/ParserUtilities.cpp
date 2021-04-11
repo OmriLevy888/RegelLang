@@ -145,10 +145,6 @@ UnaryOpType ParserUtilities::tokToPostOpType(const Token &tok) {
   return postOpMap[tok];
 }
 
-bool ParserUtilities::isVarDecl(const Token &tok) {
-  return TokenType::t_let == tok || TokenType::t_var == tok;
-}
-
 bool ParserUtilities::isKeywordStatement(const Token &tok) {
   switch (tok) {
   case TokenType::t_continue:
