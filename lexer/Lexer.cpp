@@ -132,7 +132,9 @@ bool Lexer::lexKeyword(Token &ret) {
       {"break", TokenType::t_break},
       {"continue", TokenType::t_continue},
       {"switch", TokenType::t_switch},
-      {"func", TokenType::t_func}};
+      {"func", TokenType::t_func},
+      {"pub", TokenType::t_pub},
+      {"hook", TokenType::t_hook}};
 
   const auto start = m_currLine->m_repr.cbegin() + m_pos;
   auto it = start + 1;

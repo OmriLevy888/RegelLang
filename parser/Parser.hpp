@@ -7,6 +7,7 @@
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/SwitchNode.hpp"
+#include "parser/ast/expressions/literals/class-literal/ClassLiteralNode.hpp"
 #include "parser/ast/statements/StatementNode.hpp"
 
 namespace rgl {
@@ -67,5 +68,9 @@ private:
   Statement parseSimpleStatement();
 
   Expression parseFunction();
+
+  ClassPtr parseClass();
+  bool parseField(std::vector<FieldPtr> &fields);
+  bool parseMethod(std::vector<MethodPtr> &methods);
 };
 }; // namespace rgl

@@ -8,16 +8,14 @@
 namespace rgl {
 class ClassLiteralNode : public ExpressionNode {
 public:
-  ClassLiteralNode(TypePtr type, Identifier name,
-                   std::vector<FieldPtr> &&fields,
+  ClassLiteralNode(Identifier name, std::vector<FieldPtr> &&fields,
                    std::vector<MethodPtr> &&methods)
-      : m_type(type), m_name(std::move(name)), m_fields(std::move(fields)),
+      : m_name(std::move(name)), m_fields(std::move(fields)),
         m_methods(std::move(methods)) {}
 
   virtual std::string toTreeStr(size_t spaces) const override;
 
 private:
-  TypePtr m_type;
   Identifier m_name;
   std::vector<FieldPtr> m_fields;
   std::vector<MethodPtr> m_methods;
