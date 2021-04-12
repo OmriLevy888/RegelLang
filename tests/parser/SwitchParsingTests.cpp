@@ -42,41 +42,7 @@ TEST(Parser, simpleSwitchCase) {
 
   assertNode(parser->parseExpression(),
              std::make_unique<SwitchNode>(std::make_unique<IdentifierNode>("a"),
-                                          nullptr, std::move(cases)));
-}
-
-TEST(Parser, swithWithCaseExprType) {
-  auto parser = makeParser({{TokenType::t_switch},
-                            {TokenType::t_identifier, "a"},
-                            {TokenType::t_colon},
-                            {TokenType::t_identifier, "i32"},
-                            {TokenType::t_open_bracket},
-                            {TokenType::t_int32_literal, 0},
-                            {TokenType::t_arrow},
-                            {TokenType::t_yield},
-                            {TokenType::t_boolean, true},
-                            {TokenType::t_semicolon},
-                            {TokenType::t_int32_literal, 1},
-                            {TokenType::t_arrow},
-                            {TokenType::t_yield},
-                            {TokenType::t_boolean, false},
-                            {TokenType::t_semicolon},
-                            {TokenType::t_close_bracket}});
-
-  std::vector<SwitchCase> cases;
-  cases.push_back(std::make_unique<SwitchCaseNode>(
-      std::make_unique<IntLiteralNode>(0, BasicType::t_int32()),
-      std::make_unique<YieldNode>(std::make_unique<BooleanLiteralNode>(true))));
-
-  cases.push_back(std::make_unique<SwitchCaseNode>(
-      std::make_unique<IntLiteralNode>(1, BasicType::t_int32()),
-      std::make_unique<YieldNode>(
-          std::make_unique<BooleanLiteralNode>(false))));
-
-  assertNode(
-      parser->parseExpression(),
-      std::make_unique<SwitchNode>(std::make_unique<IdentifierNode>("a"),
-                                   BasicType::make({"i32"}), std::move(cases)));
+                                          std::move(cases)));
 }
 
 TEST(Parser, switchCaseWithDefaultStatement) {
@@ -116,5 +82,5 @@ TEST(Parser, switchCaseWithDefaultStatement) {
 
   assertNode(parser->parseExpression(),
              std::make_unique<SwitchNode>(std::make_unique<IdentifierNode>("a"),
-                                          nullptr, std::move(cases)));
+                                          std::move(cases)));
 }

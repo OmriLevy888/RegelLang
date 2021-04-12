@@ -39,7 +39,7 @@ Expression Parser::parseExpression() {
       return parsePreOp();
     } else if (TokenType::t_open_paren == m_tokens->getCurr()) {
       return parseParentheses();
-    } else if (ParserUtilities::isVarDecl(m_tokens->getCurr())) {
+    } else if (TokenType::t_var == m_tokens->getCurr()) {
       return parseVarDecl();
     } else if (TokenType::t_open_bracket == m_tokens->getCurr()) {
       return parseBlock();
@@ -54,19 +54,21 @@ Expression Parser::parseExpression() {
 }
 
 Expression Parser::parsePrimary() {
-  Expression primary;
   const Token &tok = m_tokens->getCurr();
 
   if (ParserUtilities::isIdentifier(tok)) {
-    primary = parseIdentifier();
+    auto identifier = parseIdentifier();
+    if (TokenType::t_colon == m_tokens->getNext()) {
+      return parseVarDecl(std::move(identifier));
+    }
+    return identifier;
   } else if (ParserUtilities::isLiteral(tok)) {
-    primary = parseLiteral();
-  } else {
-    return nullptr;
+    auto literal = parseLiteral();
+    m_tokens->getNext(); // consume current token
+    return literal;
   }
 
-  m_tokens->getNext();  // consume current token
-  return primary;
+  return nullptr;
 }
 
 Expression Parser::parseRest(Expression primary) {
@@ -125,40 +127,40 @@ Expression Parser::parseIntLiteral() {
   if (ParserUtilities::isSignedIntLiteral(m_tokens->getCurr())) {
     std::shared_ptr<Type> intType;
     switch (m_tokens->getCurr()) {
-      case TokenType::t_int8_literal:
-        intType = BasicType::t_int8();
-        break;
-      case TokenType::t_int16_literal:
-        intType = BasicType::t_int16();
-        break;
-      case TokenType::t_int32_literal:
-        intType = BasicType::t_int32();
-        break;
-      case TokenType::t_int64_literal:
-        intType = BasicType::t_int64();
-        break;
-      default:
-        return nullptr;
+    case TokenType::t_int8_literal:
+      intType = BasicType::t_int8();
+      break;
+    case TokenType::t_int16_literal:
+      intType = BasicType::t_int16();
+      break;
+    case TokenType::t_int32_literal:
+      intType = BasicType::t_int32();
+      break;
+    case TokenType::t_int64_literal:
+      intType = BasicType::t_int64();
+      break;
+    default:
+      return nullptr;
     }
     int64_t intValue = std::get<int64_t>(m_tokens->getCurrValue().value());
     return std::make_unique<IntLiteralNode>(intValue, intType);
   } else if (ParserUtilities::isUnsignedIntLiteral(m_tokens->getCurr())) {
     std::shared_ptr<Type> uintType;
     switch (m_tokens->getCurr()) {
-      case TokenType::t_uint8_literal:
-        uintType = BasicType::t_uint8();
-        break;
-      case TokenType::t_uint16_literal:
-        uintType = BasicType::t_uint16();
-        break;
-      case TokenType::t_uint32_literal:
-        uintType = BasicType::t_uint32();
-        break;
-      case TokenType::t_uint64_literal:
-        uintType = BasicType::t_uint64();
-        break;
-      default:
-        return nullptr;
+    case TokenType::t_uint8_literal:
+      uintType = BasicType::t_uint8();
+      break;
+    case TokenType::t_uint16_literal:
+      uintType = BasicType::t_uint16();
+      break;
+    case TokenType::t_uint32_literal:
+      uintType = BasicType::t_uint32();
+      break;
+    case TokenType::t_uint64_literal:
+      uintType = BasicType::t_uint64();
+      break;
+    default:
+      return nullptr;
     }
     uint64_t uintValue = std::get<uint64_t>(m_tokens->getCurrValue().value());
     return std::make_unique<UintLiteralNode>(uintValue, uintType);
@@ -182,14 +184,14 @@ Expression Parser::parseRealLiteral() {
 
 Expression Parser::parseTextLiteral() {
   switch (m_tokens->getCurr().getTokenType()) {
-    case TokenType::t_char_literal:
-      return std::make_unique<CharLiteralNode>(
-          std::get<char>(m_tokens->getCurrValue().value()));
-    case TokenType::t_string_literal:
-      return std::make_unique<StringLiteralNode>(std::move(
-          std::get<std::string>(std::move(m_tokens->getCurrValue().value()))));
-    default:
-      return nullptr;
+  case TokenType::t_char_literal:
+    return std::make_unique<CharLiteralNode>(
+        std::get<char>(m_tokens->getCurrValue().value()));
+  case TokenType::t_string_literal:
+    return std::make_unique<StringLiteralNode>(std::move(
+        std::get<std::string>(std::move(m_tokens->getCurrValue().value()))));
+  default:
+    return nullptr;
   }
 }
 
@@ -200,7 +202,7 @@ Expression Parser::parseBoolLiteral() {
 
 Expression Parser::parseParentheses() {
   if (TokenType::t_open_paren == m_tokens->getCurr()) {
-    m_tokens->getNext();  // consume (
+    m_tokens->getNext(); // consume (
     auto innerExpr = parseExpression();
     if (nullptr == innerExpr) {
       // TODO: write error message
@@ -221,7 +223,7 @@ Expression Parser::parseParentheses() {
 
 Expression Parser::parseBinOp(Expression primary) {
   const Token op = m_tokens->getCurr();
-  m_tokens->getNext();  // consume bin-op
+  m_tokens->getNext(); // consume bin-op
   auto rhs = parseExpression();
   if (nullptr == rhs) {
     // TODO: write error message
@@ -232,7 +234,7 @@ Expression Parser::parseBinOp(Expression primary) {
   const BinOpType binOpType = ParserUtilities::tokToBinOpType(op);
   auto binOp =
       std::make_unique<BinOpNode>(binOpType, std::move(primary), nullptr);
-  if (currPrecedence <= m_lastPrecedence) {  // should switch
+  if (currPrecedence <= m_lastPrecedence) { // should switch
     rhs->propagateLeft(std::move(binOp));
     m_lastPrecedence = currPrecedence;
     return rhs;
@@ -245,7 +247,7 @@ Expression Parser::parseBinOp(Expression primary) {
 
 Expression Parser::parsePreOp() {
   UnaryOpType opType = ParserUtilities::tokToPreOpType(m_tokens->getCurr());
-  m_tokens->getNext();  // consume pre-op
+  m_tokens->getNext(); // consume pre-op
   auto expr = parseExpression();
   if (nullptr == expr) {
     // TODO: write error message
@@ -266,13 +268,13 @@ Expression Parser::parsePreOp() {
 
 Expression Parser::parsePostOp(Expression primary) {
   UnaryOpType opType = ParserUtilities::tokToPostOpType(m_tokens->getCurr());
-  m_tokens->getNext();  // consume post-op
+  m_tokens->getNext(); // consume post-op
   auto postOpExpr = std::make_unique<UnaryOpNode>(opType, std::move(primary));
   return parseRest(std::move(postOpExpr));
 }
 
 Expression Parser::parseInvoke(Expression primary) {
-  m_tokens->getNext();  // consume (
+  m_tokens->getNext(); // consume (
 
   std::vector<Expression> params;
   bool hadComma = false;
@@ -301,14 +303,14 @@ Expression Parser::parseInvoke(Expression primary) {
          "Did you forget the closing parenthesis?"});
     return nullptr;
   }
-  m_tokens->getNext();  // consume )
+  m_tokens->getNext(); // consume )
 
   return parseRest(
       std::make_unique<InvokeNode>(std::move(primary), std::move(params)));
 }
 
 Expression Parser::parseIndex(Expression primary) {
-  m_tokens->getNext();  // consume [
+  m_tokens->getNext(); // consume [
 
   auto index = parseExpression();
   if (nullptr == index) {
@@ -323,24 +325,37 @@ Expression Parser::parseIndex(Expression primary) {
          "Did you forget the closing square bracket?"});
     return nullptr;
   }
-  m_tokens->getNext();  // consume ]
+  m_tokens->getNext(); // consume ]
 
   return parseRest(
       std::make_unique<IndexNode>(std::move(primary), std::move(index)));
 }
 
-Expression Parser::parseVarDecl() {
-  bool isMutable = TokenType::t_var == m_tokens->getCurr();
-  if (TokenType::t_identifier != m_tokens->getNext()) {
+Expression Parser::parseVarDecl(Identifier name, bool allowUninitializedConst) {
+  bool isMutable = false;
+
+  if (nullptr == name) {
+    if (TokenType::t_var != m_tokens->getCurr()) {
+      // TODO: write error message
+      return nullptr;
+    }
+    isMutable = true;
+
+    if (TokenType::t_identifier != m_tokens->getNext()) {
+      // TODO: write error message
+      return nullptr;
+    }
+    name = parseIdentifier();
+    m_tokens->getNext(); // consume identifier
+  }
+
+  if (TokenType::t_colon != m_tokens->getCurr()) {
     // TODO: write error message
     return nullptr;
   }
-  auto name = parseIdentifier();
-  m_tokens->getNext();  // consume identifier
 
   TypePtr type = BasicType::t_implicit();
-  if (TokenType::t_colon == m_tokens->getCurr()) {  // parse type
-    m_tokens->getNext();                            // consume :
+  if (TokenType::t_equal != m_tokens->getNext()) {
     type = parseType(true);
     if (nullptr == type) {
       // TODO: wrrite error message
@@ -349,15 +364,16 @@ Expression Parser::parseVarDecl() {
   }
 
   Expression expr;
-  if (TokenType::t_equal == m_tokens->getCurr()) {  // parse initial value
-    m_tokens->getNext();                            // consume =
+  if (TokenType::t_equal == m_tokens->getCurr()) { // parse initial value
+    m_tokens->getNext();                           // consume =
 
     expr = parseExpression();
     if (nullptr == expr) {
       // TODO: write error message
       return nullptr;
     }
-  } else if (!isMutable) {  // let must have a value
+  } else if (!isMutable &&
+             !allowUninitializedConst) { // a constant must have a value
     ErrorManager::logError(
         ErrorTypes::E_BAD_TOKEN,
         {Formatter("Expected initial value for constant, found {}",
@@ -386,7 +402,7 @@ Block Parser::parseBlock(bool forceBrackets) {
 
   if (!isSingleStatement) {
     Token openBracket = m_tokens->getCurr();
-    m_tokens->getNext();  // consume {
+    m_tokens->getNext(); // consume {
     while (TokenType::t_close_bracket != m_tokens->getCurr() &&
            TokenType::t_eof != m_tokens->getCurr()) {
       auto curr = parseStatement();
@@ -403,7 +419,7 @@ Block Parser::parseBlock(bool forceBrackets) {
                               m_tokens->getSourceProject()});
       return nullptr;
     }
-    m_tokens->getNext();  // consume }
+    m_tokens->getNext(); // consume }
   } else {
     auto statement = parseStatement();
     if (nullptr == statement) {
@@ -416,7 +432,7 @@ Block Parser::parseBlock(bool forceBrackets) {
 }
 
 Expression Parser::parseConditional() {
-  m_tokens->getNext();  // consume if
+  m_tokens->getNext(); // consume if
   Expression cond = parseExpression();
   if (nullptr == cond) {
     // TODO: write error message
@@ -458,7 +474,7 @@ Expression Parser::parseConditional() {
 
 Expression Parser::parseForLoop() {
   m_tokens->saveAnchor();
-  m_tokens->getNext();  // consume for
+  m_tokens->getNext(); // consume for
 
   if (TokenType::t_identifier == m_tokens->getCurr()) {
     auto forInLoop = parseForInLoop();
@@ -475,7 +491,7 @@ Expression Parser::parseForLoop() {
   if (TokenType::t_semicolon != m_tokens->getCurr()) {
     init = parseExpression();
     if (nullptr == init) {
-      ErrorManager::getErrorType();  // consume error
+      ErrorManager::getErrorType(); // consume error
       return parseForInLoop();
     }
   }
@@ -484,7 +500,7 @@ Expression Parser::parseForLoop() {
     // TODO: write error message
     return nullptr;
   }
-  m_tokens->getNext();  // consume ;
+  m_tokens->getNext(); // consume ;
 
   Expression cond;
   if (TokenType::t_semicolon != m_tokens->getCurr()) {
@@ -498,7 +514,7 @@ Expression Parser::parseForLoop() {
     // TODO: wrtite error message
     return nullptr;
   }
-  m_tokens->getNext();  // consume ;
+  m_tokens->getNext(); // consume ;
 
   Expression advance;
   if (TokenType::t_open_bracket != m_tokens->getCurr()) {
@@ -525,13 +541,13 @@ Expression Parser::parseForInLoop() {
     return nullptr;
   }
   Identifier name = parseIdentifier();
-  m_tokens->getNext();  // consume identifier
+  m_tokens->getNext(); // consume identifier
 
   if (TokenType::t_in != m_tokens->getCurr()) {
     // TODO: write error message
     return nullptr;
   }
-  m_tokens->getNext();  // consume in
+  m_tokens->getNext(); // consume in
 
   Expression iterable = parseExpression();
   if (nullptr == iterable) {
@@ -554,7 +570,7 @@ Expression Parser::parseForInLoop() {
 }
 
 Expression Parser::parseWhileLoop() {
-  m_tokens->getNext();  // consume while
+  m_tokens->getNext(); // consume while
 
   Expression cond;
   if (TokenType::t_open_bracket != m_tokens->getCurr()) {
@@ -575,7 +591,7 @@ Expression Parser::parseWhileLoop() {
 }
 
 Switch Parser::parseSwitch() {
-  m_tokens->getNext();  // consume switch keyword
+  m_tokens->getNext(); // consume `switch`
 
   auto expr = parseExpression();
   if (nullptr == expr) {
@@ -583,21 +599,11 @@ Switch Parser::parseSwitch() {
     return nullptr;
   }
 
-  TypePtr caseExprType;
-  if (TokenType::t_colon == m_tokens->getCurr()) {
-    m_tokens->getNext();  // consume :
-    caseExprType = parseType();
-    if (nullptr == caseExprType) {
-      // TODO: write error message
-      return nullptr;
-    }
-  }
-
   if (TokenType::t_open_bracket != m_tokens->getCurr()) {
     // TODO: write error message
     return nullptr;
   }
-  m_tokens->getNext();  // consume {
+  m_tokens->getNext(); // consume {
 
   std::vector<SwitchCase> cases;
   while (TokenType::t_close_bracket != m_tokens->getCurr()) {
@@ -608,10 +614,9 @@ Switch Parser::parseSwitch() {
     }
     cases.push_back(std::move(currCase));
   }
-  m_tokens->getNext();  // consume }
+  m_tokens->getNext(); // consume }
 
-  return std::make_unique<SwitchNode>(std::move(expr), caseExprType,
-                                      std::move(cases));
+  return std::make_unique<SwitchNode>(std::move(expr), std::move(cases));
 }
 
 SwitchCase Parser::parseSwitchCase() {
@@ -627,7 +632,7 @@ SwitchCase Parser::parseSwitchCase() {
     // TODO: write error message
     return nullptr;
   }
-  m_tokens->getNext();  // consume =>
+  m_tokens->getNext(); // consume =>
 
   auto body = parseBlock();
   if (nullptr == body) {
@@ -643,7 +648,7 @@ Expression Parser::parseFunction() {
   m_tokens->saveAnchor();
   if (TokenType::t_identifier == m_tokens->getNext()) {
     name = parseIdentifier();
-    m_tokens->getNext();  // consume name
+    m_tokens->getNext(); // consume name
   }
 
   // parse parameters
@@ -652,7 +657,7 @@ Expression Parser::parseFunction() {
 
   if (multipleParams) {
     m_tokens->discardAnchor();
-    m_tokens->getNext();  // consume (
+    m_tokens->getNext(); // consume (
     TypePtr lastType = nullptr;
     while (TokenType::t_close_paren != m_tokens->getCurr()) {
       if (nullptr != lastType) {
@@ -664,7 +669,7 @@ Expression Parser::parseFunction() {
                m_tokens, "Did you forget a comma (',')?"});
           return nullptr;
         }
-        m_tokens->getNext();  // consume ,
+        m_tokens->getNext(); // consume ,
       }
 
       // TODO: disable the ErrorManager
@@ -680,7 +685,7 @@ Expression Parser::parseFunction() {
         if (nullptr != lastType && paramType->isSimpleType()) {
           m_tokens->restoreAnchor();
           paramName = parseIdentifier();
-          m_tokens->getNext();  // consume identifier
+          m_tokens->getNext(); // consume identifier
           paramType = lastType;
         } else {
           m_tokens->discardAnchor();
@@ -693,7 +698,7 @@ Expression Parser::parseFunction() {
       } else {
         m_tokens->discardAnchor();
         paramName = parseIdentifier();
-        m_tokens->getNext();  // consume identifier
+        m_tokens->getNext(); // consume identifier
       }
       parameters.push_back(
           std::make_unique<ParameterNode>(paramType, std::move(paramName)));
@@ -707,7 +712,7 @@ Expression Parser::parseFunction() {
            m_tokens});
       return nullptr;
     }
-    m_tokens->getNext();  // consume )
+    m_tokens->getNext(); // consume )
   } else if (TokenType::t_arrow != m_tokens->getCurr()) {
     // if there is only one param
     m_tokens->restoreAnchor();
@@ -737,7 +742,7 @@ Expression Parser::parseFunction() {
   // parse retType
   TypePtr retType = nullptr;
   if (TokenType::t_arrow == m_tokens->getCurr()) {
-    m_tokens->getNext();  // consume =>
+    m_tokens->getNext(); // consume =>
     retType = parseType();
     if (nullptr == retType) {
       return nullptr;
@@ -764,4 +769,4 @@ Expression Parser::parseFunction() {
   return std::make_unique<FunctionLiteralNode>(
       std::move(name), std::move(parameters), retType, std::move(body));
 }
-};  // namespace rgl
+}; // namespace rgl

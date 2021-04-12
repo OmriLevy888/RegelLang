@@ -27,8 +27,6 @@ public:
   static UnaryOpType tokToPostOpType(const Token &tok);
   static size_t getPreOpPrecedence() noexcept { return 1; }
 
-  static bool isVarDecl(const Token &tok);
-
   static bool isKeywordStatement(const Token &tok);
   static bool isSimpleStatement(const Token &tok);
   static bool isImplicitlyStatementExpression(const Token &tok);

@@ -5,6 +5,7 @@
 #include "parser/ast/expressions/VarDeclNode.hpp"
 #include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
+#include "parser/ast/expressions/ops/BinOpNode.hpp"
 #include "parser/ast/statements/BreakNode.hpp"
 #include "parser/ast/statements/ExpressionStatementNode.hpp"
 #include "parser/ast/statements/ReturnNode.hpp"
@@ -172,7 +173,6 @@ TEST(Parser, compoundElse) {
                             {TokenType::t_else},
                             {TokenType::t_open_bracket},
 
-                            {TokenType::t_let},
                             {TokenType::t_identifier, "a"},
                             {TokenType::t_equal},
                             {TokenType::t_int32_literal, 10},
@@ -191,9 +191,8 @@ TEST(Parser, compoundElse) {
 
   std::vector<Statement> elseStatements;
   elseStatements.push_back(
-      std::make_unique<ExpressionStatementNode>(std::make_unique<VarDeclNode>(
-          std::make_unique<IdentifierNode>("a"),
-          BasicType::t_implicit()->getOwningType(),
+      std::make_unique<ExpressionStatementNode>(std::make_unique<BinOpNode>(
+          BinOpType::b_equal, std::make_unique<IdentifierNode>("a"),
           std::make_unique<IntLiteralNode>(10, BasicType::t_int32()))));
 
   elseStatements.push_back(std::make_unique<ExpressionStatementNode>(
