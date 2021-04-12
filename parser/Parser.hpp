@@ -52,7 +52,8 @@ private:
   Expression parseInvoke(Expression primary);
   Expression parseIndex(Expression primary);
 
-  Expression parseVarDecl(bool skipVarKeyword = false);
+  Expression parseVarDecl(Identifier name = nullptr,
+                          bool allowUninitializedConst = false);
   Block parseBlock(bool forceBrackets = false);
   Expression parseConditional();
   Expression parseForLoop();

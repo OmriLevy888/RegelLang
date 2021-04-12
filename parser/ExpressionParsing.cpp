@@ -54,27 +54,21 @@ Expression Parser::parseExpression() {
 }
 
 Expression Parser::parsePrimary() {
-  Expression primary;
   const Token &tok = m_tokens->getCurr();
 
   if (ParserUtilities::isIdentifier(tok)) {
-    m_tokens->saveAnchorAndCurrentToken();
-    auto varDeclNode = parseVarDecl(true);
-    if (nullptr != varDeclNode) {
-      m_tokens->discardAnchor();
-      return varDeclNode;
+    auto identifier = parseIdentifier();
+    if (TokenType::t_colon == m_tokens->getNext()) {
+      return parseVarDecl(std::move(identifier));
     }
-
-    m_tokens->restoreAnchor();
-    primary = parseIdentifier();
+    return identifier;
   } else if (ParserUtilities::isLiteral(tok)) {
-    primary = parseLiteral();
+    auto literal = parseLiteral();
     m_tokens->getNext(); // consume current token
-  } else {
-    return nullptr;
+    return literal;
   }
 
-  return primary;
+  return nullptr;
 }
 
 Expression Parser::parseRest(Expression primary) {
@@ -337,18 +331,31 @@ Expression Parser::parseIndex(Expression primary) {
       std::make_unique<IndexNode>(std::move(primary), std::move(index)));
 }
 
-Expression Parser::parseVarDecl(bool skipVarKeyword) {
-  bool isMutable = TokenType::t_var == m_tokens->getCurr();
-  if (TokenType::t_identifier != m_tokens->getNext()) {
+Expression Parser::parseVarDecl(Identifier name, bool allowUninitializedConst) {
+  bool isMutable = false;
+
+  if (nullptr == name) {
+    if (TokenType::t_var != m_tokens->getCurr()) {
+      // TODO: write error message
+      return nullptr;
+    }
+    isMutable = true;
+
+    if (TokenType::t_identifier != m_tokens->getNext()) {
+      // TODO: write error message
+      return nullptr;
+    }
+    name = parseIdentifier();
+    m_tokens->getNext(); // consume identifier
+  }
+
+  if (TokenType::t_colon != m_tokens->getCurr()) {
     // TODO: write error message
     return nullptr;
   }
-  auto name = parseIdentifier();
-  m_tokens->getNext(); // consume identifier
 
   TypePtr type = BasicType::t_implicit();
-  if (TokenType::t_colon == m_tokens->getCurr()) { // parse type
-    m_tokens->getNext();                           // consume :
+  if (TokenType::t_equal != m_tokens->getNext()) {
     type = parseType(true);
     if (nullptr == type) {
       // TODO: wrrite error message
@@ -365,7 +372,8 @@ Expression Parser::parseVarDecl(bool skipVarKeyword) {
       // TODO: write error message
       return nullptr;
     }
-  } else if (!isMutable) { // let must have a value
+  } else if (!isMutable &&
+             !allowUninitializedConst) { // a constant must have a value
     ErrorManager::logError(
         ErrorTypes::E_BAD_TOKEN,
         {Formatter("Expected initial value for constant, found {}",
@@ -583,22 +591,12 @@ Expression Parser::parseWhileLoop() {
 }
 
 Switch Parser::parseSwitch() {
-  m_tokens->getNext(); // consume switch keyword
+  m_tokens->getNext(); // consume `switch`
 
   auto expr = parseExpression();
   if (nullptr == expr) {
     // TODO: write error message
     return nullptr;
-  }
-
-  TypePtr caseExprType;
-  if (TokenType::t_colon == m_tokens->getCurr()) {
-    m_tokens->getNext(); // consume :
-    caseExprType = parseType();
-    if (nullptr == caseExprType) {
-      // TODO: write error message
-      return nullptr;
-    }
   }
 
   if (TokenType::t_open_bracket != m_tokens->getCurr()) {
@@ -618,8 +616,7 @@ Switch Parser::parseSwitch() {
   }
   m_tokens->getNext(); // consume }
 
-  return std::make_unique<SwitchNode>(std::move(expr), caseExprType,
-                                      std::move(cases));
+  return std::make_unique<SwitchNode>(std::move(expr), std::move(cases));
 }
 
 SwitchCase Parser::parseSwitchCase() {

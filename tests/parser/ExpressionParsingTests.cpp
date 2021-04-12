@@ -5,7 +5,6 @@
 #include "common/collections/source-objects/SourceProject.hpp"
 #include "common/collections/source-stream/TextSourceStream.hpp"
 #include "common/errors/ErrorManager.hpp"
-#include "gtest/gtest.h"
 #include "lexer/DummyTokenGenerator.hpp"
 #include "lexer/ITokenGenerator.hpp"
 #include "lexer/Token.hpp"
@@ -26,6 +25,7 @@
 #include "parser/ast/statements/YieldNode.hpp"
 #include "tests/TestsCore.hpp"
 #include "tests/parser/ParserTestsUtilities.hpp"
+#include "gtest/gtest.h"
 
 using namespace rgl;
 
@@ -169,6 +169,7 @@ TEST(Parser, varNoValue) {
 TEST(Parser, varImplicitTypeWithValue) {
   auto parser = makeParser({{TokenType::t_var},
                             {TokenType::t_identifier, "a"},
+                            {TokenType::t_colon},
                             {TokenType::t_equal},
                             {TokenType::t_boolean, true}});
 
@@ -180,8 +181,7 @@ TEST(Parser, varImplicitTypeWithValue) {
 }
 
 TEST(Parser, letExplicitTypeWithValue) {
-  auto parser = makeParser({{TokenType::t_let},
-                            {TokenType::t_identifier, "a"},
+  auto parser = makeParser({{TokenType::t_identifier, "a"},
                             {TokenType::t_colon},
                             {TokenType::t_identifier, "foo"},
                             {TokenType::t_dot},
@@ -197,8 +197,8 @@ TEST(Parser, letExplicitTypeWithValue) {
 }
 
 TEST(Parser, emptyBlock) {
-  auto parser = makeParser({{TokenType::t_let},
-                            {TokenType::t_identifier, "a"},
+  auto parser = makeParser({{TokenType::t_identifier, "a"},
+                            {TokenType::t_colon},
                             {TokenType::t_equal},
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
@@ -239,28 +239,14 @@ TEST(Parser, fullBlock) {
                      std::make_unique<BlockNode>(std::move(statements)))));
 }
 
-TEST(Parser, typeNoIdentifier) {
-  auto parser = makeParser("TEST::Parser.typeNoIdentifier",
-                           {{{0, TokenType::t_let, 0, 3, 1}},
-                            {{1, TokenType::t_identifier, 4, 1, 1}, "a"},
-                            {{2, TokenType::t_colon, 9, 1, 1}},
-                            {{3, TokenType::t_equal, 11, 1, 1}}},
-                           {"let b = 5;", "let a    : = 1;", "return a + b;"});
-
-  ASSERT_EQ(parser->parseExpression(), nullptr);
-  ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
-}
-
 TEST(Parser, compoundTypeNoIdentifier) {
-  auto parser =
-      makeParser("TEST::Parser.compoundTypeNoIdentifier",
-                 {{{0, TokenType::t_let, 0, 3, 1}},
-                  {{1, TokenType::t_identifier, 4, 1, 1}, "a"},
-                  {{2, TokenType::t_colon, 6, 1, 1}},
-                  {{3, TokenType::t_identifier, 8, 3, 1}, "foo"},
-                  {{4, TokenType::t_dot, 11, 1, 1}},
-                  {{5, TokenType::t_equal, 13, 1, 1}}},
-                 {"let b = 5;", "let a : foo. = 1;", "return a + b;"});
+  auto parser = makeParser("TEST::Parser.compoundTypeNoIdentifier",
+                           {{{TokenType::t_identifier, 0, 1, 0, 1}, "a"},
+                            {{TokenType::t_colon, 2, 1, 0, 1}},
+                            {{TokenType::t_identifier, 4, 3, 0, 1}, "foo"},
+                            {{TokenType::t_dot, 7, 1, 0, 1}},
+                            {{TokenType::t_equal, 9, 1, 0, 1}}},
+                           {"b := 5;", "a : foo. = 1;", "return a + b;"});
 
   ASSERT_EQ(parser->parseExpression(), nullptr);
   ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
