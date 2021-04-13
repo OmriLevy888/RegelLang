@@ -1,7 +1,7 @@
 #include "parser/ast/constructs/FunctionType.hpp"
 
 namespace rgl {
-bool FunctionType::operator==(TypePtr other) const {
+bool FunctionType::equals(TypePtr other) const {
   // TODO: implement this
   return false;
 }
@@ -37,10 +37,10 @@ TypePtr FunctionType::getSharedPointerType() const {
 }
 
 std::string FunctionType::toTreeStr(size_t spaces) const {
-  std::string typePrefix =
-      (m_typeProperties & TypeProperties::_owning)
-          ? (":")
-          : (m_typeProperties & TypeProperties::_mutable) ? ("&") : ("");
+  std::string typePrefix = (m_typeProperties & TypeProperties::_owning) ? (":")
+                           : (m_typeProperties & TypeProperties::_mutable)
+                               ? ("&")
+                               : ("");
 
   if (m_typeProperties & TypeProperties::_isPointer) {
     typePrefix +=
@@ -49,8 +49,9 @@ std::string FunctionType::toTreeStr(size_t spaces) const {
 
   return Formatter(
       "FunctionType<{}func ({}) => {}>", typePrefix,
-      Formatter<>::joinContainer(", ", m_params, [spaces](auto paramType) {
-        return paramType->toTreeStr(spaces);
-      }), m_retType->toTreeStr(spaces));
+      Formatter<>::joinContainer(
+          ", ", m_params,
+          [spaces](auto paramType) { return paramType->toTreeStr(spaces); }),
+      m_retType->toTreeStr(spaces));
 }
-};  // namespace rgl
+}; // namespace rgl

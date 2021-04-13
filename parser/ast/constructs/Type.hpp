@@ -23,8 +23,8 @@ class Type;
 using TypePtr = std::shared_ptr<Type>;
 
 class Type : public ConstructNode {
- public:
-  virtual bool operator==(TypePtr other) const = 0;
+public:
+  virtual bool equals(TypePtr other) const = 0;
 
   virtual bool isSimpleType() const noexcept { return false; }
 
@@ -36,25 +36,23 @@ class Type : public ConstructNode {
   virtual TypePtr getUniquePointerType() const = 0;
   virtual TypePtr getSharedPointerType() const = 0;
 
- protected:
+protected:
   BitField<TypeProperties> m_typeProperties;
 
   Type(BitField<TypeProperties> properties) : m_typeProperties(properties) {}
 };
-};  // namespace rgl
+}; // namespace rgl
 
 namespace std {
-template <>
-struct hash<std::unique_ptr<rgl::Type>> {
+template <> struct hash<std::unique_ptr<rgl::Type>> {
   size_t operator()(const std::unique_ptr<rgl::Type> &type) const noexcept {
     return type->getHash();
   }
 };
 
-template <>
-struct hash<std::shared_ptr<rgl::Type>> {
+template <> struct hash<std::shared_ptr<rgl::Type>> {
   size_t operator()(const std::shared_ptr<rgl::Type> &type) const noexcept {
     return type->getHash();
   }
 };
-};  // namespace std
+}; // namespace std

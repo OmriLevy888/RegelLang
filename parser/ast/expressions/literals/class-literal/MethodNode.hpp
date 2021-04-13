@@ -1,3 +1,4 @@
+#pragma once
 #include "common/utils/BitField.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"

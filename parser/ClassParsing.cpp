@@ -1,6 +1,7 @@
 #include "common/errors/ErrorManager.hpp"
 #include "lexer/Token.hpp"
 #include "parser/Parser.hpp"
+#include "parser/ast/expressions/VarDeclNode.hpp"
 #include <vector>
 
 namespace rgl {
@@ -55,8 +56,102 @@ ClassPtr Parser::parseClass() {
                                             std::move(methods));
 }
 
-bool Parser::parseField(bool isExposed, std::vector<FieldPtr> &fiels) {
+bool Parser::parseField(bool isExposed, std::vector<FieldPtr> &fields) {
+  // [pub] [var] [[a[, b[...]]]] : foo;
+  bool isMutable = false;
+  switch (m_tokens->getCurr()) {
+  case TokenType::t_var:
+    m_tokens->saveAnchorAndCurrentToken();
+    isMutable = true;
+    if (TokenType::t_open_square != m_tokens->getNext()) {
+      m_tokens->restoreAnchor();
+      break;
+    }
+  case TokenType::t_open_square:
+    return parseFieldMultipleShorthand(isMutable, isExposed, fields);
+  default:
+    break;
+  }
+
+  // [pub] [var] a : foo[, [var] b : bar[...]];
+  std::vector<VarDeclPtr> fieldDeclarations;
+  while (TokenType::t_semicolon != m_tokens->getCurr()) {
+    if (fieldDeclarations.size() != 0) {
+      if (TokenType::t_comma != m_tokens->getCurr()) {
+        // TODO: write error message
+        return false;
+      }
+      m_tokens->getNext(); // consume `,`
+    }
+
+    auto varDecl = parseVarDecl(nullptr, true, false);
+    if (nullptr == varDecl) {
+      // TODO: write error message
+      return false;
+    }
+    fieldDeclarations.push_back(std::move(varDecl));
+  }
+  m_tokens->getNext(); // consume `;`
+
+  for (auto &&varDecl : std::move(fieldDeclarations)) {
+    fields.push_back(varDecl->toFieldPtr(isExposed));
+  }
+
   return false;
+}
+
+bool Parser::parseFieldMultipleShorthand(bool isMutable, bool isExposed,
+                                         std::vector<FieldPtr> &fields) {
+  std::vector<Identifier> fieldNames{};
+  m_tokens->getNext(); // consume `[`
+
+  while (TokenType::t_close_square != m_tokens->getCurr()) {
+    if (0 != fieldNames.size()) {
+      if (TokenType::t_comma != m_tokens->getCurr()) {
+        // TODO: write error message
+        return false;
+      }
+      m_tokens->getNext(); // consume `,`
+    }
+
+    if (TokenType::t_identifier != m_tokens->getCurr()) {
+      // TODO: write error message
+      return false;
+    }
+
+    fieldNames.push_back(parseIdentifier());
+    m_tokens->getNext(); // consume field name
+  }
+  m_tokens->getNext(); // consume `]`
+
+  if (TokenType::t_colon != m_tokens->getCurr()) {
+    // TODO: write error message
+    return false;
+  }
+  m_tokens->getNext();
+
+  auto type = parseType();
+  if (nullptr == type) {
+    // TODO: write error message
+    return false;
+  }
+
+  if (isMutable) {
+    type = type->getMutableType();
+  }
+
+  if (TokenType::t_semicolon != m_tokens->getCurr()) {
+    // TODO: write error mesage
+    return false;
+  }
+  m_tokens->getNext(); // consume `;`
+
+  for (auto &&name : std::move(fieldNames)) {
+    fields.push_back(
+        std::make_unique<ClassFieldNode>(isExposed, type, std::move(name)));
+  }
+
+  return true;
 }
 
 bool Parser::parseMethod(bool isExposed, std::vector<MethodPtr> &methods) {

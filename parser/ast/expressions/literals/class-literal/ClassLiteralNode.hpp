@@ -1,3 +1,4 @@
+#pragma once
 #include "common/errors/ErrorManager.hpp"
 #include "common/errors/ErrorObject.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"

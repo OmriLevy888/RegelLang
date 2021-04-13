@@ -8,16 +8,16 @@
 
 namespace rgl {
 class FunctionType : public Type {
- public:
-  static TypePtr make(
-      std::vector<TypePtr> &&params, TypePtr retType = nullptr,
-      BitField<TypeProperties> properties = TypeProperties::_isFunction);
+public:
+  static TypePtr
+  make(std::vector<TypePtr> &&params, TypePtr retType = nullptr,
+       BitField<TypeProperties> properties = TypeProperties::_isFunction);
 
-  static TypePtr make(
-      const std::vector<TypePtr> &params, TypePtr retType = nullptr,
-      BitField<TypeProperties> properties = TypeProperties::_isFunction);
+  static TypePtr
+  make(const std::vector<TypePtr> &params, TypePtr retType = nullptr,
+       BitField<TypeProperties> properties = TypeProperties::_isFunction);
 
-  virtual bool operator==(TypePtr other) const override;
+  virtual bool equals(TypePtr other) const override;
 
   virtual size_t getHash() const override;
 
@@ -29,20 +29,18 @@ class FunctionType : public Type {
 
   virtual std::string toTreeStr(size_t spaces) const override;
 
- private:
+private:
   std::vector<TypePtr> m_params;
   TypePtr m_retType;
 
   FunctionType(std::vector<TypePtr> &&params, TypePtr retType,
                BitField<TypeProperties> properties)
       : Type(properties | TypeProperties::_isFunction),
-        m_params(std::move(params)),
-        m_retType(retType) {}
+        m_params(std::move(params)), m_retType(retType) {}
 
   FunctionType(const std::vector<TypePtr> &params, TypePtr retType,
                BitField<TypeProperties> properties)
-      : Type(properties | TypeProperties::_isFunction),
-        m_params(params),
+      : Type(properties | TypeProperties::_isFunction), m_params(params),
         m_retType(retType) {}
 };
-};  // namespace rgl
+}; // namespace rgl

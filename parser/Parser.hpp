@@ -7,6 +7,7 @@
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/SwitchNode.hpp"
+#include "parser/ast/expressions/VarDeclNode.hpp"
 #include "parser/ast/expressions/literals/class-literal/ClassLiteralNode.hpp"
 #include "parser/ast/statements/StatementNode.hpp"
 
@@ -53,8 +54,9 @@ private:
   Expression parseInvoke(Expression primary);
   Expression parseIndex(Expression primary);
 
-  Expression parseVarDecl(Identifier name = nullptr,
-                          bool allowUninitializedConst = false);
+  VarDeclPtr parseVarDecl(Identifier name = nullptr,
+                          bool allowUninitializedConst = false,
+                          bool allowValue = true);
   Block parseBlock(bool forceBrackets = false);
   Expression parseConditional();
   Expression parseForLoop();
@@ -71,6 +73,8 @@ private:
 
   ClassPtr parseClass();
   bool parseField(bool isExposed, std::vector<FieldPtr> &fields);
+  bool parseFieldMultipleShorthand(bool isMutable, bool isExposed,
+                                   std::vector<FieldPtr> &fields);
   bool parseMethod(bool isExposed, std::vector<MethodPtr> &methods);
 };
 }; // namespace rgl

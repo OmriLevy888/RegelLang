@@ -331,7 +331,8 @@ Expression Parser::parseIndex(Expression primary) {
       std::make_unique<IndexNode>(std::move(primary), std::move(index)));
 }
 
-Expression Parser::parseVarDecl(Identifier name, bool allowUninitializedConst) {
+VarDeclPtr Parser::parseVarDecl(Identifier name, bool allowUninitializedConst,
+                                bool allowValue) {
   bool isMutable = false;
 
   if (nullptr == name) {
@@ -355,12 +356,21 @@ Expression Parser::parseVarDecl(Identifier name, bool allowUninitializedConst) {
   }
 
   TypePtr type = BasicType::t_implicit();
-  if (TokenType::t_equal != m_tokens->getNext()) {
+  if (TokenType::t_equal != m_tokens->getNext() || !allowValue) {
     type = parseType(true);
     if (nullptr == type) {
       // TODO: wrrite error message
       return nullptr;
     }
+  }
+
+  if (type->equals(BasicType::t_implicit()) &&
+      !allowValue) { // used for class definition
+    // context, no value is allowed but a type has to be specified
+    // TODO: wrtie error message
+    return nullptr;
+  } else if (!allowValue) {
+    return std::make_unique<VarDeclNode>(std::move(name), type, nullptr);
   }
 
   Expression expr;
