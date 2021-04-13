@@ -643,7 +643,7 @@ SwitchCase Parser::parseSwitchCase() {
   return std::make_unique<SwitchCaseNode>(std::move(expr), std::move(body));
 }
 
-Expression Parser::parseFunction() {
+FunctionPtr Parser::parseFunction() {
   Identifier name = nullptr;
   m_tokens->saveAnchor();
   if (TokenType::t_identifier == m_tokens->getNext()) {

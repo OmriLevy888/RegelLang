@@ -3,7 +3,7 @@
 #include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
 
 namespace rgl {
-enum class MethodProperties : uint32_t { _virtual };
+enum class MethodProperties : uint32_t { _default, _virtual };
 
 class MethodNode : public ExpressionNode {
 public:

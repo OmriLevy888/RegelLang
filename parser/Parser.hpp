@@ -67,10 +67,10 @@ private:
   Statement parseKeywordStatement();
   Statement parseSimpleStatement();
 
-  Expression parseFunction();
+  FunctionPtr parseFunction();
 
   ClassPtr parseClass();
-  bool parseField(std::vector<FieldPtr> &fields);
-  bool parseMethod(std::vector<MethodPtr> &methods);
+  bool parseField(bool isExposed, std::vector<FieldPtr> &fields);
+  bool parseMethod(bool isExposed, std::vector<MethodPtr> &methods);
 };
 }; // namespace rgl

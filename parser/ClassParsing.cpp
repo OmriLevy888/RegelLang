@@ -34,7 +34,7 @@ ClassPtr Parser::parseClass() {
 
     switch (m_tokens->getCurr()) {
     case TokenType::t_func:
-      if (!parseMethod(methods)) {
+      if (!parseMethod(isExposed, methods)) {
         return nullptr;
       }
       break;
@@ -44,7 +44,7 @@ ClassPtr Parser::parseClass() {
                              "Hooks are not implemented yet");
       return nullptr;
     default:
-      if (!parseField(fields)) {
+      if (!parseField(isExposed, fields)) {
         return nullptr;
       }
       break;
@@ -55,7 +55,20 @@ ClassPtr Parser::parseClass() {
                                             std::move(methods));
 }
 
-bool Parser::parseField(std::vector<FieldPtr> &fiels) { return false; }
+bool Parser::parseField(bool isExposed, std::vector<FieldPtr> &fiels) {
+  return false;
+}
 
-bool Parser::parseMethod(std::vector<MethodPtr> &method) { return false; }
+bool Parser::parseMethod(bool isExposed, std::vector<MethodPtr> &methods) {
+  auto func = parseFunction();
+  if (nullptr == func) {
+    return false;
+  }
+
+  BitField<MethodProperties> methodProperties = MethodProperties::_default;
+
+  methods.push_back(std::make_unique<MethodNode>(isExposed, std::move(func),
+                                                 methodProperties));
+  return true;
+}
 }; // namespace rgl

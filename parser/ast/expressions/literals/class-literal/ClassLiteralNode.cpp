@@ -28,9 +28,8 @@ std::string ClassLiteralNode::toTreeStr(size_t spaces) const {
     methodsStr += (*iter)->toTreeStr(spaces + 25);
   }
 
-  return Formatter(
-      "ClassLiteralNode<type:{},\n{}name:{},\n{}fields:{},\n{}methods:{}>",
-      m_type->toTreeStr(spaces + 22), spacesStr, m_name->toString(), spacesStr,
-      fieldsStr, spaces, methodsStr);
+  return Formatter("ClassLiteralNode<name:{},\n{}fields:{},\n{}methods:{}>",
+                   m_name->toString(), spacesStr, fieldsStr, spaces,
+                   methodsStr);
 }
 }; // namespace rgl
