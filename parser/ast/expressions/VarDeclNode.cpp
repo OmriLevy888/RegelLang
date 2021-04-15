@@ -13,8 +13,8 @@ std::string VarDeclNode::toTreeStr(size_t spaces) const {
                    spacesStr, exprStr);
 }
 
-FieldPtr VarDeclNode::toFieldPtr(bool isExposed) {
-  return std::make_unique<ClassFieldNode>(isExposed, std::move(m_type),
-                                          std::move(m_name));
+FieldPtr VarDeclNode::toFieldPtr(bool isExposed, bool isMutable) {
+  auto type = (isMutable) ? (m_type->getMutableType()) : (m_type);
+  return std::make_unique<ClassFieldNode>(isExposed, type, std::move(m_name));
 }
 }; // namespace rgl

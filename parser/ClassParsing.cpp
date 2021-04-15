@@ -61,7 +61,7 @@ bool Parser::parseField(bool isExposed, std::vector<FieldPtr> &fields) {
   bool isMutable = false;
   switch (m_tokens->getCurr()) {
   case TokenType::t_var:
-    m_tokens->saveAnchorAndCurrentToken();
+    m_tokens->saveAnchor();
     isMutable = true;
     if (TokenType::t_open_square != m_tokens->getNext()) {
       m_tokens->restoreAnchor();
@@ -84,7 +84,14 @@ bool Parser::parseField(bool isExposed, std::vector<FieldPtr> &fields) {
       m_tokens->getNext(); // consume `,`
     }
 
-    auto varDecl = parseVarDecl(nullptr, true, false);
+    if (TokenType::t_identifier != m_tokens->getCurr()) {
+      // TODO: write error message
+      return false;
+    }
+    auto fieldName = parseIdentifier();
+    m_tokens->getNext(); // consume field name
+
+    auto varDecl = parseVarDecl(std::move(fieldName), true, false);
     if (nullptr == varDecl) {
       // TODO: write error message
       return false;
@@ -94,10 +101,10 @@ bool Parser::parseField(bool isExposed, std::vector<FieldPtr> &fields) {
   m_tokens->getNext(); // consume `;`
 
   for (auto &&varDecl : std::move(fieldDeclarations)) {
-    fields.push_back(varDecl->toFieldPtr(isExposed));
+    fields.push_back(varDecl->toFieldPtr(isExposed, isMutable));
   }
 
-  return false;
+  return true;
 }
 
 bool Parser::parseFieldMultipleShorthand(bool isMutable, bool isExposed,

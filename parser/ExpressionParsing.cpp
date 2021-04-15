@@ -45,6 +45,8 @@ Expression Parser::parseExpression() {
       return parseBlock();
     } else if (TokenType::t_func == m_tokens->getCurr()) {
       return parseFunction();
+    } else if (TokenType::t_class == m_tokens->getCurr()) {
+      return parseClass();
     }
 
     return parseImplicitStatementExpression();
@@ -750,7 +752,7 @@ FunctionPtr Parser::parseFunction() {
   }
 
   // parse retType
-  TypePtr retType = nullptr;
+  TypePtr retType = BasicType::t_implicit();
   if (TokenType::t_arrow == m_tokens->getCurr()) {
     m_tokens->getNext(); // consume =>
     retType = parseType();
@@ -760,7 +762,8 @@ FunctionPtr Parser::parseFunction() {
   }
 
   // parse body
-  const bool enforceBrackets = (nullptr != retType) || !multipleParams;
+  const bool enforceBrackets =
+      (BasicType::t_implicit() != retType) || !multipleParams;
   if (enforceBrackets && TokenType::t_open_bracket != m_tokens->getCurr()) {
     ErrorManager::logError(
         ErrorTypes::E_BAD_TOKEN,

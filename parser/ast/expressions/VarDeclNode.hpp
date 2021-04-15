@@ -9,7 +9,7 @@ public:
   VarDeclNode(Identifier name, TypePtr type, Expression expr)
       : m_name(std::move(name)), m_type(type), m_expr(std::move(expr)) {}
 
-  FieldPtr toFieldPtr(bool isExposed = false);
+  FieldPtr toFieldPtr(bool isExposed = false, bool isMutable = false);
 
   virtual std::string toTreeStr(size_t spaces) const override;
 
