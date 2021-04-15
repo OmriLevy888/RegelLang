@@ -143,6 +143,7 @@ bool Parser::parseFieldMultipleShorthand(bool isMutable, bool isExposed,
     return false;
   }
 
+  type = type->getOwningType();
   if (isMutable) {
     type = type->getMutableType();
   }

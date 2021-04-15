@@ -143,8 +143,77 @@ TEST(Parser, classMultipleFields) {
                  std::vector<MethodPtr>{}));
 }
 
-TEST(Parser, classPublicMembers) {}
+TEST(Parser, classPublicMembers) {
+  auto parser = makeParser({{TokenType::t_class},
+                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_open_bracket},
 
-TEST(Parser, classMultipleFieldsDeclaration) {}
+                            {TokenType::t_pub},
+                            {TokenType::t_identifier, "bar"},
+                            {TokenType::t_colon},
+                            {TokenType::t_identifier, "u8"},
+                            {TokenType::t_semicolon},
 
-TEST(Parser, classMultipleFieldsShorthand) {}
+                            {TokenType::t_func},
+                            {TokenType::t_identifier, "baz"},
+                            {TokenType::t_open_paren},
+                            {TokenType::t_close_paren},
+                            {TokenType::t_open_bracket},
+                            {TokenType::t_close_bracket},
+
+                            {TokenType::t_close_bracket}});
+
+  std::vector<FieldPtr> fields{};
+  fields.push_back(std::make_unique<ClassFieldNode>(
+      true, BasicType::t_uint8()->getOwningType()->getMutableType(),
+      std::make_unique<IdentifierNode>("bar")));
+
+  std::vector<MethodPtr> methods{};
+  methods.push_back(std::make_unique<MethodNode>(
+      false,
+      std::make_unique<FunctionLiteralNode>(
+          std::make_unique<IdentifierNode>("baz"), std::vector<Parameter>{},
+          BasicType::t_implicit(), std::make_unique<BlockNode>()),
+      MethodProperties::_default));
+
+  assertNode(parser->parseExpression(),
+             std::make_unique<ClassLiteralNode>(
+                 std::make_unique<IdentifierNode>("foo"), std::move(fields),
+                 std::move(methods)));
+}
+
+TEST(Parser, classMultipleFieldsShorthand) {
+  auto parser = makeParser({{TokenType::t_class},
+                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_open_bracket},
+
+                            {TokenType::t_var},
+                            {TokenType::t_open_square},
+                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_comma},
+                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_comma},
+                            {TokenType::t_identifier, "c"},
+                            {TokenType::t_close_square},
+                            {TokenType::t_colon},
+                            {TokenType::t_identifier, "i32"},
+                            {TokenType::t_semicolon},
+
+                            {TokenType::t_close_bracket}});
+
+  std::vector<FieldPtr> fields{};
+  fields.push_back(std::make_unique<ClassFieldNode>(
+      false, BasicType::t_int32()->getOwningType()->getMutableType(),
+      std::make_unique<IdentifierNode>("a")));
+  fields.push_back(std::make_unique<ClassFieldNode>(
+      false, BasicType::t_int32()->getOwningType()->getMutableType(),
+      std::make_unique<IdentifierNode>("b")));
+  fields.push_back(std::make_unique<ClassFieldNode>(
+      false, BasicType::t_int32()->getOwningType()->getMutableType(),
+      std::make_unique<IdentifierNode>("c")));
+
+  assertNode(parser->parseExpression(),
+             std::make_unique<ClassLiteralNode>(
+                 std::make_unique<IdentifierNode>("foo"), std::move(fields),
+                 std::vector<MethodPtr>{}));
+}
