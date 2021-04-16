@@ -199,27 +199,27 @@ TEST(Lexer, lexRealLiteral) {
 }
 
 TEST(Lexer, lexComment) {
-  auto lexer = makeLexer("let a = // this is some comment\n5;\nlet b /* this "
-                         "is an inline comment */ = 3;\nlet /* this is "
-                         "a\nmultiline\ncomment */ c = true;",
+  auto lexer = makeLexer("a := // this is some comment\n5;\nb /* this "
+                         "is an inline comment */ := 3;\n/* this is "
+                         "a\nmultiline\ncomment */ c := true;",
                          "TEST::Lexer.lexCommen");
 
-  ASSERT_TRUE(lexer.getNext() == TokenType::t_let);
   assertIdentifier(lexer.getNext(), "a");
-  ASSERT_TRUE(lexer.getNext() == TokenType::t_equal);
-  ASSERT_TRUE(lexer.getNext() == TokenType::t_int32_literal);
-  ASSERT_TRUE(lexer.getNext() == TokenType::t_semicolon);
+  ASSERT_EQ(lexer.getNext(), TokenType::t_colon);
+  ASSERT_EQ(lexer.getNext(), TokenType::t_equal);
+  ASSERT_EQ(lexer.getNext(), TokenType::t_int32_literal);
+  ASSERT_EQ(lexer.getNext(), TokenType::t_semicolon);
 
-  ASSERT_TRUE(lexer.getNext() == TokenType::t_let);
   assertIdentifier(lexer.getNext(), "b");
-  ASSERT_TRUE(lexer.getNext() == TokenType::t_equal);
-  ASSERT_TRUE(lexer.getNext() == TokenType::t_int32_literal);
-  ASSERT_TRUE(lexer.getNext() == TokenType::t_semicolon);
+  ASSERT_EQ(lexer.getNext(), TokenType::t_colon);
+  ASSERT_EQ(lexer.getNext(), TokenType::t_equal);
+  ASSERT_EQ(lexer.getNext(), TokenType::t_int32_literal);
+  ASSERT_EQ(lexer.getNext(), TokenType::t_semicolon);
 
-  ASSERT_TRUE(lexer.getNext() == TokenType::t_let);
   assertIdentifier(lexer.getNext(), "c");
-  ASSERT_TRUE(lexer.getNext() == TokenType::t_equal);
-  ASSERT_TRUE(lexer.getNext() == TokenType::t_boolean);
-  ASSERT_TRUE(lexer.getNext() == TokenType::t_semicolon);
-  ASSERT_TRUE(lexer.getNext() == TokenType::t_eof);
+  ASSERT_EQ(lexer.getNext(), TokenType::t_colon);
+  ASSERT_EQ(lexer.getNext(), TokenType::t_equal);
+  ASSERT_EQ(lexer.getNext(), TokenType::t_boolean);
+  ASSERT_EQ(lexer.getNext(), TokenType::t_semicolon);
+  ASSERT_EQ(lexer.getNext(), TokenType::t_eof);
 }

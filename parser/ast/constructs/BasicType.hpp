@@ -5,15 +5,15 @@
 
 namespace rgl {
 class BasicType : public Type {
- public:
-  static TypePtr make(
-      std::vector<std::string> &&name,
-      BitField<TypeProperties> properties = TypeProperties::_default);
-  static TypePtr make(
-      const std::vector<std::string> &name,
-      BitField<TypeProperties> properties = TypeProperties::_default);
+public:
+  static TypePtr
+  make(std::vector<std::string> &&name,
+       BitField<TypeProperties> properties = TypeProperties::_default);
+  static TypePtr
+  make(const std::vector<std::string> &name,
+       BitField<TypeProperties> properties = TypeProperties::_default);
 
-  virtual bool operator==(TypePtr other) const override;
+  virtual bool equals(TypePtr other) const override;
 
   virtual bool isSimpleType() const noexcept override;
 
@@ -43,7 +43,7 @@ class BasicType : public Type {
   static TypePtr t_string();
   static TypePtr t_bool();
 
- private:
+private:
   std::vector<std::string> m_name;
 
   BasicType(std::vector<std::string> &&name,
@@ -56,4 +56,4 @@ class BasicType : public Type {
             BitField<TypeProperties> properties = TypeProperties::_default)
       : Type(properties), m_name({name}) {}
 };
-};  // namespace rgl
+}; // namespace rgl

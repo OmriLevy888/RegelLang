@@ -41,6 +41,7 @@ enum class BinOpType : uint8_t {
   b_ampersand_equal,
   b_caret_equal,
 
+  b_equal,
   b_as,
 };
 
@@ -111,6 +112,7 @@ private:
         {BinOpType::b_ampersand_equal, "b_ampersand_equal"},
         {BinOpType::b_caret_equal, "b_caret_equal"},
 
+        {BinOpType::b_equal, "b_equal"},
         {BinOpType::b_as, "b_as"},
     };
 

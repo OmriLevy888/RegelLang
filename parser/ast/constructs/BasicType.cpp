@@ -1,7 +1,7 @@
 #include "parser/ast/constructs/BasicType.hpp"
 
 namespace rgl {
-bool BasicType::operator==(TypePtr other) const {
+bool BasicType::equals(TypePtr other) const {
   // TODO: implement this
   return false;
 }
@@ -114,4 +114,4 @@ TypePtr BasicType::t_bool() {
   static auto instance = BasicType::make({"bool"});
   return instance;
 }
-};  // namespace rgl
+}; // namespace rgl

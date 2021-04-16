@@ -1,9 +1,10 @@
+#pragma once
 #include "common/utils/BitField.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
 
 namespace rgl {
-enum class MethodProperties : uint32_t { _virtual };
+enum class MethodProperties : uint32_t { _default, _virtual };
 
 class MethodNode : public ExpressionNode {
 public:
@@ -16,9 +17,13 @@ public:
 
 private:
   bool m_isExposed;
-  FunctionPtr m_func;
   BitField<MethodProperties> m_properties;
+  FunctionPtr m_func;
 };
 
 using MethodPtr = std::unique_ptr<MethodNode>;
 }; // namespace rgl
+
+namespace std {
+std::string to_string(rgl::BitField<rgl::MethodProperties> properties);
+}; // namespace std

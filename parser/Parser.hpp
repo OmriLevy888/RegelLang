@@ -7,14 +7,16 @@
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/SwitchNode.hpp"
+#include "parser/ast/expressions/VarDeclNode.hpp"
+#include "parser/ast/expressions/literals/class-literal/ClassLiteralNode.hpp"
 #include "parser/ast/statements/StatementNode.hpp"
 
 namespace rgl {
 class Parser : public ILoggable {
- public:
+public:
   Parser(std::unique_ptr<TokenCollection> &&tokens)
       : m_tokens(std::move(tokens)) {
-    m_tokens->getNext();  // get the first token
+    m_tokens->getNext(); // get the first token
   }
 
   File parseFile();
@@ -26,7 +28,7 @@ class Parser : public ILoggable {
     return Formatter("Parser<{}>", m_tokens->toString());
   }
 
- private:
+private:
   std::unique_ptr<TokenCollection> m_tokens;
   uint8_t m_lastPrecedence;
 
@@ -52,7 +54,9 @@ class Parser : public ILoggable {
   Expression parseInvoke(Expression primary);
   Expression parseIndex(Expression primary);
 
-  Expression parseVarDecl();
+  VarDeclPtr parseVarDecl(Identifier name = nullptr,
+                          bool allowUninitializedConst = false,
+                          bool allowValue = true);
   Block parseBlock(bool forceBrackets = false);
   Expression parseConditional();
   Expression parseForLoop();
@@ -65,6 +69,12 @@ class Parser : public ILoggable {
   Statement parseKeywordStatement();
   Statement parseSimpleStatement();
 
-  Expression parseFunction();
+  FunctionPtr parseFunction();
+
+  ClassPtr parseClass();
+  bool parseField(bool isExposed, std::vector<FieldPtr> &fields);
+  bool parseFieldMultipleShorthand(bool isMutable, bool isExposed,
+                                   std::vector<FieldPtr> &fields);
+  bool parseMethod(bool isExposed, std::vector<MethodPtr> &methods);
 };
-};  // namespace rgl
+}; // namespace rgl

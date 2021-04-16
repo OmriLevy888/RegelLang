@@ -1,3 +1,4 @@
+#pragma once
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 
