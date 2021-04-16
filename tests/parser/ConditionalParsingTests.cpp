@@ -1,6 +1,7 @@
 #include <memory>
 
 #include "lexer/Token.hpp"
+#include "parser/ast/expressions/BasicIdentifierNode.hpp"
 #include "parser/ast/expressions/ConditionalNode.hpp"
 #include "parser/ast/expressions/VarDeclNode.hpp"
 #include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
@@ -192,7 +193,7 @@ TEST(Parser, compoundElse) {
   std::vector<Statement> elseStatements;
   elseStatements.push_back(
       std::make_unique<ExpressionStatementNode>(std::make_unique<BinOpNode>(
-          BinOpType::b_equal, std::make_unique<IdentifierNode>("a"),
+          BinOpType::b_equal, std::make_unique<BasicIdentifierNode>("a"),
           std::make_unique<IntLiteralNode>(10, BasicType::t_int32()))));
 
   elseStatements.push_back(std::make_unique<ExpressionStatementNode>(

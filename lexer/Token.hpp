@@ -121,6 +121,9 @@ enum class TokenType : uint16_t {
   t_move,  // move
   t_pub,   // pub
   t_hook,  // hook
+
+  t_namespace, // namespace
+  t_import,    // import
 };
 
 class Token : public ILoggable {
@@ -312,7 +315,10 @@ private:
         {TokenType::t_dtor, "t_dtor"},
         {TokenType::t_move, "t_move"},
         {TokenType::t_pub, "t_pub"},
-        {TokenType::t_hook, "t_hook"}};
+        {TokenType::t_hook, "t_hook"},
+
+        {TokenType::t_namespace, "t_namespace"},
+        {TokenType::t_import, "t_import"}};
     static std::string unknown_repr = "t_repr";
 
     const auto &ret = token_types_repr[getTokenType()];

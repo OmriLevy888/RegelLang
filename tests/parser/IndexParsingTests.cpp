@@ -1,7 +1,7 @@
 #include <memory>
 
 #include "lexer/Token.hpp"
-#include "parser/ast/expressions/IdentifierNode.hpp"
+#include "parser/ast/expressions/BasicIdentifierNode.hpp"
 #include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
 #include "parser/ast/expressions/ops/BinOpNode.hpp"
@@ -20,8 +20,8 @@ TEST(Parser, simpleIndex) {
 
   assertNode(
       parser->parseExpression(),
-      std::make_unique<IndexNode>(std::make_unique<IdentifierNode>("a"),
-                                  std::make_unique<IdentifierNode>("b")));
+      std::make_unique<IndexNode>(std::make_unique<BasicIdentifierNode>("a"),
+                                  std::make_unique<BasicIdentifierNode>("b")));
 }
 
 TEST(Parser, indexWithBinOp) {
@@ -32,11 +32,11 @@ TEST(Parser, indexWithBinOp) {
                             {TokenType::t_plus},
                             {TokenType::t_identifier, "c"}});
 
-  assertNode(
-      parser->parseExpression(),
-      std::make_unique<BinOpNode>(
-          BinOpType::b_plus,
-          std::make_unique<IndexNode>(std::make_unique<IdentifierNode>("a"),
-                                      std::make_unique<IdentifierNode>("b")),
-          std::make_unique<IdentifierNode>("c")));
+  assertNode(parser->parseExpression(),
+             std::make_unique<BinOpNode>(
+                 BinOpType::b_plus,
+                 std::make_unique<IndexNode>(
+                     std::make_unique<BasicIdentifierNode>("a"),
+                     std::make_unique<BasicIdentifierNode>("b")),
+                 std::make_unique<BasicIdentifierNode>("c")));
 }
