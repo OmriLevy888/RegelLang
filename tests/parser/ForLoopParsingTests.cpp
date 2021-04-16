@@ -1,10 +1,10 @@
 #include <memory>
 
 #include "lexer/Token.hpp"
+#include "parser/ast/expressions/BasicIdentifierNode.hpp"
 #include "parser/ast/expressions/ConditionalNode.hpp"
 #include "parser/ast/expressions/ForInLoopNode.hpp"
 #include "parser/ast/expressions/ForLoopNode.hpp"
-#include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/VarDeclNode.hpp"
 #include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
@@ -55,20 +55,20 @@ TEST(Parser, fullForLoop) {
                             {TokenType::t_break},
                             {TokenType::t_semicolon}});
 
-  assertNode(
-      parser->parseExpression(),
-      std::make_unique<ForLoopNode>(
-          std::make_unique<VarDeclNode>(
-              std::make_unique<IdentifierNode>("idx"),
-              BasicType::t_implicit()->getMutableType(),
-              std::make_unique<IntLiteralNode>(0, BasicType::t_int32())),
-          std::make_unique<BinOpNode>(
-              BinOpType::b_lesser_than, std::make_unique<IdentifierNode>("idx"),
-              std::make_unique<IntLiteralNode>(3, BasicType::t_int32())),
-          std::make_unique<UnaryOpNode>(
-              UnaryOpType::u_post_plus_plus,
-              std::make_unique<IdentifierNode>("idx")),
-          std::make_unique<BreakNode>()));
+  assertNode(parser->parseExpression(),
+             std::make_unique<ForLoopNode>(
+                 std::make_unique<VarDeclNode>(
+                     std::make_unique<BasicIdentifierNode>("idx"),
+                     BasicType::t_implicit()->getMutableType(),
+                     std::make_unique<IntLiteralNode>(0, BasicType::t_int32())),
+                 std::make_unique<BinOpNode>(
+                     BinOpType::b_lesser_than,
+                     std::make_unique<BasicIdentifierNode>("idx"),
+                     std::make_unique<IntLiteralNode>(3, BasicType::t_int32())),
+                 std::make_unique<UnaryOpNode>(
+                     UnaryOpType::u_post_plus_plus,
+                     std::make_unique<BasicIdentifierNode>("idx")),
+                 std::make_unique<BreakNode>()));
 }
 
 TEST(Parser, forLoopNoInit) {
@@ -85,17 +85,17 @@ TEST(Parser, forLoopNoInit) {
 
                             {TokenType::t_break},
                             {TokenType::t_semicolon}});
-  assertNode(
-      parser->parseExpression(),
-      std::make_unique<ForLoopNode>(
-          nullptr,
-          std::make_unique<BinOpNode>(
-              BinOpType::b_lesser_than, std::make_unique<IdentifierNode>("idx"),
-              std::make_unique<IntLiteralNode>(3, BasicType::t_int32())),
-          std::make_unique<UnaryOpNode>(
-              UnaryOpType::u_post_plus_plus,
-              std::make_unique<IdentifierNode>("idx")),
-          std::make_unique<BreakNode>()));
+  assertNode(parser->parseExpression(),
+             std::make_unique<ForLoopNode>(
+                 nullptr,
+                 std::make_unique<BinOpNode>(
+                     BinOpType::b_lesser_than,
+                     std::make_unique<BasicIdentifierNode>("idx"),
+                     std::make_unique<IntLiteralNode>(3, BasicType::t_int32())),
+                 std::make_unique<UnaryOpNode>(
+                     UnaryOpType::u_post_plus_plus,
+                     std::make_unique<BasicIdentifierNode>("idx")),
+                 std::make_unique<BreakNode>()));
 }
 
 TEST(Parser, forLoopNoCond) {
@@ -118,13 +118,13 @@ TEST(Parser, forLoopNoCond) {
   assertNode(parser->parseExpression(),
              std::make_unique<ForLoopNode>(
                  std::make_unique<VarDeclNode>(
-                     std::make_unique<IdentifierNode>("idx"),
+                     std::make_unique<BasicIdentifierNode>("idx"),
                      BasicType::t_implicit()->getMutableType(),
                      std::make_unique<IntLiteralNode>(0, BasicType::t_int32())),
                  nullptr,
                  std::make_unique<UnaryOpNode>(
                      UnaryOpType::u_post_plus_plus,
-                     std::make_unique<IdentifierNode>("idx")),
+                     std::make_unique<BasicIdentifierNode>("idx")),
                  std::make_unique<BreakNode>()));
 }
 
@@ -147,17 +147,17 @@ TEST(Parser, forLoopNoAdvance) {
                             {TokenType::t_semicolon},
                             {TokenType::t_close_bracket}});
 
-  assertNode(
-      parser->parseExpression(),
-      std::make_unique<ForLoopNode>(
-          std::make_unique<VarDeclNode>(
-              std::make_unique<IdentifierNode>("idx"),
-              BasicType::t_implicit()->getMutableType(),
-              std::make_unique<IntLiteralNode>(0, BasicType::t_int32())),
-          std::make_unique<BinOpNode>(
-              BinOpType::b_lesser_than, std::make_unique<IdentifierNode>("idx"),
-              std::make_unique<IntLiteralNode>(3, BasicType::t_int32())),
-          nullptr, std::make_unique<BreakNode>()));
+  assertNode(parser->parseExpression(),
+             std::make_unique<ForLoopNode>(
+                 std::make_unique<VarDeclNode>(
+                     std::make_unique<BasicIdentifierNode>("idx"),
+                     BasicType::t_implicit()->getMutableType(),
+                     std::make_unique<IntLiteralNode>(0, BasicType::t_int32())),
+                 std::make_unique<BinOpNode>(
+                     BinOpType::b_lesser_than,
+                     std::make_unique<BasicIdentifierNode>("idx"),
+                     std::make_unique<IntLiteralNode>(3, BasicType::t_int32())),
+                 nullptr, std::make_unique<BreakNode>()));
 }
 
 TEST(Parser, forLoopNoInitNoAdvance) {
@@ -174,14 +174,14 @@ TEST(Parser, forLoopNoInitNoAdvance) {
                             {TokenType::t_semicolon},
                             {TokenType::t_close_bracket}});
 
-  assertNode(
-      parser->parseExpression(),
-      std::make_unique<ForLoopNode>(
-          nullptr,
-          std::make_unique<BinOpNode>(
-              BinOpType::b_lesser_than, std::make_unique<IdentifierNode>("idx"),
-              std::make_unique<IntLiteralNode>(3, BasicType::t_int32())),
-          nullptr, std::make_unique<BreakNode>()));
+  assertNode(parser->parseExpression(),
+             std::make_unique<ForLoopNode>(
+                 nullptr,
+                 std::make_unique<BinOpNode>(
+                     BinOpType::b_lesser_than,
+                     std::make_unique<BasicIdentifierNode>("idx"),
+                     std::make_unique<IntLiteralNode>(3, BasicType::t_int32())),
+                 nullptr, std::make_unique<BreakNode>()));
 }
 
 TEST(Parser, forLoopNoInitNoCond) {
@@ -201,7 +201,7 @@ TEST(Parser, forLoopNoInitNoCond) {
                  nullptr, nullptr,
                  std::make_unique<UnaryOpNode>(
                      UnaryOpType::u_post_plus_plus,
-                     std::make_unique<IdentifierNode>("idx")),
+                     std::make_unique<BasicIdentifierNode>("idx")),
                  std::make_unique<BreakNode>()));
 }
 
@@ -224,7 +224,7 @@ TEST(Parser, forLoopNoCondNoAdvance) {
   assertNode(parser->parseExpression(),
              std::make_unique<ForLoopNode>(
                  std::make_unique<VarDeclNode>(
-                     std::make_unique<IdentifierNode>("idx"),
+                     std::make_unique<BasicIdentifierNode>("idx"),
                      BasicType::t_implicit()->getMutableType(),
                      std::make_unique<IntLiteralNode>(0, BasicType::t_int32())),
                  nullptr, nullptr, std::make_unique<BreakNode>()));
@@ -246,9 +246,10 @@ TEST(Parser, forLoopInOpInInit) {
   assertNode(
       parser->parseExpression(),
       std::make_unique<ForLoopNode>(
-          std::make_unique<BinOpNode>(BinOpType::b_in,
-                                      std::make_unique<IdentifierNode>("a"),
-                                      std::make_unique<IdentifierNode>("b")),
+          std::make_unique<BinOpNode>(
+              BinOpType::b_in, std::make_unique<BasicIdentifierNode>("a"),
+              std::make_unique<BasicIdentifierNode>("b")),
           nullptr, nullptr,
-          std::make_unique<YieldNode>(std::make_unique<IdentifierNode>("a"))));
+          std::make_unique<YieldNode>(
+              std::make_unique<BasicIdentifierNode>("a"))));
 }

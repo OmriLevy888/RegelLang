@@ -2,6 +2,7 @@
 
 #include "lexer/Token.hpp"
 #include "parser/ast/constructs/Type.hpp"
+#include "parser/ast/expressions/BasicIdentifierNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/SwitchCaseNode.hpp"
 #include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
@@ -41,8 +42,8 @@ TEST(Parser, simpleSwitchCase) {
           std::make_unique<BooleanLiteralNode>(false))));
 
   assertNode(parser->parseExpression(),
-             std::make_unique<SwitchNode>(std::make_unique<IdentifierNode>("a"),
-                                          std::move(cases)));
+             std::make_unique<SwitchNode>(
+                 std::make_unique<BasicIdentifierNode>("a"), std::move(cases)));
 }
 
 TEST(Parser, switchCaseWithDefaultStatement) {
@@ -76,11 +77,11 @@ TEST(Parser, switchCaseWithDefaultStatement) {
       std::make_unique<YieldNode>(std::make_unique<BooleanLiteralNode>(true))));
 
   cases.push_back(std::make_unique<SwitchCaseNode>(
-      std::make_unique<IdentifierNode>("_"),
+      std::make_unique<BasicIdentifierNode>("_"),
       std::make_unique<YieldNode>(
           std::make_unique<BooleanLiteralNode>(false))));
 
   assertNode(parser->parseExpression(),
-             std::make_unique<SwitchNode>(std::make_unique<IdentifierNode>("a"),
-                                          std::move(cases)));
+             std::make_unique<SwitchNode>(
+                 std::make_unique<BasicIdentifierNode>("a"), std::move(cases)));
 }

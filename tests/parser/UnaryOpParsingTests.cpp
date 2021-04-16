@@ -1,3 +1,4 @@
+#include "parser/ast/expressions/BasicIdentifierNode.hpp"
 #include "parser/ast/expressions/ops/BinOpNode.hpp"
 #include "parser/ast/expressions/ops/ParenthesesNode.hpp"
 #include "parser/ast/expressions/ops/UnaryOpNode.hpp"
@@ -21,13 +22,14 @@ TEST(Parser, preUnaryOp) {
       parser->parseExpression(),
       std::make_unique<BinOpNode>(
           BinOpType::b_asterisk,
-          std::make_unique<UnaryOpNode>(UnaryOpType::u_pre_plus_plus,
-                                        std::make_unique<IdentifierNode>("a")),
+          std::make_unique<UnaryOpNode>(
+              UnaryOpType::u_pre_plus_plus,
+              std::make_unique<BasicIdentifierNode>("a")),
           std::make_unique<ParenthesesNode>(std::make_unique<BinOpNode>(
-              BinOpType::b_plus, std::make_unique<IdentifierNode>("b"),
+              BinOpType::b_plus, std::make_unique<BasicIdentifierNode>("b"),
               std::make_unique<UnaryOpNode>(
                   UnaryOpType::u_pre_exclamation,
-                  std::make_unique<IdentifierNode>("c"))))));
+                  std::make_unique<BasicIdentifierNode>("c"))))));
 }
 
 TEST(Parser, postUnaryOp) {
@@ -36,23 +38,23 @@ TEST(Parser, postUnaryOp) {
                             {TokenType::t_forward_slash},
                             {TokenType::t_identifier, "b"}});
 
-  assertNode(
-      parser->parseExpression(),
-      std::make_unique<BinOpNode>(
-          BinOpType::b_forward_slash,
-          std::make_unique<UnaryOpNode>(UnaryOpType::u_post_minus_minus,
-                                        std::make_unique<IdentifierNode>("a")),
-          std::make_unique<IdentifierNode>("b")));
+  assertNode(parser->parseExpression(),
+             std::make_unique<BinOpNode>(
+                 BinOpType::b_forward_slash,
+                 std::make_unique<UnaryOpNode>(
+                     UnaryOpType::u_post_minus_minus,
+                     std::make_unique<BasicIdentifierNode>("a")),
+                 std::make_unique<BasicIdentifierNode>("b")));
 }
 
 TEST(Parser, preAmpersnad) {
   auto parser =
       makeParser({{TokenType::t_ampersand}, {TokenType::t_identifier, "a"}});
 
-  assertNode(
-      parser->parseExpression(),
-      std::make_unique<UnaryOpNode>(UnaryOpType::u_pre_ampersand,
-                                    std::make_unique<IdentifierNode>("a")));
+  assertNode(parser->parseExpression(),
+             std::make_unique<UnaryOpNode>(
+                 UnaryOpType::u_pre_ampersand,
+                 std::make_unique<BasicIdentifierNode>("a")));
 }
 
 TEST(Parser, preColonDontIncludeBinOp) {
@@ -61,29 +63,30 @@ TEST(Parser, preColonDontIncludeBinOp) {
                             {TokenType::t_plus},
                             {TokenType::t_identifier, "b"}});
 
-  assertNode(
-      parser->parseExpression(),
-      std::make_unique<BinOpNode>(
-          BinOpType::b_plus,
-          std::make_unique<UnaryOpNode>(UnaryOpType::u_pre_colon,
-                                        std::make_unique<IdentifierNode>("a")),
-          std::make_unique<IdentifierNode>("b")));
+  assertNode(parser->parseExpression(),
+             std::make_unique<BinOpNode>(
+                 BinOpType::b_plus,
+                 std::make_unique<UnaryOpNode>(
+                     UnaryOpType::u_pre_colon,
+                     std::make_unique<BasicIdentifierNode>("a")),
+                 std::make_unique<BasicIdentifierNode>("b")));
 }
 
 TEST(Parser, preAtWithParentheses) {
-  auto parser = makeParser({{TokenType::t_at},
-                            {TokenType::t_open_paren},
-                            {TokenType::t_identifier, "a"},
-                            {TokenType::t_forward_slash},
-                            {TokenType::t_identifier, "b"},
-                            {TokenType::t_close_paren},});
+  auto parser = makeParser({
+      {TokenType::t_at},
+      {TokenType::t_open_paren},
+      {TokenType::t_identifier, "a"},
+      {TokenType::t_forward_slash},
+      {TokenType::t_identifier, "b"},
+      {TokenType::t_close_paren},
+  });
 
-  assertNode(
-      parser->parseExpression(),
-      std::make_unique<UnaryOpNode>(
-          UnaryOpType::u_pre_at,
-          std::make_unique<ParenthesesNode>(
-          std::make_unique<BinOpNode>(BinOpType::b_forward_slash,
-                                      std::make_unique<IdentifierNode>("a"),
-                                      std::make_unique<IdentifierNode>("b")))));
+  assertNode(parser->parseExpression(),
+             std::make_unique<UnaryOpNode>(
+                 UnaryOpType::u_pre_at,
+                 std::make_unique<ParenthesesNode>(std::make_unique<BinOpNode>(
+                     BinOpType::b_forward_slash,
+                     std::make_unique<BasicIdentifierNode>("a"),
+                     std::make_unique<BasicIdentifierNode>("b")))));
 }

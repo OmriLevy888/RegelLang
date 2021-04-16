@@ -1,6 +1,7 @@
 #include <memory>
 
 #include "lexer/Token.hpp"
+#include "parser/ast/expressions/BasicIdentifierNode.hpp"
 #include "parser/ast/expressions/ConditionalNode.hpp"
 #include "parser/ast/expressions/ForInLoopNode.hpp"
 #include "parser/ast/expressions/ForLoopNode.hpp"
@@ -29,10 +30,10 @@ TEST(Parser, simpleForInLoop) {
 
   assertNode(parser->parseExpression(),
              std::make_unique<ForInLoopNode>(
-                 std::make_unique<IdentifierNode>("item"),
-                 std::make_unique<IdentifierNode>("iterable"),
+                 std::make_unique<BasicIdentifierNode>("item"),
+                 std::make_unique<BasicIdentifierNode>("iterable"),
                  std::make_unique<YieldNode>(
-                     std::make_unique<IdentifierNode>("item"))));
+                     std::make_unique<BasicIdentifierNode>("item"))));
 }
 
 TEST(Parser, consumeForInLoop) {
@@ -47,12 +48,12 @@ TEST(Parser, consumeForInLoop) {
 
   assertNode(parser->parseExpression(),
              std::make_unique<ForInLoopNode>(
-                 std::make_unique<IdentifierNode>("item"),
+                 std::make_unique<BasicIdentifierNode>("item"),
                  std::make_unique<UnaryOpNode>(
                      UnaryOpType::u_pre_colon,
-                     std::make_unique<IdentifierNode>("iterable")),
+                     std::make_unique<BasicIdentifierNode>("iterable")),
                  std::make_unique<YieldNode>(
-                     std::make_unique<IdentifierNode>("item"))));
+                     std::make_unique<BasicIdentifierNode>("item"))));
 }
 
 TEST(Parser, mutableForInLoop) {
@@ -67,10 +68,10 @@ TEST(Parser, mutableForInLoop) {
 
   assertNode(parser->parseExpression(),
              std::make_unique<ForInLoopNode>(
-                 std::make_unique<IdentifierNode>("item"),
+                 std::make_unique<BasicIdentifierNode>("item"),
                  std::make_unique<UnaryOpNode>(
                      UnaryOpType::u_pre_ampersand,
-                     std::make_unique<IdentifierNode>("iterable")),
+                     std::make_unique<BasicIdentifierNode>("iterable")),
                  std::make_unique<YieldNode>(
-                     std::make_unique<IdentifierNode>("item"))));
+                     std::make_unique<BasicIdentifierNode>("item"))));
 }

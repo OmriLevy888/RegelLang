@@ -134,7 +134,9 @@ bool Lexer::lexKeyword(Token &ret) {
       {"switch", TokenType::t_switch},
       {"func", TokenType::t_func},
       {"pub", TokenType::t_pub},
-      {"hook", TokenType::t_hook}};
+      {"hook", TokenType::t_hook},
+      {"namespace", TokenType::t_namespace},
+      {"import", TokenType::t_import}};
 
   const auto start = m_currLine->m_repr.cbegin() + m_pos;
   auto it = start + 1;

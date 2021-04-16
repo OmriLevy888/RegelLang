@@ -14,7 +14,7 @@ ClassPtr Parser::parseClass() {
 
   Identifier name = nullptr; // indicates an anonymous class
   if (TokenType::t_identifier == m_tokens->getCurr()) {
-    name = parseIdentifier();
+    name = parseBasicIdentifier();
     m_tokens->getNext(); // consume identifier
   }
 
@@ -88,7 +88,7 @@ bool Parser::parseField(bool isExposed, std::vector<FieldPtr> &fields) {
       // TODO: write error message
       return false;
     }
-    auto fieldName = parseIdentifier();
+    auto fieldName = parseBasicIdentifier();
     m_tokens->getNext(); // consume field name
 
     auto varDecl = parseVarDecl(std::move(fieldName), true, false);
@@ -126,7 +126,7 @@ bool Parser::parseFieldMultipleShorthand(bool isMutable, bool isExposed,
       return false;
     }
 
-    fieldNames.push_back(parseIdentifier());
+    fieldNames.push_back(parseBasicIdentifier());
     m_tokens->getNext(); // consume field name
   }
   m_tokens->getNext(); // consume `]`
