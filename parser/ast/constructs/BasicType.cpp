@@ -1,11 +1,6 @@
 #include "parser/ast/constructs/BasicType.hpp"
 
 namespace rgl {
-bool BasicType::equals(TypePtr other) const {
-  // TODO: implement this
-  return false;
-}
-
 bool BasicType::isSimpleType() const noexcept {
   return (m_name.size() == 1) &&
          (m_typeProperties ==
@@ -13,11 +8,15 @@ bool BasicType::isSimpleType() const noexcept {
 }
 
 size_t BasicType::getHash() const {
-  size_t h = this->Type::getHash();
-  for (const auto &namePart : m_name) {
-    h ^= (std::hash<std::string>{}(namePart) << 1);
+  if (!m_cachedHash.has_value()) {
+    size_t h = this->Type::getHash();
+    for (const auto &namePart : m_name) {
+      h ^= (std::hash<std::string>{}(namePart) << 1);
+    }
+    m_cachedHash = h;
   }
-  return h;
+
+  return m_cachedHash.value();
 }
 
 TypePtr BasicType::getOwningType() const {

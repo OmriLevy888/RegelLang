@@ -13,8 +13,6 @@ public:
   make(const std::vector<std::string> &name,
        BitField<TypeProperties> properties = TypeProperties::_default);
 
-  virtual bool equals(TypePtr other) const override;
-
   virtual bool isSimpleType() const noexcept override;
 
   virtual size_t getHash() const override;

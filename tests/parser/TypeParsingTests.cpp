@@ -1,5 +1,6 @@
 #include "lexer/Token.hpp"
 #include "parser/ast/constructs/FunctionType.hpp"
+#include "parser/ast/constructs/Type.hpp"
 #include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
@@ -116,4 +117,17 @@ TEST(Parser, functionTypeMissingComma) {
 
   ASSERT_EQ(parser->parseType(), nullptr);
   ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
+}
+
+TEST(Parser, typeEquality) {
+  clearTypeBank();
+  initTypeBank();
+  ASSERT_TRUE(BasicType::t_int32() == BasicType::t_int32());
+  ASSERT_TRUE(BasicType::t_int32() == BasicType::make({"i32"}));
+  ASSERT_TRUE(
+      BasicType::t_int32()->getMutableType()->getUniquePointerType() ==
+      BasicType::make({"i32"},
+                      BitField<TypeProperties>{TypeProperties::_isPointer} |
+                          TypeProperties::_mutable));
+  std::cout << typeBankToString() << std::endl;
 }

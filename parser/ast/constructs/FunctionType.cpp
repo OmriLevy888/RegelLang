@@ -1,17 +1,17 @@
 #include "parser/ast/constructs/FunctionType.hpp"
 
 namespace rgl {
-bool FunctionType::equals(TypePtr other) const {
-  // TODO: implement this
-  return false;
-}
-
 size_t FunctionType::getHash() const {
-  size_t h = this->Type::getHash();
-  for (const auto param : m_params) {
-    h ^= (param->getHash() << 1);
+  if (!m_cachedHash.has_value()) {
+
+    size_t h = this->Type::getHash();
+    for (const auto param : m_params) {
+      h ^= (param->getHash() << 1);
+    }
+    m_cachedHash = h;
   }
-  return h;
+
+  return m_cachedHash.value();
 }
 
 TypePtr FunctionType::getOwningType() const {

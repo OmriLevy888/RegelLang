@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <optional>
 
 #include "common/Core.hpp"
 #include "common/utils/BitField.hpp"
@@ -19,12 +20,18 @@ enum class TypeProperties : uint8_t {
 TypeProperties operator~(TypeProperties property);
 std::string typePropertiesToString(BitField<TypeProperties> properties);
 
+std::string typeBankToString();
+void clearTypeBank();
+void initTypeBank();
+
 class Type;
 using TypePtr = std::shared_ptr<Type>;
 
 class Type : public ConstructNode {
 public:
-  virtual bool equals(TypePtr other) const = 0;
+  bool operator==(TypePtr other) const;
+  bool equals(TypePtr other) const;
+  bool equals(const std::unique_ptr<Type> &other) const;
 
   virtual bool isSimpleType() const noexcept { return false; }
 
@@ -38,21 +45,31 @@ public:
 
 protected:
   BitField<TypeProperties> m_typeProperties;
+  size_t m_typeID;
+  mutable std::optional<size_t> m_cachedHash;
 
-  Type(BitField<TypeProperties> properties) : m_typeProperties(properties) {}
+  Type(BitField<TypeProperties> properties, size_t typeID = 0)
+      : m_typeProperties(properties), m_typeID(typeID),
+        m_cachedHash(std::nullopt) {}
 };
 }; // namespace rgl
 
 namespace std {
-template <> struct hash<std::unique_ptr<rgl::Type>> {
-  size_t operator()(const std::unique_ptr<rgl::Type> &type) const noexcept {
+template <> struct hash<std::shared_ptr<rgl::Type>> {
+  size_t operator()(std::shared_ptr<rgl::Type> type) const {
     return type->getHash();
   }
 };
 
-template <> struct hash<std::shared_ptr<rgl::Type>> {
-  size_t operator()(const std::shared_ptr<rgl::Type> &type) const noexcept {
+template <> struct hash<std::unique_ptr<rgl::Type>> {
+  size_t operator()(const std::unique_ptr<rgl::Type> &type) const {
     return type->getHash();
   }
 };
+
+bool operator==(std::shared_ptr<rgl::Type> first,
+                std::shared_ptr<rgl::Type> second);
+
+bool operator==(const std::unique_ptr<rgl::Type> &first,
+                const std::unique_ptr<rgl::Type> &second);
 }; // namespace std

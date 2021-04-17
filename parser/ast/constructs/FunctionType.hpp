@@ -17,8 +17,6 @@ public:
   make(const std::vector<TypePtr> &params, TypePtr retType = nullptr,
        BitField<TypeProperties> properties = TypeProperties::_isFunction);
 
-  virtual bool equals(TypePtr other) const override;
-
   virtual size_t getHash() const override;
 
   virtual TypePtr getOwningType() const override;
