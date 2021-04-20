@@ -68,15 +68,23 @@ bool Type::equals(const std::unique_ptr<Type> &other) const {
 
 size_t Type::getHash() const { return std::hash<uint8_t>{}(m_typeProperties); }
 
-std::unordered_map<std::unique_ptr<Type>, TypePtr> &
-getTypeBank(bool forceInitialize = false) {
-  static bool initialized = false;
-  static std::unordered_map<std::unique_ptr<Type>, TypePtr> typeBank{};
-  if (!initialized || forceInitialize) {
-    // this has to happen first so that when BasicType::make is called and it
-    // in turn calls getTypeBank, the if clause does not happen again
-    initialized = true;
+class TypeBank {
+public:
+  static auto &get() {
+    static bool initialized = false;
+    static std::unordered_map<std::unique_ptr<Type>, TypePtr> typeBank{};
+    if (!initialized) {
+      // this has to happen first so that when BasicType::make is called and it
+      // in turn calls TypeBank::get, the if clause does not happen again
+      initialized = true;
 
+      TypeBank::initBuiltinTypes();
+    }
+
+    return typeBank;
+  }
+
+  static void initBuiltinTypes() {
     BasicType::make({"void"});
 
     BasicType::make({"i8"});
@@ -97,24 +105,24 @@ getTypeBank(bool forceInitialize = false) {
 
     BasicType::make({"bool"});
   }
-  return typeBank;
+};
+
+void Type::cleanNonBuiltinTypes() {
+  TypeBank::get().clear();
+  TypeBank::initBuiltinTypes();
 }
 
-std::string typeBankToString() {
+std::string Type::typeBankToString() {
   std::string ret = "{\n";
-  for (const auto &[key, value] : getTypeBank()) {
+  for (const auto &[key, value] : TypeBank::get()) {
     ret += Formatter("    {} => {},\n", key->toString(), value->toString());
   }
   return ret + "}";
 }
 
-void clearTypeBank() { getTypeBank().clear(); }
-
-void initTypeBank() { getTypeBank(true); }
-
 TypePtr BasicType::make(std::vector<std::string> &&name,
                         BitField<TypeProperties> properties) {
-  auto &typeBank = getTypeBank();
+  auto &typeBank = TypeBank::get();
   // in order to not expose the constructor, new is used since using the friend
   // keyword assumes that std::make_unique calls new inside of it. this call is
   // safe only because the unique pointer is assigned to a named variable right
@@ -137,7 +145,7 @@ TypePtr BasicType::make(std::vector<std::string> &&name,
 
 TypePtr BasicType::make(const std::vector<std::string> &name,
                         BitField<TypeProperties> properties) {
-  auto &typeBank = getTypeBank();
+  auto &typeBank = TypeBank::get();
   // see explanation above
   auto target = std::unique_ptr<Type>(new BasicType(name, properties));
 
@@ -153,7 +161,7 @@ TypePtr BasicType::make(const std::vector<std::string> &name,
 
 TypePtr FunctionType::make(std::vector<TypePtr> &&params, TypePtr retType,
                            BitField<TypeProperties> properties) {
-  auto &typeBank = getTypeBank();
+  auto &typeBank = TypeBank::get();
   // see explanation above
   auto target = std::unique_ptr<Type>(
       new FunctionType(std::move(params), retType, properties));
@@ -173,7 +181,7 @@ TypePtr FunctionType::make(std::vector<TypePtr> &&params, TypePtr retType,
 
 TypePtr FunctionType::make(const std::vector<TypePtr> &params, TypePtr retType,
                            BitField<TypeProperties> properties) {
-  auto &typeBank = getTypeBank();
+  auto &typeBank = TypeBank::get();
   // see explanation above
   auto target =
       std::unique_ptr<Type>(new FunctionType(params, retType, properties));

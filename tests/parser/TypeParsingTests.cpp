@@ -10,6 +10,7 @@
 #include "parser/ast/statements/StatementNode.hpp"
 #include "tests/TestsCore.hpp"
 #include "tests/parser/ParserTestsUtilities.hpp"
+#include "gtest/gtest.h"
 
 using namespace rgl;
 
@@ -120,14 +121,21 @@ TEST(Parser, functionTypeMissingComma) {
 }
 
 TEST(Parser, typeEquality) {
-  clearTypeBank();
-  initTypeBank();
-  ASSERT_TRUE(BasicType::t_int32() == BasicType::t_int32());
-  ASSERT_TRUE(BasicType::t_int32() == BasicType::make({"i32"}));
-  ASSERT_TRUE(
-      BasicType::t_int32()->getMutableType()->getUniquePointerType() ==
-      BasicType::make({"i32"},
-                      BitField<TypeProperties>{TypeProperties::_isPointer} |
-                          TypeProperties::_mutable));
-  std::cout << typeBankToString() << std::endl;
+  Type::cleanNonBuiltinTypes();
+  ASSERT_EQ(BasicType::t_int32(), BasicType::t_int32());
+  ASSERT_EQ(BasicType::t_int32(), BasicType::make({"i32"}));
+  ASSERT_EQ(BasicType::make({"a"}), BasicType::make({"a"}));
+  ASSERT_EQ(BasicType::t_int32()->getMutableType()->getUniquePointerType(),
+            BasicType::make(
+                {"i32"}, BitField<TypeProperties>{TypeProperties::_isPointer} |
+                             TypeProperties::_mutable));
+  std::cout << Type::typeBankToString() << std::endl;
+}
+
+TEST(Paresr, typeInequality) {
+  Type::cleanNonBuiltinTypes();
+  ASSERT_NE(BasicType::t_int32(), BasicType::t_double());
+  ASSERT_NE(BasicType::make({"a"}), BasicType::make({"b"}));
+  ASSERT_NE(BasicType::t_bool(), BasicType::t_bool()->getSharedPointerType());
+  std::cout << Type::typeBankToString() << std::endl;
 }

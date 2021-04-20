@@ -20,15 +20,14 @@ enum class TypeProperties : uint8_t {
 TypeProperties operator~(TypeProperties property);
 std::string typePropertiesToString(BitField<TypeProperties> properties);
 
-std::string typeBankToString();
-void clearTypeBank();
-void initTypeBank();
-
 class Type;
 using TypePtr = std::shared_ptr<Type>;
 
 class Type : public ConstructNode {
 public:
+  static void cleanNonBuiltinTypes();
+  static std::string typeBankToString();
+
   bool operator==(TypePtr other) const;
   bool equals(TypePtr other) const;
   bool equals(const std::unique_ptr<Type> &other) const;
