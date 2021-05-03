@@ -31,7 +31,7 @@ using namespace rgl;
 
 TEST(Parser, identifier) {
   auto parser = makeParser(
-      {{TokenType::t_identifier, "a"}, {TokenType::t_identifier, "b"}});
+      {{TokenType::t_identifier, "a"s}, {TokenType::t_identifier, "b"s}});
 
   assertNode(parser->parseExpression(),
              std::make_unique<BasicIdentifierNode>("a"));
@@ -40,10 +40,10 @@ TEST(Parser, identifier) {
 }
 
 TEST(Parser, literal) {
-  auto parser = makeParser({{TokenType::t_int16_literal, {15}},
-                            {TokenType::t_int32_literal, {30}},
-                            {TokenType::t_boolean, {true}},
-                            {TokenType::t_string_literal, {"hello"}}});
+  auto parser = makeParser({{TokenType::t_int16_literal, 15l},
+                            {TokenType::t_int32_literal, 30l},
+                            {TokenType::t_boolean, true},
+                            {TokenType::t_string_literal, "hello"s}});
 
   assertNode(parser->parseExpression(),
              std::make_unique<IntLiteralNode>(15, BasicType::t_int16()));
@@ -56,11 +56,11 @@ TEST(Parser, literal) {
 }
 
 TEST(Parser, precedenceNoParens) {
-  auto parser = makeParser({{TokenType::t_int32_literal, {2}},
+  auto parser = makeParser({{TokenType::t_int32_literal, 2l},
                             {TokenType::t_asterisk},
-                            {TokenType::t_int32_literal, {3}},
+                            {TokenType::t_int32_literal, 3l},
                             {TokenType::t_plus},
-                            {TokenType::t_int32_literal, {1}}});
+                            {TokenType::t_int32_literal, 1l}});
 
   assertNode(parser->parseExpression(),
              std::make_unique<BinOpNode>(
@@ -73,15 +73,15 @@ TEST(Parser, precedenceNoParens) {
 }
 
 TEST(Parser, dotPrecedenceNoParens) {
-  auto parser = makeParser({{TokenType::t_identifier, {"a"}},
+  auto parser = makeParser({{TokenType::t_identifier, "a"s},
                             {TokenType::t_dot},
-                            {TokenType::t_identifier, {"b"}},
+                            {TokenType::t_identifier, "b"s},
                             {TokenType::t_dot},
-                            {TokenType::t_identifier, {"c"}},
+                            {TokenType::t_identifier, "c"s},
                             {TokenType::t_dot},
-                            {TokenType::t_identifier, {"d"}},
+                            {TokenType::t_identifier, "d"s},
                             {TokenType::t_plus},
-                            {TokenType::t_boolean, {true}}});
+                            {TokenType::t_boolean, true}});
 
   assertNode(parser->parseExpression(),
              std::make_unique<BinOpNode>(
@@ -100,13 +100,13 @@ TEST(Parser, dotPrecedenceNoParens) {
 }
 
 TEST(Parser, precedenceMultipleParts) {
-  auto parser = makeParser({{TokenType::t_identifier, "a"},
+  auto parser = makeParser({{TokenType::t_identifier, "a"s},
                             {TokenType::t_asterisk},
-                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_identifier, "b"s},
                             {TokenType::t_plus},
-                            {TokenType::t_identifier, "c"},
+                            {TokenType::t_identifier, "c"s},
                             {TokenType::t_asterisk},
-                            {TokenType::t_identifier, "d"}});
+                            {TokenType::t_identifier, "d"s}});
 
   assertNode(
       parser->parseExpression(),
@@ -121,12 +121,12 @@ TEST(Parser, precedenceMultipleParts) {
 }
 
 TEST(Parser, precedenceWithParens) {
-  auto parser = makeParser({{TokenType::t_int32_literal, {2}},
+  auto parser = makeParser({{TokenType::t_int32_literal, 2l},
                             {TokenType::t_asterisk},
                             {TokenType::t_open_paren},
-                            {TokenType::t_int32_literal, {3}},
+                            {TokenType::t_int32_literal, 3l},
                             {TokenType::t_plus},
-                            {TokenType::t_int32_literal, {1}},
+                            {TokenType::t_int32_literal, 1l},
                             {TokenType::t_close_paren}});
 
   assertNode(
@@ -141,11 +141,11 @@ TEST(Parser, precedenceWithParens) {
 }
 
 TEST(Parser, selfModifyingBinOp) {
-  auto parser = makeParser({{TokenType::t_identifier, "a"},
+  auto parser = makeParser({{TokenType::t_identifier, "a"s},
                             {TokenType::t_percent_equal},
-                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_identifier, "b"s},
                             {TokenType::t_minus},
-                            {TokenType::t_identifier, "c"}});
+                            {TokenType::t_identifier, "c"s}});
 
   assertNode(
       parser->parseExpression(),
@@ -159,9 +159,9 @@ TEST(Parser, selfModifyingBinOp) {
 
 TEST(Parser, varNoValue) {
   auto parser = makeParser({{TokenType::t_var},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_colon},
-                            {TokenType::t_identifier, "i32"}});
+                            {TokenType::t_identifier, "i32"s}});
 
   assertNode(parser->parseExpression(),
              std::make_unique<VarDeclNode>(
@@ -171,7 +171,7 @@ TEST(Parser, varNoValue) {
 
 TEST(Parser, varImplicitTypeWithValue) {
   auto parser = makeParser({{TokenType::t_var},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_colon},
                             {TokenType::t_equal},
                             {TokenType::t_boolean, true}});
@@ -184,13 +184,13 @@ TEST(Parser, varImplicitTypeWithValue) {
 }
 
 TEST(Parser, letExplicitTypeWithValue) {
-  auto parser = makeParser({{TokenType::t_identifier, "a"},
+  auto parser = makeParser({{TokenType::t_identifier, "a"s},
                             {TokenType::t_colon},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_dot},
-                            {TokenType::t_identifier, "bar"},
+                            {TokenType::t_identifier, "bar"s},
                             {TokenType::t_equal},
-                            {TokenType::t_int32_literal, 10}});
+                            {TokenType::t_int32_literal, 10l}});
 
   assertNode(parser->parseExpression(),
              std::make_unique<VarDeclNode>(
@@ -200,7 +200,7 @@ TEST(Parser, letExplicitTypeWithValue) {
 }
 
 TEST(Parser, emptyBlock) {
-  auto parser = makeParser({{TokenType::t_identifier, "a"},
+  auto parser = makeParser({{TokenType::t_identifier, "a"s},
                             {TokenType::t_colon},
                             {TokenType::t_equal},
                             {TokenType::t_open_bracket},
@@ -215,15 +215,15 @@ TEST(Parser, emptyBlock) {
 
 TEST(Parser, fullBlock) {
   auto parser = makeParser({{TokenType::t_var},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_colon},
-                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_identifier, "b"s},
                             {TokenType::t_equal},
-                            {TokenType::t_int32_literal, 1},
+                            {TokenType::t_int32_literal, 1l},
                             {TokenType::t_plus},
                             {TokenType::t_open_bracket},
                             {TokenType::t_yield},
-                            {TokenType::t_int32_literal, 2},
+                            {TokenType::t_int32_literal, 2l},
                             {TokenType::t_semicolon},
                             {TokenType::t_close_bracket}});
 
@@ -244,9 +244,9 @@ TEST(Parser, fullBlock) {
 
 TEST(Parser, compoundTypeNoIdentifier) {
   auto parser = makeParser("TEST::Parser.compoundTypeNoIdentifier",
-                           {{{TokenType::t_identifier, 0, 1, 0, 1}, "a"},
+                           {{{TokenType::t_identifier, 0, 1, 0, 1}, "a"s},
                             {{TokenType::t_colon, 2, 1, 0, 1}},
-                            {{TokenType::t_identifier, 4, 3, 0, 1}, "foo"},
+                            {{TokenType::t_identifier, 4, 3, 0, 1}, "foo"s},
                             {{TokenType::t_dot, 7, 1, 0, 1}},
                             {{TokenType::t_equal, 9, 1, 0, 1}}},
                            {"b := 5;", "a : foo. = 1;", "return a + b;"});
@@ -257,12 +257,12 @@ TEST(Parser, compoundTypeNoIdentifier) {
 
 TEST(Parser, parensMissingClose) {
   auto parser = makeParser("TEST::Parser.parensMissingClose",
-                           {{{0, TokenType::t_identifier, 0, 1}, "a"},
+                           {{{0, TokenType::t_identifier, 0, 1}, "a"s},
                             {{1, TokenType::t_asterisk, 2, 1}},
                             {{2, TokenType::t_open_paren, 4, 1}},
-                            {{3, TokenType::t_identifier, 5, 1}, "b"},
+                            {{3, TokenType::t_identifier, 5, 1}, "b"s},
                             {{4, TokenType::t_plus, 7, 1}},
-                            {{5, TokenType::t_identifier, 9, 1}, "c"},
+                            {{5, TokenType::t_identifier, 9, 1}, "c"s},
                             {{6, TokenType::t_semicolon, 10, 1}}},
                            {"a * (b + c;"});
 
@@ -272,11 +272,11 @@ TEST(Parser, parensMissingClose) {
 
 TEST(Parser, invokeMissingClose) {
   auto parser = makeParser("TEST::Parser.invokeMissingClose",
-                           {{{0, TokenType::t_identifier, 0, 1, 0}, "a"},
+                           {{{0, TokenType::t_identifier, 0, 1, 0}, "a"s},
                             {{1, TokenType::t_open_paren, 1, 1, 0}},
-                            {{0, TokenType::t_identifier, 0, 1, 1}, "b"},
+                            {{0, TokenType::t_identifier, 0, 1, 1}, "b"s},
                             {{1, TokenType::t_comma, 1, 1, 1}},
-                            {{2, TokenType::t_identifier, 3, 1, 1}, "c"},
+                            {{2, TokenType::t_identifier, 3, 1, 1}, "c"s},
                             {{3, TokenType::t_semicolon, 4, 1, 1}}},
                            {"a(", "b, c;"});
 
@@ -286,7 +286,7 @@ TEST(Parser, invokeMissingClose) {
 
 TEST(Parser, indexMissingClose) {
   auto parser = makeParser("TEST::Parser.indexMissingClose",
-                           {{{0, TokenType::t_identifier, 0, 1}, "a"},
+                           {{{0, TokenType::t_identifier, 0, 1}, "a"s},
                             {{1, TokenType::t_open_square, 1, 1}},
                             {{2, TokenType::t_semicolon, 2, 1}}},
                            {"a[;"});
@@ -299,7 +299,7 @@ TEST(Parser, blockMissingClose) {
   auto parser = makeParser("TEST::Parser.blockMissingClose",
                            {{{0, TokenType::t_open_bracket, 0, 1, 0}},
                             {{0, TokenType::t_yield, 4, 5, 1}},
-                            {{1, TokenType::t_identifier, 10, 1, 1}, "a"},
+                            {{1, TokenType::t_identifier, 10, 1, 1}, "a"s},
                             {{2, TokenType::t_semicolon, 11, 1, 1}}},
                            {"{", "    yield a;"});
 

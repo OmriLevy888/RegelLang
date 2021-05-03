@@ -15,20 +15,20 @@
 using namespace rgl;
 
 TEST(Parser, primitiveTypeParsing) {
-  auto parser = makeParser({{TokenType::t_identifier, "void"},
-                            {TokenType::t_identifier, "i8"},
-                            {TokenType::t_identifier, "i16"},
-                            {TokenType::t_identifier, "i32"},
-                            {TokenType::t_identifier, "i64"},
-                            {TokenType::t_identifier, "u8"},
-                            {TokenType::t_identifier, "u16"},
-                            {TokenType::t_identifier, "u32"},
-                            {TokenType::t_identifier, "u64"},
-                            {TokenType::t_identifier, "float"},
-                            {TokenType::t_identifier, "double"},
-                            {TokenType::t_identifier, "char"},
-                            {TokenType::t_identifier, "string"},
-                            {TokenType::t_identifier, "bool"}});
+  auto parser = makeParser({{TokenType::t_identifier, "void"s},
+                            {TokenType::t_identifier, "i8"s},
+                            {TokenType::t_identifier, "i16"s},
+                            {TokenType::t_identifier, "i32"s},
+                            {TokenType::t_identifier, "i64"s},
+                            {TokenType::t_identifier, "u8"s},
+                            {TokenType::t_identifier, "u16"s},
+                            {TokenType::t_identifier, "u32"s},
+                            {TokenType::t_identifier, "u64"s},
+                            {TokenType::t_identifier, "float"s},
+                            {TokenType::t_identifier, "double"s},
+                            {TokenType::t_identifier, "char"s},
+                            {TokenType::t_identifier, "string"s},
+                            {TokenType::t_identifier, "bool"s}});
 
   std::vector<TypePtr> types{
       BasicType::t_void(),   BasicType::t_int8(),   BasicType::t_int16(),
@@ -42,11 +42,11 @@ TEST(Parser, primitiveTypeParsing) {
 }
 
 TEST(Parser, compoundTypeParsing) {
-  auto parser = makeParser({{TokenType::t_identifier, "a"},
+  auto parser = makeParser({{TokenType::t_identifier, "a"s},
                             {TokenType::t_dot},
-                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_identifier, "b"s},
                             {TokenType::t_dot},
-                            {TokenType::t_identifier, "c"}});
+                            {TokenType::t_identifier, "c"s}});
 
   ASSERT_EQ(parser->parseType()->toString(),
             BasicType::make({"a", "b", "c"})->toString());
@@ -55,12 +55,12 @@ TEST(Parser, compoundTypeParsing) {
 TEST(Parser, functionTypeParsing) {
   auto parser = makeParser({{TokenType::t_func},
                             {TokenType::t_open_paren},
-                            {TokenType::t_identifier, "i32"},
+                            {TokenType::t_identifier, "i32"s},
                             {TokenType::t_comma},
-                            {TokenType::t_identifier, "float"},
+                            {TokenType::t_identifier, "float"s},
                             {TokenType::t_close_paren},
                             {TokenType::t_arrow},
-                            {TokenType::t_identifier, "bool"}});
+                            {TokenType::t_identifier, "bool"s}});
 
   ASSERT_EQ(parser->parseType()->toString(),
             FunctionType::make({BasicType::t_int32(), BasicType::t_float()},
@@ -71,10 +71,10 @@ TEST(Parser, functionTypeParsing) {
 TEST(Parser, pointerTypeParsing) {
   auto parser = makeParser({{TokenType::t_lesser_than},
                             {TokenType::t_greater_than},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket},
-                            {TokenType::t_identifier, "b"}});
+                            {TokenType::t_identifier, "b"s}});
 
   std::vector<TypePtr> types{
       BasicType::make({"a"}, TypeProperties::_isPointer),
@@ -91,11 +91,11 @@ TEST(Parser, containerTypeParsing) {
 }
 
 TEST(Parser, typeModifiersParsing) {
-  auto parser = makeParser({{TokenType::t_identifier, "a"},
+  auto parser = makeParser({{TokenType::t_identifier, "a"s},
                             {TokenType::t_colon},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_ampersand},
-                            {TokenType::t_identifier, "a"}});
+                            {TokenType::t_identifier, "a"s}});
 
   std::vector<TypePtr> types{BasicType::make({"a"}),
                              BasicType::make({"a"}, TypeProperties::_owning),
@@ -111,8 +111,8 @@ TEST(Parser, functionTypeMissingComma) {
   auto parser = makeParser("TEST::Parser.functionTypeMissingComma",
                            {{{0, TokenType::t_func, 0, 4}},
                             {{1, TokenType::t_open_paren, 5, 1}},
-                            {{2, TokenType::t_identifier, 6, 3}, "i32"},
-                            {{3, TokenType::t_identifier, 10, 5}, "float"},
+                            {{2, TokenType::t_identifier, 6, 3}, "i32"s},
+                            {{3, TokenType::t_identifier, 10, 5}, "float"s},
                             {{4, TokenType::t_close_paren, 16, 1}}},
                            {"func (i32 float)"});
 

@@ -13,9 +13,9 @@
 using namespace rgl;
 
 TEST(Parser, simpleIndex) {
-  auto parser = makeParser({{TokenType::t_identifier, "a"},
+  auto parser = makeParser({{TokenType::t_identifier, "a"s},
                             {TokenType::t_open_square},
-                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_identifier, "b"s},
                             {TokenType::t_close_square}});
 
   assertNode(
@@ -25,12 +25,12 @@ TEST(Parser, simpleIndex) {
 }
 
 TEST(Parser, indexWithBinOp) {
-  auto parser = makeParser({{TokenType::t_identifier, "a"},
+  auto parser = makeParser({{TokenType::t_identifier, "a"s},
                             {TokenType::t_open_square},
-                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_identifier, "b"s},
                             {TokenType::t_close_square},
                             {TokenType::t_plus},
-                            {TokenType::t_identifier, "c"}});
+                            {TokenType::t_identifier, "c"s}});
 
   assertNode(parser->parseExpression(),
              std::make_unique<BinOpNode>(

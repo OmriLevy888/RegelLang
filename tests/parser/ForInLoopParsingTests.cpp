@@ -21,11 +21,11 @@ using namespace rgl;
 
 TEST(Parser, simpleForInLoop) {
   auto parser = makeParser({{TokenType::t_for},
-                            {TokenType::t_identifier, "item"},
+                            {TokenType::t_identifier, "item"s},
                             {TokenType::t_in},
-                            {TokenType::t_identifier, "iterable"},
+                            {TokenType::t_identifier, "iterable"s},
                             {TokenType::t_yield},
-                            {TokenType::t_identifier, "item"},
+                            {TokenType::t_identifier, "item"s},
                             {TokenType::t_semicolon}});
 
   assertNode(parser->parseExpression(),
@@ -38,12 +38,12 @@ TEST(Parser, simpleForInLoop) {
 
 TEST(Parser, consumeForInLoop) {
   auto parser = makeParser({{TokenType::t_for},
-                            {TokenType::t_identifier, "item"},
+                            {TokenType::t_identifier, "item"s},
                             {TokenType::t_in},
                             {TokenType::t_colon},
-                            {TokenType::t_identifier, "iterable"},
+                            {TokenType::t_identifier, "iterable"s},
                             {TokenType::t_yield},
-                            {TokenType::t_identifier, "item"},
+                            {TokenType::t_identifier, "item"s},
                             {TokenType::t_semicolon}});
 
   assertNode(parser->parseExpression(),
@@ -58,12 +58,12 @@ TEST(Parser, consumeForInLoop) {
 
 TEST(Parser, mutableForInLoop) {
   auto parser = makeParser({{TokenType::t_for},
-                            {TokenType::t_identifier, "item"},
+                            {TokenType::t_identifier, "item"s},
                             {TokenType::t_in},
                             {TokenType::t_ampersand},
-                            {TokenType::t_identifier, "iterable"},
+                            {TokenType::t_identifier, "iterable"s},
                             {TokenType::t_yield},
-                            {TokenType::t_identifier, "item"},
+                            {TokenType::t_identifier, "item"s},
                             {TokenType::t_semicolon}});
 
   assertNode(parser->parseExpression(),

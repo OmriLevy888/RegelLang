@@ -15,7 +15,7 @@ TEST(Parser, simpleWhileLoop) {
   auto parser = makeParser({{TokenType::t_while},
                             {TokenType::t_boolean, true},
                             {TokenType::t_yield},
-                            {TokenType::t_int32_literal, 1},
+                            {TokenType::t_int32_literal, 1l},
                             {TokenType::t_semicolon}});
 
   assertNode(parser->parseExpression(),
@@ -29,7 +29,7 @@ TEST(Parser, whileLoopNoCond) {
   auto parser = makeParser({{TokenType::t_while},
                             {TokenType::t_open_bracket},
                             {TokenType::t_yield},
-                            {TokenType::t_int32_literal, 1},
+                            {TokenType::t_int32_literal, 1l},
                             {TokenType::t_semicolon},
                             {TokenType::t_close_bracket}});
 

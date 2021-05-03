@@ -1,4 +1,5 @@
 LLVM_DIR=~/Installations/llvm/llvm-8.0.0-prebuilt/
+LLVM_DIR=/usr/
 CPPC=$(LLVM_DIR)bin/clang++
 LLVM_PROFDATA=$(LLVM_DIR)bin/llvm-profdata
 LLVM_COV=$(LLVM_DIR)bin/llvm-cov
@@ -52,15 +53,18 @@ tests: $(TEST_OBJS)
 	@$(CPPC) $(LDFLAGS) -o $(OUTDIR)rglc$(TEST_POSTFIX) $(TEST_OBJS) $(MAINOBJ) $(TEST_LDFLAGS)
 
 $(RELEASE_OBJDIR)%.o: %.cpp
-	mkdir -p $(@D)
+	@mkdir -p $(@D)
+	@echo Compiling $@
 	@$(CPPC) -c -o $@ $(CPPFLAGS) $<
 
 $(DEBUG_OBJDIR)%.o: %.cpp
-	mkdir -p $(@D)
+	@mkdir -p $(@D)
+	@echo Compiling $@
 	@$(CPPC) -c -o $@ $(CPPFLAGS) $(DEBUG_CPPFLAGS) $<
 
 $(TEST_OBJDIR)%.o: %.cpp
-	mkdir -p $(@D)
+	@mkdir -p $(@D)
+	@echo Compiling $@
 	@$(CPPC) -c -o $@ $(CPPFLAGS) $(TEST_CPPFLAGS) $<
 
 clean:

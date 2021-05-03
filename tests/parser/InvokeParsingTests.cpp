@@ -13,7 +13,7 @@
 using namespace rgl;
 
 TEST(Parser, invokeNoParams) {
-  auto parser = makeParser({{TokenType::t_identifier, "foo"},
+  auto parser = makeParser({{TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_paren},
                             {TokenType::t_close_paren}});
 
@@ -23,9 +23,9 @@ TEST(Parser, invokeNoParams) {
 }
 
 TEST(Parser, invokeOneParam) {
-  auto parser = makeParser({{TokenType::t_identifier, "foo"},
+  auto parser = makeParser({{TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_paren},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_close_paren}});
 
   assertNode(
@@ -35,11 +35,11 @@ TEST(Parser, invokeOneParam) {
 }
 
 TEST(Parser, invokeMultipleParams) {
-  auto parser = makeParser({{TokenType::t_identifier, "foo"},
+  auto parser = makeParser({{TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_paren},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_comma},
-                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_identifier, "b"s},
                             {TokenType::t_close_paren}});
 
   std::vector<Expression> params;
@@ -53,9 +53,9 @@ TEST(Parser, invokeMultipleParams) {
 }
 
 TEST(Parser, invokeLastParamWithComma) {
-  auto parser = makeParser({{TokenType::t_identifier, "foo"},
+  auto parser = makeParser({{TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_paren},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_comma},
                             {TokenType::t_close_paren}});
 
@@ -66,12 +66,12 @@ TEST(Parser, invokeLastParamWithComma) {
 }
 
 TEST(Parser, invokeWithBinOp) {
-  auto parser = makeParser({{TokenType::t_identifier, "foo"},
+  auto parser = makeParser({{TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_paren},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_close_paren},
                             {TokenType::t_plus},
-                            {TokenType::t_identifier, "b"}});
+                            {TokenType::t_identifier, "b"s}});
 
   assertNode(parser->parseExpression(),
              std::make_unique<BinOpNode>(

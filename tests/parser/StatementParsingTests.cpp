@@ -33,9 +33,9 @@ TEST(Parser, keywordStatement) {
 
 TEST(Parser, simpleStatement) {
   auto parser = makeParser({{TokenType::t_yield},
-                            {TokenType::t_int32_literal, 5},
+                            {TokenType::t_int32_literal, 5l},
                             {TokenType::t_plus},
-                            {TokenType::t_int32_literal, 5},
+                            {TokenType::t_int32_literal, 5l},
                             {TokenType::t_semicolon},
                             {TokenType::t_return},
                             {TokenType::t_semicolon}});
@@ -49,7 +49,7 @@ TEST(Parser, simpleStatement) {
 }
 
 TEST(Parser, expressionStatement) {
-  auto parser = makeParser({{TokenType::t_string_literal, "hello world"},
+  auto parser = makeParser({{TokenType::t_string_literal, "hello world"s},
                             {TokenType::t_plus},
                             {TokenType::t_char_literal, '!'},
                             {TokenType::t_semicolon}});
@@ -64,7 +64,7 @@ TEST(Parser, expressionStatement) {
 TEST(Parser, expressionStatementMissingSemicolonError) {
   auto parser =
       makeParser("TEST::Parser.expressionStatementMissingSemicolonError",
-                 {{{0, TokenType::t_identifier, 0, 1, 0}, "a"},
+                 {{{0, TokenType::t_identifier, 0, 1, 0}, "a"s},
                   {{0, TokenType::t_for, 0, 3, 1}}},
                  {"a", "for"});
 
@@ -85,7 +85,7 @@ TEST(Parser, keywordStatementMissingSemicolonError) {
 TEST(Parser, simpleStatementMissingSemicolonError) {
   auto parser = makeParser("TEST::Parser.simpleStatementMissingSemicolonError",
                            {{{0, TokenType::t_return, 4, 6, 0}},
-                            {{1, TokenType::t_identifier, 11, 1, 0}, "a"},
+                            {{1, TokenType::t_identifier, 11, 1, 0}, "a"s},
                             {{0, TokenType::t_close_bracket, 0, 1, 1}}},
                            {"    return a", "}"});
 

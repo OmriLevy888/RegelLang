@@ -15,7 +15,7 @@ using namespace rgl;
 
 TEST(Parser, functionLiteralWithNameWithParensNoParamsNoRetTypeEmptyBody) {
   auto parser = makeParser({{TokenType::t_func},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_paren},
                             {TokenType::t_close_paren},
                             {TokenType::t_open_bracket},
@@ -30,11 +30,11 @@ TEST(Parser, functionLiteralWithNameWithParensNoParamsNoRetTypeEmptyBody) {
 
 TEST(Parser, functionLiteralWithNameWithParensNoParamsWithRetType) {
   auto parser = makeParser({{TokenType::t_func},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_paren},
                             {TokenType::t_close_paren},
                             {TokenType::t_arrow},
-                            {TokenType::t_identifier, "i32"},
+                            {TokenType::t_identifier, "i32"s},
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
 
@@ -47,10 +47,10 @@ TEST(Parser, functionLiteralWithNameWithParensNoParamsWithRetType) {
 
 TEST(Parser, functionLiteralWithNameWithParensSingleParamNoRetType) {
   auto parser = makeParser({{TokenType::t_func},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_paren},
-                            {TokenType::t_identifier, "i32"},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "i32"s},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_close_paren},
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
@@ -68,13 +68,13 @@ TEST(Parser, functionLiteralWithNameWithParensSingleParamNoRetType) {
 
 TEST(Parser, functionLiteralWithNameWithParensSingleParamWithRetType) {
   auto parser = makeParser({{TokenType::t_func},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_paren},
-                            {TokenType::t_identifier, "i32"},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "i32"s},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_close_paren},
                             {TokenType::t_arrow},
-                            {TokenType::t_identifier, "i32"},
+                            {TokenType::t_identifier, "i32"s},
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
 
@@ -91,11 +91,11 @@ TEST(Parser, functionLiteralWithNameWithParensSingleParamWithRetType) {
 
 TEST(Parser, functionLiteralWithNameWithParensNoParamsNoRetTypeNoBrackets) {
   auto parser = makeParser({{TokenType::t_func},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_paren},
                             {TokenType::t_close_paren},
                             {TokenType::t_arrow},
-                            {TokenType::t_identifier, "i32"},
+                            {TokenType::t_identifier, "i32"s},
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
 
@@ -108,15 +108,15 @@ TEST(Parser, functionLiteralWithNameWithParensNoParamsNoRetTypeNoBrackets) {
 
 TEST(Parser, functionLiteralWithNameWithParensSingleParamNoRetTypeNoBrackets) {
   auto parser = makeParser({{TokenType::t_func},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_paren},
-                            {TokenType::t_identifier, "i32"},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "i32"s},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_close_paren},
                             {TokenType::t_return},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_asterisk},
-                            {TokenType::t_int32_literal, 2},
+                            {TokenType::t_int32_literal, 2l},
                             {TokenType::t_semicolon}});
 
   std::vector<Parameter> parameters;
@@ -137,13 +137,13 @@ TEST(Parser, functionLiteralWithNameWithParensSingleParamNoRetTypeNoBrackets) {
 
 TEST(Parser, functionLiteralWithNameWithParentsMultipleParamsNoRetType) {
   auto parser = makeParser({{TokenType::t_func},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_paren},
-                            {TokenType::t_identifier, "i32"},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "i32"s},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_comma},
-                            {TokenType::t_identifier, "i32"},
-                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_identifier, "i32"s},
+                            {TokenType::t_identifier, "b"s},
                             {TokenType::t_close_paren},
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
@@ -163,12 +163,12 @@ TEST(Parser, functionLiteralWithNameWithParentsMultipleParamsNoRetType) {
 
 TEST(Parser, functionLiteralWithNameWithParensMultipleParamsSameTypeNoRetType) {
   auto parser = makeParser({{TokenType::t_func},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_paren},
-                            {TokenType::t_identifier, "i32"},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "i32"s},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_comma},
-                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_identifier, "b"s},
                             {TokenType::t_close_paren},
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
@@ -188,8 +188,8 @@ TEST(Parser, functionLiteralWithNameWithParensMultipleParamsSameTypeNoRetType) {
 
 TEST(Parser, functionLiteralNoNameNoParensSingleParamNoRetType) {
   auto parser = makeParser({{TokenType::t_func},
-                            {TokenType::t_identifier, "i32"},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "i32"s},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
 
@@ -206,13 +206,13 @@ TEST(Parser, functionLiteralNoNameNoParensSingleParamNoRetType) {
 TEST(Parser, functionLiteralNoNameWithParensSingleParamNoRetTypeNoBrackets) {
   auto parser = makeParser({{TokenType::t_func},
                             {TokenType::t_open_paren},
-                            {TokenType::t_identifier, "i32"},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "i32"s},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_close_paren},
                             {TokenType::t_return},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_asterisk},
-                            {TokenType::t_int32_literal, 2},
+                            {TokenType::t_int32_literal, 2l},
                             {TokenType::t_semicolon}});
 
   std::vector<Parameter> parameters;
@@ -232,8 +232,8 @@ TEST(Parser, functionLiteralNoNameWithParensSingleParamNoRetTypeNoBrackets) {
 TEST(Parser, functionLiteralNoNameWithParensSingleParamNoRetType) {
   auto parser = makeParser({{TokenType::t_func},
                             {TokenType::t_open_paren},
-                            {TokenType::t_identifier, "i32"},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "i32"s},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_close_paren},
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
@@ -250,10 +250,10 @@ TEST(Parser, functionLiteralNoNameWithParensSingleParamNoRetType) {
 
 TEST(Parser, functionLiteralNoNameNoParensSingleParamWithRetType) {
   auto parser = makeParser({{TokenType::t_func},
-                            {TokenType::t_identifier, "i32"},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "i32"s},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_arrow},
-                            {TokenType::t_identifier, "i32"},
+                            {TokenType::t_identifier, "i32"s},
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
 
@@ -270,7 +270,7 @@ TEST(Parser, functionLiteralNoNameNoParensSingleParamWithRetType) {
 TEST(Parser, functionLiteralNoNameNoParensNoParams) {
   auto parser = makeParser({{TokenType::t_func},
                             {TokenType::t_arrow},
-                            {TokenType::t_identifier, "i32"},
+                            {TokenType::t_identifier, "i32"s},
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
 
@@ -294,7 +294,7 @@ TEST(Parser, functionLiteralNoNameNoParensNoParamsNoRetType) {
 TEST(Parser, functionLiteralNoParensNoParamsWithRetType) {
   auto parser = makeParser({{TokenType::t_func},
                             {TokenType::t_arrow},
-                            {TokenType::t_identifier, "i32"},
+                            {TokenType::t_identifier, "i32"s},
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
 
@@ -307,9 +307,9 @@ TEST(Parser, functionLiteralNoParensNoParamsWithRetType) {
 TEST(Parser, functionLiteralMissingParameterName) {
   auto parser = makeParser("TEST::Parser.functionLiteralMissingParameterName",
                            {{{0, TokenType::t_func, 0, 4}},
-                            {{1, TokenType::t_identifier, 5, 3}, "foo"},
+                            {{1, TokenType::t_identifier, 5, 3}, "foo"s},
                             {{2, TokenType::t_open_paren, 8, 1}},
-                            {{3, TokenType::t_identifier, 9, 3}, "i32"},
+                            {{3, TokenType::t_identifier, 9, 3}, "i32"s},
                             {{4, TokenType::t_close_paren, 12, 1}},
                             {{5, TokenType::t_open_bracket, 14, 1}},
                             {{6, TokenType::t_close_bracket, 15, 1}}},
@@ -323,10 +323,10 @@ TEST(Parser, functionLiteralSingleParamNoParensNoBrackets) {
   auto parser =
       makeParser("TEST::Parser.functionLiteralSingleParamNoParensNoBrackets",
                  {{{0, TokenType::t_func, 0, 4}},
-                  {{1, TokenType::t_identifier, 5, 3}, "i32"},
-                  {{2, TokenType::t_identifier, 9, 1}, "a"},
+                  {{1, TokenType::t_identifier, 5, 3}, "i32"s},
+                  {{2, TokenType::t_identifier, 9, 1}, "a"s},
                   {{3, TokenType::t_return, 11, 6}},
-                  {{4, TokenType::t_identifier, 18, 1}, "a"},
+                  {{4, TokenType::t_identifier, 18, 1}, "a"s},
                   {{5, TokenType::t_semicolon, 19, 1}}},
                  {"func i32 a return a;"});
 
@@ -340,9 +340,9 @@ TEST(Parser, functionLiteralRetTypeNoBrackets) {
                             {{1, TokenType::t_open_paren, 5, 1}},
                             {{2, TokenType::t_close_paren, 6, 1}},
                             {{3, TokenType::t_arrow, 8, 2}},
-                            {{4, TokenType::t_identifier, 11, 3}, "i32"},
+                            {{4, TokenType::t_identifier, 11, 3}, "i32"s},
                             {{5, TokenType::t_return, 15, 6}},
-                            {{6, TokenType::t_identifier, 21, 1}, "a"},
+                            {{6, TokenType::t_identifier, 21, 1}, "a"s},
                             {{7, TokenType::t_semicolon, 22, 1}}},
                            {"func () => i32 return 5;"});
 
@@ -354,10 +354,10 @@ TEST(Parser, functionLiteralMissingParameterComma) {
   auto parser = makeParser("TEST::Parser.functionLiteralMissingParameterComma",
                            {{{0, TokenType::t_func, 0, 4}},
                             {{1, TokenType::t_open_paren, 5, 1}},
-                            {{2, TokenType::t_identifier, 6, 3}, "u64"},
-                            {{3, TokenType::t_identifier, 10, 1}, "a"},
-                            {{4, TokenType::t_identifier, 12, 3}, "i64"},
-                            {{5, TokenType::t_identifier, 16, 1}, "b"},
+                            {{2, TokenType::t_identifier, 6, 3}, "u64"s},
+                            {{3, TokenType::t_identifier, 10, 1}, "a"s},
+                            {{4, TokenType::t_identifier, 12, 3}, "i64"s},
+                            {{5, TokenType::t_identifier, 16, 1}, "b"s},
                             {{6, TokenType::t_close_paren, 17, 1}},
                             {{7, TokenType::t_open_bracket, 19, 1}},
                             {{7, TokenType::t_close_bracket, 20, 1}}},
@@ -371,8 +371,8 @@ TEST(Parser, functionLiteralMissingCloseParen) {
   auto parser = makeParser("TEST::Parser.functionLiteralMissingCloseParen",
                            {{{TokenType::t_func, 0, 4}},
                             {{TokenType::t_open_paren, 5, 1}},
-                            {{TokenType::t_identifier, 6, 5}, "float"},
-                            {{TokenType::t_identifier, 12, 1}, "a"},
+                            {{TokenType::t_identifier, 6, 5}, "float"s},
+                            {{TokenType::t_identifier, 12, 1}, "a"s},
                             {{TokenType::t_open_bracket, 14, 1}},
                             {{TokenType::t_close_bracket, 15, 1}}},
                            {"func (float a {}"});

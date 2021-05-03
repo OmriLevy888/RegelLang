@@ -10,7 +10,7 @@ using namespace rgl;
 
 TEST(Parser, classEmptyDefinition) {
   auto parser = makeParser({{TokenType::t_class},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
 
@@ -22,11 +22,11 @@ TEST(Parser, classEmptyDefinition) {
 
 TEST(Parser, classSingleMethod) {
   auto parser = makeParser({{TokenType::t_class},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_bracket},
 
                             {TokenType::t_func},
-                            {TokenType::t_identifier, "bar"},
+                            {TokenType::t_identifier, "bar"s},
                             {TokenType::t_open_paren},
                             {TokenType::t_close_paren},
                             {TokenType::t_open_bracket},
@@ -51,18 +51,18 @@ TEST(Parser, classSingleMethod) {
 
 TEST(Parser, classMultipleMethods) {
   auto parser = makeParser({{TokenType::t_class},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_bracket},
 
                             {TokenType::t_func},
-                            {TokenType::t_identifier, "bar"},
+                            {TokenType::t_identifier, "bar"s},
                             {TokenType::t_open_paren},
                             {TokenType::t_close_paren},
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket},
 
                             {TokenType::t_func},
-                            {TokenType::t_identifier, "baz"},
+                            {TokenType::t_identifier, "baz"s},
                             {TokenType::t_open_paren},
                             {TokenType::t_close_paren},
                             {TokenType::t_open_bracket},
@@ -94,12 +94,12 @@ TEST(Parser, classMultipleMethods) {
 
 TEST(Parser, classSingleField) {
   auto parser = makeParser({{TokenType::t_class},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_bracket},
 
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_colon},
-                            {TokenType::t_identifier, "bool"},
+                            {TokenType::t_identifier, "bool"s},
                             {TokenType::t_semicolon},
 
                             {TokenType::t_close_bracket}});
@@ -117,18 +117,18 @@ TEST(Parser, classSingleField) {
 
 TEST(Parser, classMultipleFields) {
   auto parser = makeParser({{TokenType::t_class},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_bracket},
 
                             {TokenType::t_var},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_colon},
-                            {TokenType::t_identifier, "bool"},
+                            {TokenType::t_identifier, "bool"s},
                             {TokenType::t_comma},
 
-                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_identifier, "b"s},
                             {TokenType::t_colon},
-                            {TokenType::t_identifier, "double"},
+                            {TokenType::t_identifier, "double"s},
                             {TokenType::t_semicolon},
 
                             {TokenType::t_close_bracket}});
@@ -149,17 +149,17 @@ TEST(Parser, classMultipleFields) {
 
 TEST(Parser, classPublicMembers) {
   auto parser = makeParser({{TokenType::t_class},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_bracket},
 
                             {TokenType::t_pub},
-                            {TokenType::t_identifier, "bar"},
+                            {TokenType::t_identifier, "bar"s},
                             {TokenType::t_colon},
-                            {TokenType::t_identifier, "u8"},
+                            {TokenType::t_identifier, "u8"s},
                             {TokenType::t_semicolon},
 
                             {TokenType::t_func},
-                            {TokenType::t_identifier, "baz"},
+                            {TokenType::t_identifier, "baz"s},
                             {TokenType::t_open_paren},
                             {TokenType::t_close_paren},
                             {TokenType::t_open_bracket},
@@ -189,19 +189,19 @@ TEST(Parser, classPublicMembers) {
 
 TEST(Parser, classMultipleFieldsShorthand) {
   auto parser = makeParser({{TokenType::t_class},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_open_bracket},
 
                             {TokenType::t_var},
                             {TokenType::t_open_square},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_comma},
-                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_identifier, "b"s},
                             {TokenType::t_comma},
-                            {TokenType::t_identifier, "c"},
+                            {TokenType::t_identifier, "c"s},
                             {TokenType::t_close_square},
                             {TokenType::t_colon},
-                            {TokenType::t_identifier, "i32"},
+                            {TokenType::t_identifier, "i32"s},
                             {TokenType::t_semicolon},
 
                             {TokenType::t_close_bracket}});

@@ -9,13 +9,13 @@ using namespace rgl;
 
 TEST(Parser, preUnaryOp) {
   auto parser = makeParser({{TokenType::t_plus_plus},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_asterisk},
                             {TokenType::t_open_paren},
-                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_identifier, "b"s},
                             {TokenType::t_plus},
                             {TokenType::t_exclamation},
-                            {TokenType::t_identifier, "c"},
+                            {TokenType::t_identifier, "c"s},
                             {TokenType::t_close_paren}});
 
   assertNode(
@@ -33,10 +33,10 @@ TEST(Parser, preUnaryOp) {
 }
 
 TEST(Parser, postUnaryOp) {
-  auto parser = makeParser({{TokenType::t_identifier, "a"},
+  auto parser = makeParser({{TokenType::t_identifier, "a"s},
                             {TokenType::t_minus_minus},
                             {TokenType::t_forward_slash},
-                            {TokenType::t_identifier, "b"}});
+                            {TokenType::t_identifier, "b"s}});
 
   assertNode(parser->parseExpression(),
              std::make_unique<BinOpNode>(
@@ -49,7 +49,7 @@ TEST(Parser, postUnaryOp) {
 
 TEST(Parser, preAmpersnad) {
   auto parser =
-      makeParser({{TokenType::t_ampersand}, {TokenType::t_identifier, "a"}});
+      makeParser({{TokenType::t_ampersand}, {TokenType::t_identifier, "a"s}});
 
   assertNode(parser->parseExpression(),
              std::make_unique<UnaryOpNode>(
@@ -59,9 +59,9 @@ TEST(Parser, preAmpersnad) {
 
 TEST(Parser, preColonDontIncludeBinOp) {
   auto parser = makeParser({{TokenType::t_colon},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_plus},
-                            {TokenType::t_identifier, "b"}});
+                            {TokenType::t_identifier, "b"s}});
 
   assertNode(parser->parseExpression(),
              std::make_unique<BinOpNode>(
@@ -76,9 +76,9 @@ TEST(Parser, preAtWithParentheses) {
   auto parser = makeParser({
       {TokenType::t_at},
       {TokenType::t_open_paren},
-      {TokenType::t_identifier, "a"},
+      {TokenType::t_identifier, "a"s},
       {TokenType::t_forward_slash},
-      {TokenType::t_identifier, "b"},
+      {TokenType::t_identifier, "b"s},
       {TokenType::t_close_paren},
   });
 

@@ -23,7 +23,7 @@ TEST(Parser, emptyForLoop) {
                             {TokenType::t_semicolon},
                             {TokenType::t_semicolon},
                             {TokenType::t_open_bracket},
-                            {TokenType::t_int32_literal, 0},
+                            {TokenType::t_int32_literal, 0l},
                             {TokenType::t_semicolon},
                             {TokenType::t_close_bracket}});
 
@@ -38,18 +38,18 @@ TEST(Parser, emptyForLoop) {
 TEST(Parser, fullForLoop) {
   auto parser = makeParser({{TokenType::t_for},
                             {TokenType::t_var},
-                            {TokenType::t_identifier, "idx"},
+                            {TokenType::t_identifier, "idx"s},
                             {TokenType::t_colon},
                             {TokenType::t_equal},
-                            {TokenType::t_int32_literal, 0},
+                            {TokenType::t_int32_literal, 0l},
                             {TokenType::t_semicolon},
 
-                            {TokenType::t_identifier, "idx"},
+                            {TokenType::t_identifier, "idx"s},
                             {TokenType::t_lesser_than},
-                            {TokenType::t_int32_literal, 3},
+                            {TokenType::t_int32_literal, 3l},
                             {TokenType::t_semicolon},
 
-                            {TokenType::t_identifier, "idx"},
+                            {TokenType::t_identifier, "idx"s},
                             {TokenType::t_plus_plus},
 
                             {TokenType::t_break},
@@ -75,12 +75,12 @@ TEST(Parser, forLoopNoInit) {
   auto parser = makeParser({{TokenType::t_for},
                             {TokenType::t_semicolon},
 
-                            {TokenType::t_identifier, "idx"},
+                            {TokenType::t_identifier, "idx"s},
                             {TokenType::t_lesser_than},
-                            {TokenType::t_int32_literal, 3},
+                            {TokenType::t_int32_literal, 3l},
                             {TokenType::t_semicolon},
 
-                            {TokenType::t_identifier, "idx"},
+                            {TokenType::t_identifier, "idx"s},
                             {TokenType::t_plus_plus},
 
                             {TokenType::t_break},
@@ -101,15 +101,15 @@ TEST(Parser, forLoopNoInit) {
 TEST(Parser, forLoopNoCond) {
   auto parser = makeParser({{TokenType::t_for},
                             {TokenType::t_var},
-                            {TokenType::t_identifier, "idx"},
+                            {TokenType::t_identifier, "idx"s},
                             {TokenType::t_colon},
                             {TokenType::t_equal},
-                            {TokenType::t_int32_literal, 0},
+                            {TokenType::t_int32_literal, 0l},
                             {TokenType::t_semicolon},
 
                             {TokenType::t_semicolon},
 
-                            {TokenType::t_identifier, "idx"},
+                            {TokenType::t_identifier, "idx"s},
                             {TokenType::t_plus_plus},
 
                             {TokenType::t_break},
@@ -131,15 +131,15 @@ TEST(Parser, forLoopNoCond) {
 TEST(Parser, forLoopNoAdvance) {
   auto parser = makeParser({{TokenType::t_for},
                             {TokenType::t_var},
-                            {TokenType::t_identifier, "idx"},
+                            {TokenType::t_identifier, "idx"s},
                             {TokenType::t_colon},
                             {TokenType::t_equal},
-                            {TokenType::t_int32_literal, 0},
+                            {TokenType::t_int32_literal, 0l},
                             {TokenType::t_semicolon},
 
-                            {TokenType::t_identifier, "idx"},
+                            {TokenType::t_identifier, "idx"s},
                             {TokenType::t_lesser_than},
-                            {TokenType::t_int32_literal, 3},
+                            {TokenType::t_int32_literal, 3l},
                             {TokenType::t_semicolon},
 
                             {TokenType::t_open_bracket},
@@ -164,9 +164,9 @@ TEST(Parser, forLoopNoInitNoAdvance) {
   auto parser = makeParser({{TokenType::t_for},
                             {TokenType::t_semicolon},
 
-                            {TokenType::t_identifier, "idx"},
+                            {TokenType::t_identifier, "idx"s},
                             {TokenType::t_lesser_than},
-                            {TokenType::t_int32_literal, 3},
+                            {TokenType::t_int32_literal, 3l},
                             {TokenType::t_semicolon},
 
                             {TokenType::t_open_bracket},
@@ -190,7 +190,7 @@ TEST(Parser, forLoopNoInitNoCond) {
 
                             {TokenType::t_semicolon},
 
-                            {TokenType::t_identifier, "idx"},
+                            {TokenType::t_identifier, "idx"s},
                             {TokenType::t_plus_plus},
 
                             {TokenType::t_break},
@@ -208,10 +208,10 @@ TEST(Parser, forLoopNoInitNoCond) {
 TEST(Parser, forLoopNoCondNoAdvance) {
   auto parser = makeParser({{TokenType::t_for},
                             {TokenType::t_var},
-                            {TokenType::t_identifier, "idx"},
+                            {TokenType::t_identifier, "idx"s},
                             {TokenType::t_colon},
                             {TokenType::t_equal},
-                            {TokenType::t_int32_literal, 0},
+                            {TokenType::t_int32_literal, 0l},
                             {TokenType::t_semicolon},
 
                             {TokenType::t_semicolon},
@@ -232,14 +232,14 @@ TEST(Parser, forLoopNoCondNoAdvance) {
 
 TEST(Parser, forLoopInOpInInit) {
   auto parser = makeParser({{TokenType::t_for},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_in},
-                            {TokenType::t_identifier, "b"},
+                            {TokenType::t_identifier, "b"s},
                             {TokenType::t_semicolon},
                             {TokenType::t_semicolon},
                             {TokenType::t_open_bracket},
                             {TokenType::t_yield},
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_semicolon},
                             {TokenType::t_close_bracket}});
 

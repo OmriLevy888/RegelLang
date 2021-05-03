@@ -393,7 +393,7 @@ bool Lexer::lexIntLiteral(Token &ret) {
     ret =
         makeToken(TokenType::t_int32_literal, originalPos, m_pos - originalPos);
     m_value =
-        std::strtoll(m_currLine->m_repr.c_str() + numStartPos, nullptr, base);
+        static_cast<int64_t>(std::strtoll(m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
     return true;
   }
 
@@ -408,14 +408,14 @@ bool Lexer::lexIntLiteral(Token &ret) {
       case 'i':
         ret = makeToken(TokenType::t_int32_literal, originalPos,
                         m_pos - originalPos);
-        m_value = std::strtoll(m_currLine->m_repr.c_str() + numStartPos,
-                               nullptr, base);
+        m_value = static_cast<int64_t>(std::strtoll(m_currLine->m_repr.c_str() + numStartPos,
+                               nullptr, base));
         return true;
       case 'u':
         ret = makeToken(TokenType::t_uint32_literal, originalPos,
                         m_pos - originalPos);
-        m_value = std::strtoull(m_currLine->m_repr.c_str() + numStartPos,
-                                nullptr, base);
+        m_value = static_cast<uint64_t>(std::strtoull(m_currLine->m_repr.c_str() + numStartPos,
+                                nullptr, base));
         return true;
       }
     }
@@ -431,14 +431,14 @@ bool Lexer::lexIntLiteral(Token &ret) {
         case 'i':
           ret = makeToken(TokenType::t_int8_literal, originalPos,
                           m_pos - originalPos);
-          m_value = std::strtoll(m_currLine->m_repr.c_str() + numStartPos,
-                                 nullptr, base);
+          m_value = static_cast<int64_t>(std::strtoll(m_currLine->m_repr.c_str() + numStartPos,
+                                 nullptr, base));
           return true;
         case 'u':
           ret = makeToken(TokenType::t_uint8_literal, originalPos,
                           m_pos - originalPos);
-          m_value = std::strtoull(m_currLine->m_repr.c_str() + numStartPos,
-                                  nullptr, base);
+          m_value = static_cast<uint64_t>(std::strtoull(m_currLine->m_repr.c_str() + numStartPos,
+                                  nullptr, base));
           return true;
         }
       } else if (std::isdigit(
@@ -450,14 +450,14 @@ bool Lexer::lexIntLiteral(Token &ret) {
         case 'i':
           ret = makeToken(TokenType::t_int32_literal, originalPos,
                           m_pos - originalPos);
-          m_value = std::strtoll(m_currLine->m_repr.c_str() + numStartPos,
-                                 nullptr, base);
+          m_value = static_cast<int64_t>(std::strtoll(m_currLine->m_repr.c_str() + numStartPos,
+                                 nullptr, base));
           return true;
         case 'u':
           ret = makeToken(TokenType::t_uint32_literal, originalPos,
                           m_pos - originalPos);
-          m_value = std::strtoull(m_currLine->m_repr.c_str() + numStartPos,
-                                  nullptr, base);
+          m_value = static_cast<uint64_t>(std::strtoull(m_currLine->m_repr.c_str() + numStartPos,
+                                  nullptr, base));
           return true;
         }
       }
@@ -514,17 +514,17 @@ bool Lexer::lexIntLiteral(Token &ret) {
     ret = makeToken(tokType, startIdx, reprLen);
     if (type == 'i') {
       m_value =
-          std::strtoll(m_currLine->m_repr.c_str() + numStartPos, nullptr, base);
+          static_cast<int64_t>(std::strtoll(m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
     } else {
-      m_value = std::strtoull(m_currLine->m_repr.c_str() + numStartPos, nullptr,
-                              base);
+      m_value = static_cast<uint64_t>(std::strtoull(m_currLine->m_repr.c_str() + numStartPos, nullptr,
+                              base));
     }
     return true;
   }
 
   ret = makeToken(TokenType::t_int32_literal, originalPos, m_pos - originalPos);
   m_value =
-      std::strtoll(m_currLine->m_repr.c_str() + numStartPos, nullptr, base);
+      static_cast<int64_t>(std::strtoll(m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
   return true;
 }
 

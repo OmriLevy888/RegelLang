@@ -8,7 +8,7 @@ using namespace rgl;
 
 TEST(Parser, parseSimpleNamespaceDeclaration) {
   auto parser =
-      makeParser({{TokenType::t_namespace}, {TokenType::t_identifier, "foo"}});
+      makeParser({{TokenType::t_namespace}, {TokenType::t_identifier, "foo"s}});
 
   assertNode(parser->parseExpression(),
              std::make_unique<NamespaceDeclarationNode>(
@@ -17,11 +17,11 @@ TEST(Parser, parseSimpleNamespaceDeclaration) {
 
 TEST(Parser, parseCompoundNamespaceDeclaration) {
   auto parser = makeParser({{TokenType::t_namespace},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_dot},
-                            {TokenType::t_identifier, "bar"},
+                            {TokenType::t_identifier, "bar"s},
                             {TokenType::t_dot},
-                            {TokenType::t_identifier, "baz"}});
+                            {TokenType::t_identifier, "baz"s}});
 
   assertNode(parser->parseExpression(),
              std::make_unique<NamespaceDeclarationNode>(
@@ -31,7 +31,7 @@ TEST(Parser, parseCompoundNamespaceDeclaration) {
 
 TEST(Parser, parseSimpleImport) {
   auto parser =
-      makeParser({{TokenType::t_import}, {TokenType::t_identifier, "foo"}});
+      makeParser({{TokenType::t_import}, {TokenType::t_identifier, "foo"s}});
 
   assertNode(parser->parseExpression(),
              std::make_unique<ImportNode>(
@@ -40,11 +40,11 @@ TEST(Parser, parseSimpleImport) {
 
 TEST(Parser, parseCompoundImport) {
   auto parser = makeParser({{TokenType::t_import},
-                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_identifier, "foo"s},
                             {TokenType::t_dot},
-                            {TokenType::t_identifier, "bar"},
+                            {TokenType::t_identifier, "bar"s},
                             {TokenType::t_dot},
-                            {TokenType::t_identifier, "baz"}});
+                            {TokenType::t_identifier, "baz"s}});
 
   assertNode(
       parser->parseExpression(),

@@ -33,8 +33,8 @@ TEST(Parser, simpleIf) {
 
 TEST(Parser, sinlgeStatementIf) {
   auto parser = makeParser({{TokenType::t_if},
-                            {TokenType::t_int32_literal, 5},
-                            {TokenType::t_int8_literal, 1},
+                            {TokenType::t_int32_literal, 5l},
+                            {TokenType::t_int8_literal, 1l},
                             {TokenType::t_semicolon}});
 
   assertNode(
@@ -54,7 +54,7 @@ TEST(Parser, elifNoElse) {
                             {TokenType::t_boolean, true},
                             {TokenType::t_open_bracket},
                             {TokenType::t_yield},
-                            {TokenType::t_int32_literal, 0},
+                            {TokenType::t_int32_literal, 0l},
                             {TokenType::t_semicolon},
                             {TokenType::t_close_bracket}});
 
@@ -79,7 +79,7 @@ TEST(Parser, elseNoElif) {
                             {TokenType::t_semicolon},
                             {TokenType::t_close_bracket},
                             {TokenType::t_else},
-                            {TokenType::t_int32_literal, 0},
+                            {TokenType::t_int32_literal, 0l},
                             {TokenType::t_semicolon}});
 
   assertNode(
@@ -95,18 +95,18 @@ TEST(Parser, elseNoElif) {
 TEST(Parser, multipleElifsAndElse) {
   auto parser = makeParser({{TokenType::t_if},
                             {TokenType::t_boolean, false},
-                            {TokenType::t_int32_literal, 0},
+                            {TokenType::t_int32_literal, 0l},
                             {TokenType::t_semicolon},
                             {TokenType::t_elif},
                             {TokenType::t_boolean, false},
-                            {TokenType::t_int32_literal, 1},
+                            {TokenType::t_int32_literal, 1l},
                             {TokenType::t_semicolon},
                             {TokenType::t_elif},
                             {TokenType::t_boolean, true},
-                            {TokenType::t_int32_literal, 2},
+                            {TokenType::t_int32_literal, 2l},
                             {TokenType::t_semicolon},
                             {TokenType::t_else},
-                            {TokenType::t_int32_literal, 3},
+                            {TokenType::t_int32_literal, 3l},
                             {TokenType::t_semicolon}});
 
   assertNode(
@@ -132,17 +132,17 @@ TEST(Parser, multipleElifsAndElse) {
 TEST(Parser, compoundElif) {
   auto parser = makeParser({{TokenType::t_if},
                             {TokenType::t_boolean, false},
-                            {TokenType::t_int32_literal, 0},
+                            {TokenType::t_int32_literal, 0l},
                             {TokenType::t_semicolon},
                             {TokenType::t_elif},
                             {TokenType::t_boolean, true},
                             {TokenType::t_if},
                             {TokenType::t_boolean, false},
-                            {TokenType::t_int32_literal, 1},
+                            {TokenType::t_int32_literal, 1l},
                             {TokenType::t_semicolon},
                             {TokenType::t_elif},
                             {TokenType::t_boolean, true},
-                            {TokenType::t_int32_literal, 2},
+                            {TokenType::t_int32_literal, 2l},
                             {TokenType::t_semicolon}});
 
   assertNode(parser->parseExpression(),
@@ -174,9 +174,9 @@ TEST(Parser, compoundElse) {
                             {TokenType::t_else},
                             {TokenType::t_open_bracket},
 
-                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_identifier, "a"s},
                             {TokenType::t_equal},
-                            {TokenType::t_int32_literal, 10},
+                            {TokenType::t_int32_literal, 10l},
                             {TokenType::t_semicolon},
 
                             {TokenType::t_if},
