@@ -12,8 +12,8 @@ public:
   Lexer(std::unique_ptr<ISourceStream> &&sourceStream,
         std::shared_ptr<SourceProject> project)
       : m_sourceStream(std::move(sourceStream)), m_project(project),
-        m_state(LexerState::normal), m_yieldedEof(false),
-        m_value(std::nullopt) {
+        m_state(LexerState::normal), m_value(std::nullopt),
+        m_yieldedEof(false) {
     m_file = m_project->m_files.begin() + m_sourceStream->getFileIndex();
   }
 

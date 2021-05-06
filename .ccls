@@ -1,3 +1,9 @@
+clang++
+%h -x
+%h c++-header
+-Wall
+-Wpedantic
+-Werror
 -I.
 -Ideps/include/
 -isystem

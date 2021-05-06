@@ -10,8 +10,8 @@ class MethodNode : public ExpressionNode {
 public:
   MethodNode(bool isExposed, FunctionPtr func,
              BitField<MethodProperties> properties)
-      : m_isExposed(isExposed), m_func(std::move(func)),
-        m_properties(properties) {}
+      : m_isExposed(isExposed), m_properties(properties),
+        m_func(std::move(func)) {}
 
   virtual std::string toTreeStr(size_t spaces) const override;
 

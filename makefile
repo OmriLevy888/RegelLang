@@ -15,9 +15,10 @@ RELEASE_OBJS=$(patsubst %.cpp,$(RELEASE_OBJDIR)%.o,$(shell find $(RELEASE_SRCDIR
 DEBUG_OBJS=$(patsubst %.cpp,$(DEBUG_OBJDIR)%.o,$(shell find $(DEBUG_SRCDIRS) -type f -name "*.cpp"))
 TEST_OBJS=$(patsubst %.cpp,$(TEST_OBJDIR)%.o,$(shell find $(TEST_SRCDIRS) -type f -name "*.cpp"))
 
-CPPFLAGS=-I. -Ideps/include/ -std=c++17 -c
+WARNING_FLAGS=-Wall -Wpedantic -Werror
+CPPFLAGS=$(WARNING_FLAGS) -I. -Ideps/include/ -std=c++17 -c -I$(shell $(LLVM_DIR)bin/llvm-config --includedir)
 _CXXFLAGS=$(shell $(LLVM_DIR)bin/llvm-config --cxxflags)
-CXXFLAGS=$(patsubst -fno-exceptions,,$(_CXXFLAGS))
+CXXFLAGS=$(WARNING_FLAGS) $(patsubst -fno-exceptions,,$(_CXXFLAGS))
 LDFLAGS=$(shell $(LLVM_DIR)bin/llvm-config --ldflags --libs) -lpthread -lncurses
 
 DEBUG_CPPFLAGS=-g

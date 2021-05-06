@@ -189,13 +189,12 @@ bool Lexer::lexIdentifier(Token &ret) {
   size_t len = it - start;
   ret = makeToken(TokenType::t_identifier, m_pos, len);
   const char *startPtr = m_currLine->m_repr.c_str() + m_pos;
-  m_value = std::move(std::string{startPtr, len});
+  m_value = std::string{startPtr, len};
   m_pos += len;
   return true;
 }
 
 bool Lexer::lexSpecialCharacter(Token &ret) {
-  const char curr = m_currLine->m_repr[m_pos];
   switch (m_currLine->m_repr[m_pos]) {
   case '_':
     ret = makeToken(TokenType::t_underscore, m_pos, 1);
@@ -392,8 +391,8 @@ bool Lexer::lexIntLiteral(Token &ret) {
                                                    // loop cause the line ended
     ret =
         makeToken(TokenType::t_int32_literal, originalPos, m_pos - originalPos);
-    m_value =
-        static_cast<int64_t>(std::strtoll(m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
+    m_value = static_cast<int64_t>(
+        std::strtoll(m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
     return true;
   }
 
@@ -408,14 +407,14 @@ bool Lexer::lexIntLiteral(Token &ret) {
       case 'i':
         ret = makeToken(TokenType::t_int32_literal, originalPos,
                         m_pos - originalPos);
-        m_value = static_cast<int64_t>(std::strtoll(m_currLine->m_repr.c_str() + numStartPos,
-                               nullptr, base));
+        m_value = static_cast<int64_t>(std::strtoll(
+            m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
         return true;
       case 'u':
         ret = makeToken(TokenType::t_uint32_literal, originalPos,
                         m_pos - originalPos);
-        m_value = static_cast<uint64_t>(std::strtoull(m_currLine->m_repr.c_str() + numStartPos,
-                                nullptr, base));
+        m_value = static_cast<uint64_t>(std::strtoull(
+            m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
         return true;
       }
     }
@@ -431,14 +430,14 @@ bool Lexer::lexIntLiteral(Token &ret) {
         case 'i':
           ret = makeToken(TokenType::t_int8_literal, originalPos,
                           m_pos - originalPos);
-          m_value = static_cast<int64_t>(std::strtoll(m_currLine->m_repr.c_str() + numStartPos,
-                                 nullptr, base));
+          m_value = static_cast<int64_t>(std::strtoll(
+              m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
           return true;
         case 'u':
           ret = makeToken(TokenType::t_uint8_literal, originalPos,
                           m_pos - originalPos);
-          m_value = static_cast<uint64_t>(std::strtoull(m_currLine->m_repr.c_str() + numStartPos,
-                                  nullptr, base));
+          m_value = static_cast<uint64_t>(std::strtoull(
+              m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
           return true;
         }
       } else if (std::isdigit(
@@ -450,14 +449,14 @@ bool Lexer::lexIntLiteral(Token &ret) {
         case 'i':
           ret = makeToken(TokenType::t_int32_literal, originalPos,
                           m_pos - originalPos);
-          m_value = static_cast<int64_t>(std::strtoll(m_currLine->m_repr.c_str() + numStartPos,
-                                 nullptr, base));
+          m_value = static_cast<int64_t>(std::strtoll(
+              m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
           return true;
         case 'u':
           ret = makeToken(TokenType::t_uint32_literal, originalPos,
                           m_pos - originalPos);
-          m_value = static_cast<uint64_t>(std::strtoull(m_currLine->m_repr.c_str() + numStartPos,
-                                  nullptr, base));
+          m_value = static_cast<uint64_t>(std::strtoull(
+              m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
           return true;
         }
       }
@@ -513,18 +512,18 @@ bool Lexer::lexIntLiteral(Token &ret) {
     }
     ret = makeToken(tokType, startIdx, reprLen);
     if (type == 'i') {
-      m_value =
-          static_cast<int64_t>(std::strtoll(m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
+      m_value = static_cast<int64_t>(std::strtoll(
+          m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
     } else {
-      m_value = static_cast<uint64_t>(std::strtoull(m_currLine->m_repr.c_str() + numStartPos, nullptr,
-                              base));
+      m_value = static_cast<uint64_t>(std::strtoull(
+          m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
     }
     return true;
   }
 
   ret = makeToken(TokenType::t_int32_literal, originalPos, m_pos - originalPos);
-  m_value =
-      static_cast<int64_t>(std::strtoll(m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
+  m_value = static_cast<int64_t>(
+      std::strtoll(m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
   return true;
 }
 
@@ -545,7 +544,6 @@ bool Lexer::lexRealLiteral(Token &ret) {
     }
   }
 
-  TokenType tokType = TokenType::t_double_literal;
   if (m_pos < m_currLine->m_repr.size()) { // check for f or d suffix
     switch (m_currLine->m_repr[m_pos++]) {
     case 'd':
@@ -598,7 +596,7 @@ bool Lexer::lexCharacter(char &value) {
       value = '\b';
       return true;
     case 'e':
-      value = '\e';
+      value = '\x1b';
       return true;
     case 'f':
       value = '\f';

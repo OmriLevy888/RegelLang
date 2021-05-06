@@ -9,7 +9,9 @@ public:
   IntLiteralNode(int64_t value, std::shared_ptr<Type> type)
       : m_value(value), m_type(type) {}
 
-  std::string toTreeStr(size_t spaces) const noexcept {
+  virtual llvm::Value *genCode() override;
+
+  virtual std::string toTreeStr(size_t spaces) const noexcept override {
     return Formatter("IntLiteral<{}, {}>", m_value, m_type);
   }
 

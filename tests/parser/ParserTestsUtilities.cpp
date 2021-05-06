@@ -29,7 +29,7 @@ std::unique_ptr<Parser> makeParser(const std::string &testName,
   }
 
   project->addFile(std::move(file));
-  return std::move(makeParser(std::move(tokens), project));
+  return makeParser(std::move(tokens), project);
 }
 
 void assertNode(std::unique_ptr<ASTNode> expr,

@@ -8,15 +8,11 @@
 
 namespace rgl {
 class TokenCollection : public ILoggable {
- public:
+public:
   TokenCollection(std::unique_ptr<ITokenGenerator> &&tokenGenerator)
-      : m_baseIndex(0),
-        m_backlogIndex(0),
-        m_actualIndex(0),
-        m_usingBacklog(false),
-        m_tokenGenerator(std::move(tokenGenerator)),
-        m_backlog(),
-        m_value(std::nullopt) {}
+      : m_tokenGenerator(std::move(tokenGenerator)), m_value(std::nullopt),
+        m_baseIndex(0), m_backlogIndex(0), m_actualIndex(0),
+        m_usingBacklog(false), m_backlog() {}
 
   void saveAnchor();
   void saveAnchorAndCurrentToken();
@@ -41,7 +37,7 @@ class TokenCollection : public ILoggable {
            ", usingBacklog: " + std::to_string(m_usingBacklog) + ">";
   }
 
- private:
+private:
   std::unique_ptr<ITokenGenerator> m_tokenGenerator;
   Token m_curr;
   std::optional<TokenValue> m_value;
@@ -53,4 +49,4 @@ class TokenCollection : public ILoggable {
   std::stack<size_t> m_anchors;
   std::vector<TokenValuePair> m_backlog;
 };
-}  // namespace rgl
+} // namespace rgl

@@ -5,7 +5,7 @@ size_t FunctionType::getHash() const {
   if (!m_cachedHash.has_value()) {
 
     size_t h = this->Type::getHash();
-    for (const auto param : m_params) {
+    for (const auto &param : m_params) {
       h ^= (param->getHash() << 1);
     }
     m_cachedHash = h;
@@ -37,10 +37,10 @@ TypePtr FunctionType::getSharedPointerType() const {
 }
 
 std::string FunctionType::toTreeStr(size_t spaces) const {
-  std::string typePrefix = (m_typeProperties & TypeProperties::_owning) ? (":")
-                           : (m_typeProperties & TypeProperties::_mutable)
-                               ? ("&")
-                               : ("");
+  std::string typePrefix =
+      (m_typeProperties & TypeProperties::_owning)
+          ? (":")
+          : (m_typeProperties & TypeProperties::_mutable) ? ("&") : ("");
 
   if (m_typeProperties & TypeProperties::_isPointer) {
     typePrefix +=

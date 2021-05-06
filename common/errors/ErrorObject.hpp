@@ -16,13 +16,13 @@ public:
   ErrorObject(std::string message, Token tok,
               std::shared_ptr<SourceProject> sourceProject,
               std::string hint = "")
-      : m_message(message), m_tok(tok), m_sourceProject(sourceProject),
-        m_hint(hint) {}
+      : m_message(message), m_hint(hint), m_tok(tok),
+        m_sourceProject(sourceProject) {}
   ErrorObject(std::string message,
               const std::unique_ptr<TokenCollection> &tokenCollection,
               std::string hint = "")
-      : m_message(message), m_tok(tokenCollection->getCurr()),
-        m_sourceProject(tokenCollection->getSourceProject()), m_hint(hint) {}
+      : m_message(message), m_hint(hint), m_tok(tokenCollection->getCurr()),
+        m_sourceProject(tokenCollection->getSourceProject()) {}
 
   virtual std::string toString() const override {
     if (0 == m_hint.size() && TokenType::t_err == m_tok) {
