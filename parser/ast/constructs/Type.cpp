@@ -23,9 +23,9 @@ TypeProperties operator~(TypeProperties property) {
 }
 
 std::string typePropertiesToString(BitField<TypeProperties> properties) {
-  return (properties & TypeProperties::_owning)    ? (":")
-         : (properties & TypeProperties::_mutable) ? ("&")
-                                                   : ("");
+  return (properties & TypeProperties::_owning)
+             ? (":")
+             : (properties & TypeProperties::_mutable) ? ("&") : ("");
 }
 
 bool Type::operator==(TypePtr other) const { return this->equals(other); }
@@ -66,6 +66,9 @@ bool Type::equals(const std::unique_ptr<Type> &other) const {
   return thisRepr == otherRepr;
 }
 
+size_t Type::getSizeBytes() const { return m_sizeBytes; }
+size_t Type::getSizeBits() const { return getSizeBytes() * 8; }
+
 size_t Type::getHash() const { return std::hash<uint8_t>{}(m_typeProperties); }
 
 class TypeBank {
@@ -87,23 +90,24 @@ public:
   static void initBuiltinTypes() {
     BasicType::make({"void"});
 
-    BasicType::make({"i8"});
-    BasicType::make({"i16"});
-    BasicType::make({"i32"});
-    BasicType::make({"i64"});
+    BasicType::make({"i8"}, TypeProperties::_default, 1);
+    BasicType::make({"i16"}, TypeProperties::_default, 2);
+    BasicType::make({"i32"}, TypeProperties::_default, 4);
+    BasicType::make({"i64"}, TypeProperties::_default, 8);
 
-    BasicType::make({"u8"});
-    BasicType::make({"u16"});
-    BasicType::make({"u32"});
-    BasicType::make({"u64"});
+    BasicType::make({"u8"}, TypeProperties::_default, 1);
+    BasicType::make({"u16"}, TypeProperties::_default, 2);
+    BasicType::make({"u32"}, TypeProperties::_default, 4);
+    BasicType::make({"u64"}, TypeProperties::_default, 8);
 
-    BasicType::make({"float"});
-    BasicType::make({"double"});
+    BasicType::make({"float"}, TypeProperties::_default, 4);
+    BasicType::make({"double"}, TypeProperties::_default, 8);
 
-    BasicType::make({"char"});
+    BasicType::make({"char"}, TypeProperties::_default, 1);
+    // TODO: figure out size of string class
     BasicType::make({"string"}, TypeProperties::_referenceType);
 
-    BasicType::make({"bool"});
+    BasicType::make({"bool"}, TypeProperties::_default, 1);
   }
 };
 
@@ -121,20 +125,20 @@ std::string Type::typeBankToString() {
 }
 
 TypePtr BasicType::make(std::vector<std::string> &&name,
-                        BitField<TypeProperties> properties) {
+                        BitField<TypeProperties> properties, size_t sizeBytes) {
   auto &typeBank = TypeBank::get();
   // in order to not expose the constructor, new is used since using the friend
   // keyword assumes that std::make_unique calls new inside of it. this call is
   // safe only because the unique pointer is assigned to a named variable right
   // after it is created(!)
-  auto target =
-      std::unique_ptr<Type>(new BasicType(std::move(name), properties));
+  auto target = std::unique_ptr<Type>(
+      new BasicType(std::move(name), properties, sizeBytes));
 
   if (typeBank.cend() == typeBank.find(target)) {
     auto *innerPtr = dynamic_cast<BasicType *>(target.get());
     // see explanation above
-    auto typePtr =
-        std::shared_ptr<BasicType>(new BasicType(innerPtr->m_name, properties));
+    auto typePtr = std::shared_ptr<BasicType>(
+        new BasicType(innerPtr->m_name, properties, sizeBytes));
     typePtr->m_typeID = typeBank.size() + 1;
     typeBank[std::move(target)] = typePtr;
     return typePtr;
@@ -144,13 +148,15 @@ TypePtr BasicType::make(std::vector<std::string> &&name,
 }
 
 TypePtr BasicType::make(const std::vector<std::string> &name,
-                        BitField<TypeProperties> properties) {
+                        BitField<TypeProperties> properties, size_t sizeBytes) {
   auto &typeBank = TypeBank::get();
   // see explanation above
-  auto target = std::unique_ptr<Type>(new BasicType(name, properties));
+  auto target =
+      std::unique_ptr<Type>(new BasicType(name, properties, sizeBytes));
 
   if (typeBank.cend() == typeBank.find(target)) {
-    auto typePtr = std::shared_ptr<BasicType>(new BasicType(name, properties));
+    auto typePtr =
+        std::shared_ptr<BasicType>(new BasicType(name, properties, sizeBytes));
     typePtr->m_typeID = typeBank.size() + 1;
     typeBank[std::move(target)] = typePtr;
     return typePtr;

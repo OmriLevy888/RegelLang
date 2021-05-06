@@ -33,12 +33,14 @@ private:
 
   FunctionType(std::vector<TypePtr> &&params, TypePtr retType,
                BitField<TypeProperties> properties)
-      : Type(properties | TypeProperties::_isFunction),
+      : Type(properties | TypeProperties::_isFunction,
+             Type::getPointerSizeBytes()),
         m_params(std::move(params)), m_retType(retType) {}
 
   FunctionType(const std::vector<TypePtr> &params, TypePtr retType,
                BitField<TypeProperties> properties)
-      : Type(properties | TypeProperties::_isFunction), m_params(params),
-        m_retType(retType) {}
+      : Type(properties | TypeProperties::_isFunction,
+             Type::getPointerSizeBytes()),
+        m_params(params), m_retType(retType) {}
 };
 }; // namespace rgl

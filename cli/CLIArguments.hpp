@@ -2,7 +2,7 @@
 #include <string>
 
 namespace rgl {
-class CliArguments {
+class CLIArguments {
 public:
   std::string m_projectFilePath;
   std::string m_target;

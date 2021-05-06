@@ -42,13 +42,19 @@ public:
   virtual TypePtr getUniquePointerType() const = 0;
   virtual TypePtr getSharedPointerType() const = 0;
 
+  size_t getSizeBytes() const;
+  size_t getSizeBits() const;
+  static size_t getPointerSizeBytes() { return 8; }
+
 protected:
   BitField<TypeProperties> m_typeProperties;
   size_t m_typeID;
+  size_t m_sizeBytes;
   mutable std::optional<size_t> m_cachedHash;
 
-  Type(BitField<TypeProperties> properties, size_t typeID = 0)
-      : m_typeProperties(properties), m_typeID(typeID),
+  Type(BitField<TypeProperties> properties, size_t sizeBytes = 0,
+       size_t typeID = 0)
+      : m_typeProperties(properties), m_typeID(typeID), m_sizeBytes(sizeBytes),
         m_cachedHash(std::nullopt) {}
 };
 }; // namespace rgl

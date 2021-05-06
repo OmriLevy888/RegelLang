@@ -1,12 +1,12 @@
 #include "cli/ProjectFileParser.hpp"
-#include "cli/Context.hpp"
+#include "cli/CLIContext.hpp"
 #include "common/Formatter.hpp"
 #include "common/errors/ErrorManager.hpp"
 
 namespace rgl {
 bool ProjectFileParser::parseProjectFile(const std::string &path,
                                          const std::string &chosenTarget) {
-  Context &context = Context::getInstance();
+  CLIContext &context = CLIContext::getInstance();
 
   std::ifstream ifs{path};
   if (!ifs.is_open()) {
@@ -77,7 +77,7 @@ bool ProjectFileParser::parseProjectFile(const std::string &path,
 }
 
 void ProjectFileParser::interpretFields() {
-  Context &context = Context::getInstance();
+  CLIContext &context = CLIContext::getInstance();
   interpretField(context.m_target.m_output);
   for (auto &file : context.m_target.m_files) {
     interpretField(file);
@@ -85,7 +85,7 @@ void ProjectFileParser::interpretFields() {
 }
 
 void ProjectFileParser::interpretField(std::string &fieldValue) {
-  Context &context = Context::getInstance();
+  CLIContext &context = CLIContext::getInstance();
   std::string formatted = "";
   for (size_t idx = 0; idx < fieldValue.size(); idx++) {
     if (fieldValue[idx] != '$' || idx >= fieldValue.size() - 3) {

@@ -61,6 +61,8 @@ public:
   virtual void setSwap(Expression expr) override { m_rhs = std::move(expr); }
   virtual bool isLeaf() override { return false; }
 
+  virtual llvm::Value *genCode() override;
+
   virtual std::string toTreeStr(size_t spaces) const override {
     std::string spacesStr(spaces + 6, ' ');
     return Formatter("BinOp<op:{},\n{}lhs:{},\n{}rhs:{}>", getOpString(),

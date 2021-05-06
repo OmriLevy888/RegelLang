@@ -1,18 +1,18 @@
 #pragma once
 #include "cli/BuildTarget.hpp"
-#include "cli/CliArguments.hpp"
+#include "cli/CLIArguments.hpp"
 #include "common/ILoggable.hpp"
 
 namespace rgl {
-class Context : public ILoggable {
+class CLIContext : public ILoggable {
 public:
   std::string m_projectName;
   std::string m_projectDir;
   BuildTarget m_target;
-  CliArguments m_cliArguments;
+  CLIArguments m_cliArguments;
 
-  static Context &getInstance() {
-    static Context instance;
+  static CLIContext &getInstance() {
+    static CLIContext instance;
     return instance;
   }
 
@@ -22,6 +22,6 @@ public:
   }
 
 private:
-  Context() {}
+  CLIContext() {}
 };
 }; // namespace rgl

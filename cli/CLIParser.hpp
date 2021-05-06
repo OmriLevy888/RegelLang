@@ -1,8 +1,8 @@
 #pragma once
-#include "cli/CliArguments.hpp"
+#include "cli/CLIArguments.hpp"
 
 namespace rgl {
-class CliParser {
+class CLIParser {
 public:
   static bool parseCliArgument(size_t argc, const char **argv);
 };

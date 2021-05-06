@@ -1,6 +1,7 @@
-#include "cli/CliParser.hpp"
-#include "cli/Context.hpp"
+#include "cli/CLIContext.hpp"
+#include "cli/CLIParser.hpp"
 #include "cli/ProjectFileParser.hpp"
+#include "codegen/Context.hpp"
 #include "common/Core.hpp"
 #include "common/collections/source-objects/SourceFile.hpp"
 #include "common/collections/source-objects/SourceProject.hpp"
@@ -10,6 +11,9 @@
 #include "lexer/DummyTokenGenerator.hpp"
 #include "lexer/Lexer.hpp"
 #include "lexer/TokenCollection.hpp"
+#include "parser/ast/expressions/literals/IntLiteralNode.hpp"
+#include "parser/ast/expressions/ops/BinOpNode.hpp"
+#include "parser/ast/statements/ReturnNode.hpp"
 #include <iostream>
 #include <memory>
 
@@ -17,40 +21,37 @@
 using namespace rgl;
 
 int main(int argc, const char **argv, char **envp) {
-  if (!CliParser::parseCliArgument(argc, argv)) {
-    return -1;
-  }
+  /* if (!CliParser::parseCliArgument(argc, argv)) { */
+  /*   return -1; */
+  /* } */
 
-  Logger::init();
-  Logger::setPrefixDate(true);
-  Logger::setLogLevel(LogLevel::debug);
-  Context &context = Context::getInstance();
+  /* Logger::init(); */
+  /* Logger::setPrefixDate(true); */
+  /* Logger::setLogLevel(LogLevel::debug); */
+  /* Context &context = Context::getInstance(); */
 
-  if (!ProjectFileParser::parseProjectFile(
-          context.m_cliArguments.m_projectFilePath,
-          context.m_cliArguments.m_target)) {
-    ErrorManager::logError("Failed to parse project file");
-    return -1;
-  }
+  /* if (!ProjectFileParser::parseProjectFile( */
+  /*         context.m_cliArguments.m_projectFilePath, */
+  /*         context.m_cliArguments.m_target)) { */
+  /*   ErrorManager::logError("Failed to parse project file"); */
+  /*   return -1; */
+  /* } */
 
-  auto project = std::make_shared<SourceProject>("Project");
-  for (const auto &file : context.m_target.m_files) {
-    std::cout << "working on file " << file << std::endl;
-    size_t fileIdx = project->addFile(SourceFile{file});
-    auto fss = std::make_unique<FileSourceStream>(file, fileIdx);
-    Lexer lexer{std::move(fss), project};
-    auto [curr, _] = lexer.getNext();
-    do {
-      std::cout << curr.toString() << std::endl;
-      curr = lexer.getNext().m_token;
-    } while (curr != TokenType::t_eof);
-    std::cout << std::endl;
-  }
+  auto expr = std::make_unique<ReturnNode>(std::make_unique<BinOpNode>(
+      BinOpType::b_plus,
+      std::make_unique<IntLiteralNode>(1, BasicType::t_int32()),
+      std::make_unique<IntLiteralNode>(2, BasicType::t_int32())));
+
+  std::cout << expr->toString() << std::endl;
+
+  std::cout << Context::getCurrContext()->module()->toString() << std::endl;
+  expr->genCode();
+  std::cout << Context::getCurrContext()->module()->toString() << std::endl;
 
   return 0;
 }
 #else
-#include "deps/include/gtest/gtest.h"
+#include "gtest/gtest.h"
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

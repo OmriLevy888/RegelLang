@@ -38,18 +38,18 @@ TypePtr BasicType::getSharedPointerType() const {
 }
 
 std::string BasicType::toTreeStr(size_t spaces) const {
-  std::string typePrefix = (m_typeProperties & TypeProperties::_owning) ? (":")
-                           : (m_typeProperties & TypeProperties::_mutable)
-                               ? ("&")
-                               : ("");
+  std::string typePrefix =
+      (m_typeProperties & TypeProperties::_owning)
+          ? (":")
+          : (m_typeProperties & TypeProperties::_mutable) ? ("&") : ("");
 
   if (m_typeProperties & TypeProperties::_isPointer) {
     typePrefix +=
         (m_typeProperties & TypeProperties::_isShared) ? ("{}") : ("<>");
   }
 
-  return Formatter("Type<{}{}>", typePrefix,
-                   Formatter<>::joinContainer('.', m_name));
+  return Formatter("Type<{}{} :: {}>", typePrefix,
+                   Formatter<>::joinContainer('.', m_name), getSizeBytes());
 }
 
 TypePtr BasicType::t_implicit() {

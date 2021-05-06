@@ -1,6 +1,6 @@
-#include "cli/CliParser.hpp"
-#include "cli/CliArguments.hpp"
-#include "cli/Context.hpp"
+#include "cli/CLIParser.hpp"
+#include "cli/CLIArguments.hpp"
+#include "cli/CLIContext.hpp"
 #include "cli11/App.hpp"
 #include "cli11/Config.hpp"
 #include "cli11/Formatter.hpp"
@@ -8,9 +8,9 @@
 #include "common/errors/ErrorManager.hpp"
 
 namespace rgl {
-bool CliParser::parseCliArgument(size_t argc, const char **argv) {
+bool CLIParser::parseCliArgument(size_t argc, const char **argv) {
   CLI::App app{"Regelang compiler"};
-  CliArguments arguments;
+  CLIArguments arguments;
 
   std::string file;
   app.add_option("project-file", file,
@@ -39,7 +39,7 @@ bool CliParser::parseCliArgument(size_t argc, const char **argv) {
     return false;
   }
 
-  Context::getInstance().m_cliArguments = arguments;
+  CLIContext::getInstance().m_cliArguments = arguments;
   return true;
 }
 }; // namespace rgl

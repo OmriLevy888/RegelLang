@@ -9,6 +9,8 @@ public:
   ReturnNode() : m_expr(nullptr) {}
   ReturnNode(Expression expr) : m_expr(std::move(expr)) {}
 
+  virtual void genCode() override;
+
   virtual std::string toTreeStr(size_t spaces) const override {
     std::string inner = "";
     if (nullptr != m_expr) {

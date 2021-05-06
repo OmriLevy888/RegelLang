@@ -8,10 +8,12 @@ class BasicType : public Type {
 public:
   static TypePtr
   make(std::vector<std::string> &&name,
-       BitField<TypeProperties> properties = TypeProperties::_default);
+       BitField<TypeProperties> properties = TypeProperties::_default,
+       size_t sizeBytes = 0);
   static TypePtr
   make(const std::vector<std::string> &name,
-       BitField<TypeProperties> properties = TypeProperties::_default);
+       BitField<TypeProperties> properties = TypeProperties::_default,
+       size_t sizeBytes = 0);
 
   virtual bool isSimpleType() const noexcept override;
 
@@ -45,13 +47,16 @@ private:
   std::vector<std::string> m_name;
 
   BasicType(std::vector<std::string> &&name,
-            BitField<TypeProperties> properties = TypeProperties::_default)
-      : Type(properties), m_name(std::move(name)) {}
+            BitField<TypeProperties> properties = TypeProperties::_default,
+            size_t sizeBytes = 0)
+      : Type(properties, sizeBytes), m_name(std::move(name)) {}
   BasicType(const std::vector<std::string> &name,
-            BitField<TypeProperties> properties = TypeProperties::_default)
-      : Type(properties), m_name(name) {}
+            BitField<TypeProperties> properties = TypeProperties::_default,
+            size_t sizeBytes = 0)
+      : Type(properties, sizeBytes), m_name(name) {}
   BasicType(const std::string &name,
-            BitField<TypeProperties> properties = TypeProperties::_default)
-      : Type(properties), m_name({name}) {}
+            BitField<TypeProperties> properties = TypeProperties::_default,
+            size_t sizeBytes = 0)
+      : Type(properties, sizeBytes), m_name({name}) {}
 };
 }; // namespace rgl
