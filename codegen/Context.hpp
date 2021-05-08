@@ -1,13 +1,13 @@
 #pragma once
 #include "codegen/CompilationContext.hpp"
-#include "codegen/ModuleTable.hpp"
+#include "codegen/SymbolMap.hpp"
 #include <thread>
 
 namespace rgl {
 class Context {
 public:
   static void setCurrContext(const std::vector<std::string> &name) {
-    ModuleTableEntryPtr module = nullptr;
+    ModuleSymbolPtr module = nullptr;
     if (0 == name.size()) {
       module = get().m_modules->getMainEntry();
     } else {
@@ -39,7 +39,6 @@ public:
   static llvm::Module *llvmModule() { return getCurrContext()->llvmModule(); }
   static llvm::IRBuilder<> *builder() { return getCurrContext()->builder(); }
 
-  static std::shared_ptr<ModuleTable> modules() { return get().m_modules; }
   static llvm::LLVMContext *llvmContext() { return get().m_llvmContext.get(); }
 
 private:
