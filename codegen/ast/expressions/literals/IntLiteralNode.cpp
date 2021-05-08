@@ -2,7 +2,6 @@
 #include "codegen/Context.hpp"
 #include "llvm/IR/Constants.h"
 
-#include <iostream>
 namespace rgl {
 llvm::Value *IntLiteralNode::genCode() {
   const bool isSigned = true;

@@ -6,6 +6,8 @@ class BooleanLiteralNode : public ExpressionNode {
 public:
   BooleanLiteralNode(bool value) : m_value(value) {}
 
+  virtual llvm::Value *genCode() override;
+
   std::string toTreeStr(size_t spaces) const override {
     return Formatter("BooleanLiteral<{}>", m_value);
   }

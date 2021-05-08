@@ -7,6 +7,10 @@ class FloatLiteralNode : public ExpressionNode {
 public:
   FloatLiteralNode(float value) : m_value(value) {}
 
+  virtual TypePtr getType() const override { return BasicType::t_float(); }
+
+  virtual llvm::Value *genCode() override;
+
   std::string toTreeStr(size_t spaces) const override {
     return Formatter("FloatLiteral<{}>", m_value);
   }

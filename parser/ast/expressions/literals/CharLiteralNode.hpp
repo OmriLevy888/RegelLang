@@ -7,6 +7,10 @@ class CharLiteralNode : public ExpressionNode {
 public:
   CharLiteralNode(char value) : m_value(value) {}
 
+  virtual TypePtr getType() const override { return BasicType::t_char(); }
+
+  virtual llvm::Value *genCode() override;
+
   std::string toTreeStr(size_t spaces) const override {
     return Formatter("CharLiteral<{}>", m_value);
   }

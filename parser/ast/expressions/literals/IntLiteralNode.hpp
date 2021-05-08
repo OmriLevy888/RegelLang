@@ -9,6 +9,8 @@ public:
   IntLiteralNode(int64_t value, std::shared_ptr<Type> type)
       : m_value(value), m_type(type) {}
 
+  virtual TypePtr getType() const override { return m_type; }
+
   virtual llvm::Value *genCode() override;
 
   virtual std::string toTreeStr(size_t spaces) const noexcept override {

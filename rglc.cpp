@@ -15,6 +15,7 @@
 #include "parser/ast/expressions/BasicIdentifierNode.hpp"
 #include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/CompoundIdentifierNode.hpp"
+#include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
 #include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
 #include "parser/ast/expressions/literals/class-literal/ClassLiteralNode.hpp"
@@ -68,8 +69,20 @@ int main(int argc, const char **argv, char **envp) {
       std::make_unique<BasicIdentifierNode>("main"), std::move(parameters),
       BasicType::t_uint64(), std::move(blockNode));
 
+  auto fooRet =
+      std::make_unique<ReturnNode>(std::make_unique<BooleanLiteralNode>(true));
+  std::vector<Statement> fooStatements{};
+  fooStatements.push_back(std::move(fooRet));
+  auto fooBody = std::make_unique<BlockNode>(std::move(fooStatements));
+
+  auto fooFunc = std::make_unique<FunctionLiteralNode>(
+      std::make_unique<CompoundIdentifierNode>(
+          std::vector<std::string>{"foo", "func"}),
+      std::vector<Parameter>{}, BasicType::t_int8(), std::move(fooBody));
+
   std::vector<FunctionPtr> functions{};
   functions.push_back(std::move(main));
+  functions.push_back(std::move(fooFunc));
 
   auto fileNode = std::make_unique<FileNode>(
       std::make_unique<NamespaceDeclarationNode>(
@@ -78,9 +91,7 @@ int main(int argc, const char **argv, char **envp) {
       std::vector<ClassPtr>{}, std::move(functions), std::vector<Expression>{});
 
   std::cout << Context::module()->toString() << std::endl;
-  std::cout << "foo" << std::endl;
   fileNode->genCode();
-  std::cout << "bar" << std::endl;
   std::cout << Context::module()->toString() << std::endl;
 
   return 0;
