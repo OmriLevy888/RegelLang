@@ -8,6 +8,11 @@ public:
   static std::shared_ptr<CompilationContext> getCurrContext() {
     return get().m_compilationContext;
   }
+  static std::shared_ptr<ModuleTableEntry> module() {
+    return getCurrContext()->module();
+  }
+  static llvm::Module *llvmModule() { return getCurrContext()->llvmModule(); }
+  static llvm::IRBuilder<> *builder() { return getCurrContext()->builder(); }
 
   static std::shared_ptr<ModuleTable> modules() { return get().m_modules; }
   static llvm::LLVMContext *llvmContext() { return get().m_llvmContext.get(); }

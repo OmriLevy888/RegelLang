@@ -11,6 +11,9 @@
 #include "lexer/DummyTokenGenerator.hpp"
 #include "lexer/Lexer.hpp"
 #include "lexer/TokenCollection.hpp"
+#include "parser/ast/expressions/BasicIdentifierNode.hpp"
+#include "parser/ast/expressions/BlockNode.hpp"
+#include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
 #include "parser/ast/expressions/ops/BinOpNode.hpp"
 #include "parser/ast/statements/ReturnNode.hpp"
@@ -37,16 +40,36 @@ int main(int argc, const char **argv, char **envp) {
   /*   return -1; */
   /* } */
 
-  auto expr = std::make_unique<ReturnNode>(std::make_unique<BinOpNode>(
+  auto returnNode = std::make_unique<ReturnNode>(std::make_unique<BinOpNode>(
       BinOpType::b_plus,
       std::make_unique<IntLiteralNode>(1, BasicType::t_int32()),
       std::make_unique<IntLiteralNode>(2, BasicType::t_int32())));
 
+  std::vector<Statement> body{};
+  body.push_back(std::move(returnNode));
+  auto blockNode = std::make_unique<BlockNode>(std::move(body));
+
+  std::vector<Parameter> parameters;
+  parameters.reserve(3);
+  parameters.push_back(std::make_unique<ParameterNode>(
+      BasicType::t_char()->getSharedPointerType(),
+      std::make_unique<BasicIdentifierNode>("argv")));
+  parameters.push_back(std::make_unique<ParameterNode>(
+      BasicType::t_int64()->getSharedPointerType()->getSharedPointerType(),
+      std::make_unique<BasicIdentifierNode>("argc")));
+  parameters.push_back(std::make_unique<ParameterNode>(
+      BasicType::t_char()->getSharedPointerType()->getSharedPointerType(),
+      std::make_unique<BasicIdentifierNode>("envp")));
+
+  auto expr = std::make_unique<FunctionLiteralNode>(
+      std::make_unique<BasicIdentifierNode>("main"), std::move(parameters),
+      BasicType::t_uint64(), std::move(blockNode));
+
   std::cout << expr->toString() << std::endl;
 
-  std::cout << Context::getCurrContext()->module()->toString() << std::endl;
+  std::cout << Context::module()->toString() << std::endl;
   expr->genCode();
-  std::cout << Context::getCurrContext()->module()->toString() << std::endl;
+  std::cout << Context::module()->toString() << std::endl;
 
   return 0;
 }

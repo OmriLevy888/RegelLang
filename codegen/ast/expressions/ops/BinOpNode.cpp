@@ -5,6 +5,6 @@ namespace rgl {
 llvm::Value *BinOpNode::genCode() {
   auto lhs = m_lhs->genCode();
   auto rhs = m_rhs->genCode();
-  return Context::getCurrContext()->builder()->CreateAdd(lhs, rhs, "add");
+  return Context::builder()->CreateAdd(lhs, rhs, "add");
 }
 }; // namespace rgl

@@ -10,6 +10,8 @@ public:
   BlockNode(std::vector<Statement> &&statements)
       : m_statements(std::move(statements)) {}
 
+  virtual llvm::Value *genCode() override;
+
   virtual std::string toTreeStr(size_t spaces) const override {
     std::string inner = "";
     if (0 != m_statements.size()) {

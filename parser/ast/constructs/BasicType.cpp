@@ -20,28 +20,35 @@ size_t BasicType::getHash() const {
 }
 
 TypePtr BasicType::getOwningType() const {
-  return BasicType::make(m_name, m_typeProperties | TypeProperties::_owning);
+  return BasicType::make(m_name, m_typeProperties | TypeProperties::_owning,
+                         m_sizeBits, m_llvmType);
 }
 TypePtr BasicType::getMutableType() const {
-  return BasicType::make(m_name, m_typeProperties | TypeProperties::_mutable);
+  return BasicType::make(m_name, m_typeProperties | TypeProperties::_mutable,
+                         m_sizeBits, m_llvmType);
 }
 TypePtr BasicType::getValueType() const {
-  return BasicType::make(m_name,
-                         m_typeProperties & ~TypeProperties::_isPointer);
+  return BasicType::make(m_name, m_typeProperties & ~TypeProperties::_isPointer,
+                         m_sizeBits, m_llvmType);
 }
+// TODO: fix these casts
 TypePtr BasicType::getUniquePointerType() const {
-  return BasicType::make(m_name, m_typeProperties | TypeProperties::_isPointer);
+  return BasicType::make(
+      m_name, m_typeProperties | TypeProperties::_isPointer, m_sizeBits,
+      reinterpret_cast<llvm::Type *>(m_llvmType->getPointerTo()));
 }
 TypePtr BasicType::getSharedPointerType() const {
-  return BasicType::make(m_name, m_typeProperties | TypeProperties::_isPointer |
-                                     TypeProperties::_isShared);
+  return BasicType::make(
+      m_name,
+      m_typeProperties | TypeProperties::_isPointer | TypeProperties::_isShared,
+      m_sizeBits, reinterpret_cast<llvm::Type *>(m_llvmType->getPointerTo()));
 }
 
 std::string BasicType::toTreeStr(size_t spaces) const {
-  std::string typePrefix =
-      (m_typeProperties & TypeProperties::_owning)
-          ? (":")
-          : (m_typeProperties & TypeProperties::_mutable) ? ("&") : ("");
+  std::string typePrefix = (m_typeProperties & TypeProperties::_owning) ? (":")
+                           : (m_typeProperties & TypeProperties::_mutable)
+                               ? ("&")
+                               : ("");
 
   if (m_typeProperties & TypeProperties::_isPointer) {
     typePrefix +=
@@ -113,4 +120,6 @@ TypePtr BasicType::t_bool() {
   static auto instance = BasicType::make({"bool"});
   return instance;
 }
+
+llvm::Type *BasicType::toLLVMType() { return m_llvmType; }
 }; // namespace rgl

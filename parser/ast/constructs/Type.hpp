@@ -5,6 +5,7 @@
 #include "common/Core.hpp"
 #include "common/utils/BitField.hpp"
 #include "parser/ast/constructs/ConstructNode.hpp"
+#include "llvm/IR/Type.h"
 
 namespace rgl {
 enum class TypeProperties : uint8_t {
@@ -42,6 +43,8 @@ public:
   virtual TypePtr getUniquePointerType() const = 0;
   virtual TypePtr getSharedPointerType() const = 0;
 
+  virtual llvm::Type *toLLVMType() = 0;
+
   size_t getSizeBytes() const;
   size_t getSizeBits() const;
   static size_t getPointerSizeBytes() { return 8; }
@@ -49,12 +52,12 @@ public:
 protected:
   BitField<TypeProperties> m_typeProperties;
   size_t m_typeID;
-  size_t m_sizeBytes;
+  size_t m_sizeBits;
   mutable std::optional<size_t> m_cachedHash;
 
-  Type(BitField<TypeProperties> properties, size_t sizeBytes = 0,
+  Type(BitField<TypeProperties> properties, size_t sizeBits = 0,
        size_t typeID = 0)
-      : m_typeProperties(properties), m_typeID(typeID), m_sizeBytes(sizeBytes),
+      : m_typeProperties(properties), m_typeID(typeID), m_sizeBits(sizeBits),
         m_cachedHash(std::nullopt) {}
 };
 }; // namespace rgl

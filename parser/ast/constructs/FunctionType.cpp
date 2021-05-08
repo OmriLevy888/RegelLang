@@ -37,10 +37,10 @@ TypePtr FunctionType::getSharedPointerType() const {
 }
 
 std::string FunctionType::toTreeStr(size_t spaces) const {
-  std::string typePrefix =
-      (m_typeProperties & TypeProperties::_owning)
-          ? (":")
-          : (m_typeProperties & TypeProperties::_mutable) ? ("&") : ("");
+  std::string typePrefix = (m_typeProperties & TypeProperties::_owning) ? (":")
+                           : (m_typeProperties & TypeProperties::_mutable)
+                               ? ("&")
+                               : ("");
 
   if (m_typeProperties & TypeProperties::_isPointer) {
     typePrefix +=
@@ -53,5 +53,16 @@ std::string FunctionType::toTreeStr(size_t spaces) const {
           ", ", m_params,
           [spaces](auto paramType) { return paramType->toTreeStr(spaces); }),
       m_retType->toTreeStr(spaces));
+}
+
+llvm::FunctionType *FunctionType::toLLVMType() {
+  std::vector<llvm::Type *> llvmParamTypes{};
+  llvmParamTypes.reserve(m_params.size());
+  for (auto &param : m_params) {
+    llvmParamTypes.push_back(param->toLLVMType());
+  }
+  const bool isVarArg = false;
+  return llvm::FunctionType::get(m_retType->toLLVMType(), llvmParamTypes,
+                                 isVarArg);
 }
 }; // namespace rgl

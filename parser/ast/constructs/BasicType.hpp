@@ -9,11 +9,11 @@ public:
   static TypePtr
   make(std::vector<std::string> &&name,
        BitField<TypeProperties> properties = TypeProperties::_default,
-       size_t sizeBytes = 0);
+       size_t sizeBits = 0, llvm::Type *llvmType = nullptr);
   static TypePtr
   make(const std::vector<std::string> &name,
        BitField<TypeProperties> properties = TypeProperties::_default,
-       size_t sizeBytes = 0);
+       size_t sizeBits = 0, llvm::Type *llvmType = nullptr);
 
   virtual bool isSimpleType() const noexcept override;
 
@@ -43,20 +43,22 @@ public:
   static TypePtr t_string();
   static TypePtr t_bool();
 
+  virtual llvm::Type *toLLVMType() override;
+
 private:
   std::vector<std::string> m_name;
+  llvm::Type *m_llvmType;
 
   BasicType(std::vector<std::string> &&name,
             BitField<TypeProperties> properties = TypeProperties::_default,
-            size_t sizeBytes = 0)
-      : Type(properties, sizeBytes), m_name(std::move(name)) {}
+            size_t sizeBits = 0, llvm::Type *llvmType = nullptr)
+      : Type(properties, sizeBits), m_name(std::move(name)),
+        m_llvmType(llvmType) {}
   BasicType(const std::vector<std::string> &name,
             BitField<TypeProperties> properties = TypeProperties::_default,
-            size_t sizeBytes = 0)
-      : Type(properties, sizeBytes), m_name(name) {}
-  BasicType(const std::string &name,
-            BitField<TypeProperties> properties = TypeProperties::_default,
-            size_t sizeBytes = 0)
-      : Type(properties, sizeBytes), m_name({name}) {}
+            size_t sizeBits = 0, llvm::Type *llvmType = nullptr)
+      : Type(properties, sizeBits), m_name(name), m_llvmType(llvmType) {}
 };
+
+using BasicTypePtr = std::shared_ptr<BasicType>;
 }; // namespace rgl

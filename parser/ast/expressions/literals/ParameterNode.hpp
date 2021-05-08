@@ -9,6 +9,10 @@ public:
   ParameterNode(TypePtr type, Identifier name)
       : m_type(type), m_name(std::move(name)) {}
 
+  TypePtr getType() { return m_type; }
+  std::vector<std::string> getName() { return m_name->get(); }
+  llvm::Type *getLLVMType() { return m_type->toLLVMType(); }
+
   std::string toTreeStr(size_t spaces) const override {
     const std::string spacesStr(spaces + 18, ' ');
     return Formatter("ParameterNode<name:{},\n{}type:{}>",

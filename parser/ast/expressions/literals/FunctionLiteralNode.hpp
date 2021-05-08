@@ -14,6 +14,8 @@ public:
       : m_name(std::move(name)), m_parameters(std::move(parameters)),
         m_retType(retType), m_body(std::move(body)) {}
 
+  virtual llvm::Value *genCode() override;
+
   std::string toTreeStr(size_t spaces) const override {
     const std::string spacesStr(spaces + 20, ' ');
     // replace "Anonymous" with line number/module name (?)

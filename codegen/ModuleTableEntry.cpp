@@ -1,6 +1,5 @@
 #include "codegen/ModuleTableEntry.hpp"
 #include "llvm/Support/raw_ostream.h"
-#include <iostream>
 
 namespace rgl {
 ModuleTableEntry::ModuleTableEntry(const std::string &name,

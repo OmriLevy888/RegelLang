@@ -4,6 +4,6 @@
 namespace rgl {
 void ReturnNode::genCode() {
   auto retVal = m_expr->genCode();
-  Context::getCurrContext()->builder()->CreateRet(retVal);
+  Context::builder()->CreateRet(retVal);
 }
 }; // namespace rgl

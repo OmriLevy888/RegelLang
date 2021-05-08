@@ -1,4 +1,3 @@
-LLVM_DIR=~/Installations/llvm/llvm-8.0.0-prebuilt/
 LLVM_DIR=/usr/
 CPPC=$(LLVM_DIR)bin/clang++
 LLVM_PROFDATA=$(LLVM_DIR)bin/llvm-profdata

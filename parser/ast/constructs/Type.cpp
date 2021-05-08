@@ -1,6 +1,7 @@
 #include <functional>
 #include <unordered_map>
 
+#include "codegen/Context.hpp"
 #include "parser/ast/constructs/BasicType.hpp"
 #include "parser/ast/constructs/FunctionType.hpp"
 
@@ -23,9 +24,9 @@ TypeProperties operator~(TypeProperties property) {
 }
 
 std::string typePropertiesToString(BitField<TypeProperties> properties) {
-  return (properties & TypeProperties::_owning)
-             ? (":")
-             : (properties & TypeProperties::_mutable) ? ("&") : ("");
+  return (properties & TypeProperties::_owning)    ? (":")
+         : (properties & TypeProperties::_mutable) ? ("&")
+                                                   : ("");
 }
 
 bool Type::operator==(TypePtr other) const { return this->equals(other); }
@@ -66,8 +67,8 @@ bool Type::equals(const std::unique_ptr<Type> &other) const {
   return thisRepr == otherRepr;
 }
 
-size_t Type::getSizeBytes() const { return m_sizeBytes; }
-size_t Type::getSizeBits() const { return getSizeBytes() * 8; }
+size_t Type::getSizeBytes() const { return getSizeBits() / 8; }
+size_t Type::getSizeBits() const { return m_sizeBits; }
 
 size_t Type::getHash() const { return std::hash<uint8_t>{}(m_typeProperties); }
 
@@ -88,26 +89,39 @@ public:
   }
 
   static void initBuiltinTypes() {
-    BasicType::make({"void"});
+    BasicType::make({"void"}, TypeProperties::_default, 0,
+                    llvm::Type::getVoidTy(*Context::llvmContext()));
 
-    BasicType::make({"i8"}, TypeProperties::_default, 1);
-    BasicType::make({"i16"}, TypeProperties::_default, 2);
-    BasicType::make({"i32"}, TypeProperties::_default, 4);
-    BasicType::make({"i64"}, TypeProperties::_default, 8);
+    BasicType::make({"i8"}, TypeProperties::_default, 8,
+                    llvm::Type::getInt8Ty(*Context::llvmContext()));
+    BasicType::make({"i16"}, TypeProperties::_default, 16,
+                    llvm::Type::getInt16Ty(*Context::llvmContext()));
+    BasicType::make({"i32"}, TypeProperties::_default, 32,
+                    llvm::Type::getInt32Ty(*Context::llvmContext()));
+    BasicType::make({"i64"}, TypeProperties::_default, 64,
+                    llvm::Type::getInt64Ty(*Context::llvmContext()));
 
-    BasicType::make({"u8"}, TypeProperties::_default, 1);
-    BasicType::make({"u16"}, TypeProperties::_default, 2);
-    BasicType::make({"u32"}, TypeProperties::_default, 4);
-    BasicType::make({"u64"}, TypeProperties::_default, 8);
+    BasicType::make({"u8"}, TypeProperties::_default, 8,
+                    llvm::Type::getInt8Ty(*Context::llvmContext()));
+    BasicType::make({"u16"}, TypeProperties::_default, 16,
+                    llvm::Type::getInt16Ty(*Context::llvmContext()));
+    BasicType::make({"u32"}, TypeProperties::_default, 32,
+                    llvm::Type::getInt32Ty(*Context::llvmContext()));
+    BasicType::make({"u64"}, TypeProperties::_default, 64,
+                    llvm::Type::getInt64Ty(*Context::llvmContext()));
 
-    BasicType::make({"float"}, TypeProperties::_default, 4);
-    BasicType::make({"double"}, TypeProperties::_default, 8);
+    BasicType::make({"float"}, TypeProperties::_default, 32,
+                    llvm::Type::getFloatTy(*Context::llvmContext()));
+    BasicType::make({"double"}, TypeProperties::_default, 64,
+                    llvm::Type::getDoubleTy(*Context::llvmContext()));
 
-    BasicType::make({"char"}, TypeProperties::_default, 1);
-    // TODO: figure out size of string class
+    BasicType::make({"char"}, TypeProperties::_default, 8,
+                    llvm::Type::getInt8Ty(*Context::llvmContext()));
+    // TODO: figure out size of string class and llvm type
     BasicType::make({"string"}, TypeProperties::_referenceType);
 
-    BasicType::make({"bool"}, TypeProperties::_default, 1);
+    BasicType::make({"bool"}, TypeProperties::_default, 1,
+                    llvm::Type::getInt1Ty(*Context::llvmContext()));
   }
 };
 
@@ -125,20 +139,21 @@ std::string Type::typeBankToString() {
 }
 
 TypePtr BasicType::make(std::vector<std::string> &&name,
-                        BitField<TypeProperties> properties, size_t sizeBytes) {
+                        BitField<TypeProperties> properties, size_t sizeBits,
+                        llvm::Type *llvmType) {
   auto &typeBank = TypeBank::get();
   // in order to not expose the constructor, new is used since using the friend
   // keyword assumes that std::make_unique calls new inside of it. this call is
   // safe only because the unique pointer is assigned to a named variable right
   // after it is created(!)
   auto target = std::unique_ptr<Type>(
-      new BasicType(std::move(name), properties, sizeBytes));
+      new BasicType(std::move(name), properties, sizeBits, llvmType));
 
   if (typeBank.cend() == typeBank.find(target)) {
     auto *innerPtr = dynamic_cast<BasicType *>(target.get());
     // see explanation above
     auto typePtr = std::shared_ptr<BasicType>(
-        new BasicType(innerPtr->m_name, properties, sizeBytes));
+        new BasicType(innerPtr->m_name, properties, sizeBits, llvmType));
     typePtr->m_typeID = typeBank.size() + 1;
     typeBank[std::move(target)] = typePtr;
     return typePtr;
@@ -148,15 +163,16 @@ TypePtr BasicType::make(std::vector<std::string> &&name,
 }
 
 TypePtr BasicType::make(const std::vector<std::string> &name,
-                        BitField<TypeProperties> properties, size_t sizeBytes) {
+                        BitField<TypeProperties> properties, size_t sizeBits,
+                        llvm::Type *llvmType) {
   auto &typeBank = TypeBank::get();
   // see explanation above
-  auto target =
-      std::unique_ptr<Type>(new BasicType(name, properties, sizeBytes));
+  auto target = std::unique_ptr<Type>(
+      new BasicType(name, properties, sizeBits, llvmType));
 
   if (typeBank.cend() == typeBank.find(target)) {
-    auto typePtr =
-        std::shared_ptr<BasicType>(new BasicType(name, properties, sizeBytes));
+    auto typePtr = std::shared_ptr<BasicType>(
+        new BasicType(name, properties, sizeBits, llvmType));
     typePtr->m_typeID = typeBank.size() + 1;
     typeBank[std::move(target)] = typePtr;
     return typePtr;
@@ -165,8 +181,9 @@ TypePtr BasicType::make(const std::vector<std::string> &name,
   return typeBank.at(target);
 }
 
-TypePtr FunctionType::make(std::vector<TypePtr> &&params, TypePtr retType,
-                           BitField<TypeProperties> properties) {
+FunctionTypePtr FunctionType::make(std::vector<TypePtr> &&params,
+                                   TypePtr retType,
+                                   BitField<TypeProperties> properties) {
   auto &typeBank = TypeBank::get();
   // see explanation above
   auto target = std::unique_ptr<Type>(
@@ -182,11 +199,12 @@ TypePtr FunctionType::make(std::vector<TypePtr> &&params, TypePtr retType,
     return typePtr;
   }
 
-  return typeBank.at(target);
+  return std::dynamic_pointer_cast<FunctionType>(typeBank.at(target));
 }
 
-TypePtr FunctionType::make(const std::vector<TypePtr> &params, TypePtr retType,
-                           BitField<TypeProperties> properties) {
+FunctionTypePtr FunctionType::make(const std::vector<TypePtr> &params,
+                                   TypePtr retType,
+                                   BitField<TypeProperties> properties) {
   auto &typeBank = TypeBank::get();
   // see explanation above
   auto target =
@@ -200,6 +218,6 @@ TypePtr FunctionType::make(const std::vector<TypePtr> &params, TypePtr retType,
     return typePtr;
   }
 
-  return typeBank.at(target);
+  return std::dynamic_pointer_cast<FunctionType>(typeBank.at(target));
 }
 }; // namespace rgl
