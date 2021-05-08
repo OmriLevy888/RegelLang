@@ -4,8 +4,82 @@
 #include "parser/ast/constructs/FunctionType.hpp"
 #include "parser/ast/constructs/Type.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
+#include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
 
 namespace rgl {
+File Parser::parseFile() {
+  std::vector<ClassPtr> classes{};
+  std::vector<FunctionPtr> functions{};
+  std::vector<Expression> topLevelExprs{};
+  NamespaceDeclaration namespaceDecl = nullptr;
+
+  ClassPtr currClass = nullptr;
+  FunctionPtr currFunc = nullptr;
+  Expression currExpr = nullptr;
+
+  auto currTok = m_tokens->getCurr();
+  while (TokenType::t_eof != currTok) {
+    switch (currTok) {
+    case TokenType::t_class:
+      currClass = parseClass();
+      if (nullptr == currClass) {
+        // TODO: write error message
+        return nullptr;
+      }
+      classes.push_back(std::move(currClass));
+      break;
+    case TokenType::t_func:
+      currFunc = parseFunction();
+      if (nullptr == currFunc) {
+        // TODO: write error message
+        return nullptr;
+      }
+      functions.push_back(std::move(currFunc));
+      break;
+    case TokenType::t_namespace:
+      if (nullptr != namespaceDecl) {
+        // TODO: write error message
+        return nullptr;
+      }
+
+      namespaceDecl = parseNamespaceDeclaration();
+      if (nullptr == namespaceDecl) {
+        // TODO: write error message
+        return nullptr;
+      }
+      break;
+    default:
+      currExpr = parseExpression();
+      if (nullptr == currExpr) {
+        // TODO: write error message
+        return nullptr;
+      }
+      topLevelExprs.push_back(std::move(currExpr));
+      break;
+    }
+  }
+
+  return std::make_unique<FileNode>(std::move(namespaceDecl),
+                                    std::move(classes), std::move(functions),
+                                    std::move(topLevelExprs));
+}
+
+NamespaceDeclaration Parser::parseNamespaceDeclaration() {
+  if (TokenType::t_namespace != m_tokens->getCurr()) {
+    // TODO: write error message
+    return nullptr;
+  }
+  m_tokens->getNext(); // consume `namespace`
+
+  auto name = parserIdentifier();
+  if (nullptr == name) {
+    // TODO: write error message
+    return nullptr;
+  }
+
+  return std::make_unique<NamespaceDeclarationNode>(std::move(name));
+}
+
 TypePtr Parser::parseType(bool skipQualifiers) {
   std::optional<BitField<TypeProperties>> properties = TypeProperties::_default;
   if (!skipQualifiers) {

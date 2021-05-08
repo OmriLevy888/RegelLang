@@ -3,16 +3,16 @@
 #include "lexer/ITokenGenerator.hpp"
 #include "lexer/TokenCollection.hpp"
 #include "parser/ast/constructs/FileNode.hpp"
+#include "parser/ast/constructs/NamespaceDeclarationNode.hpp"
 #include "parser/ast/expressions/BasicIdentifierNode.hpp"
 #include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/CompoundIdentifierNode.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
+#include "parser/ast/expressions/ImportNode.hpp"
 #include "parser/ast/expressions/SwitchNode.hpp"
 #include "parser/ast/expressions/VarDeclNode.hpp"
 #include "parser/ast/expressions/literals/class-literal/ClassLiteralNode.hpp"
-#include "parser/ast/expressions/scope/ImportNode.hpp"
-#include "parser/ast/expressions/scope/NamespaceDeclarationNode.hpp"
 #include "parser/ast/statements/StatementNode.hpp"
 
 namespace rgl {
@@ -27,6 +27,7 @@ public:
   Expression parseExpression();
   Statement parseStatement();
   TypePtr parseType(bool skipQualifiers = false);
+  NamespaceDeclaration parseNamespaceDeclaration();
 
   std::string toString() const override {
     return Formatter("Parser<{}>", m_tokens->toString());
@@ -40,7 +41,6 @@ private:
   TypePtr parseBasicType(BitField<TypeProperties> properties);
   TypePtr parseFunctionType(BitField<TypeProperties> properties);
 
-  NamespaceDeclaration parseNamespaceDeclaration();
   Import parseImport();
 
   Expression parsePrimary();

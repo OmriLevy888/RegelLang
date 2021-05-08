@@ -50,8 +50,6 @@ Expression Parser::parseExpression() {
       return parseFunction();
     case TokenType::t_class:
       return parseClass();
-    case TokenType::t_namespace:
-      return parseNamespaceDeclaration();
     case TokenType::t_import:
       return parseImport();
     default:
@@ -814,22 +812,6 @@ FunctionPtr Parser::parseFunction() {
 
   return std::make_unique<FunctionLiteralNode>(
       std::move(name), std::move(parameters), retType, std::move(body));
-}
-
-NamespaceDeclaration Parser::parseNamespaceDeclaration() {
-  if (TokenType::t_namespace != m_tokens->getCurr()) {
-    // TODO: write error message
-    return nullptr;
-  }
-  m_tokens->getNext(); // consume `namespace`
-
-  auto name = parserIdentifier();
-  if (nullptr == name) {
-    // TODO: write error message
-    return nullptr;
-  }
-
-  return std::make_unique<NamespaceDeclarationNode>(std::move(name));
 }
 
 Import Parser::parseImport() {

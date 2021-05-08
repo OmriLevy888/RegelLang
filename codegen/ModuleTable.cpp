@@ -1,21 +1,24 @@
 #include "codegen/ModuleTable.hpp"
 
 namespace rgl {
-ModuleTable::ModuleTable(std::shared_ptr<llvm::LLVMContext> context)
-    : m_context(context), m_modules({}) {}
+const std::vector<std::string> MAIN_MODULE_NAME{"main"};
 
-std::shared_ptr<ModuleTableEntry> ModuleTable::getMainEntry() {
-  return getEntry("main");
+ModuleTable::ModuleTable(std::shared_ptr<llvm::LLVMContext> context)
+    : m_context(context), m_modules({}) {
+  createModule(MAIN_MODULE_NAME);
 }
 
+std::shared_ptr<ModuleTableEntry> ModuleTable::getMainEntry() {
+  return getEntry(MAIN_MODULE_NAME);
+}
 std::shared_ptr<ModuleTableEntry>
-ModuleTable::getEntry(const std::string &name) {
-  auto ret = m_modules[name];
-  if (nullptr == ret) {
-    ret = std::make_shared<ModuleTableEntry>(name, m_context);
-    m_modules[name] = ret;
-  }
-  return ret;
+ModuleTable::getEntry(const std::vector<std::string> &name) {
+  return m_modules.get(name);
+}
+
+void ModuleTable::createModule(const std::vector<std::string> &name) {
+  auto moduleTableEntry = ModuleTableEntry::make(name, m_context);
+  m_modules.insert(name, moduleTableEntry);
 }
 
 std::string ModuleTable::toString() const { return "ModuelTable"; }

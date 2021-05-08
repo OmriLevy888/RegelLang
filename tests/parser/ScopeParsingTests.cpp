@@ -1,6 +1,6 @@
+#include "parser/ast/constructs/NamespaceDeclarationNode.hpp"
 #include "parser/ast/expressions/CompoundIdentifierNode.hpp"
-#include "parser/ast/expressions/scope/ImportNode.hpp"
-#include "parser/ast/expressions/scope/NamespaceDeclarationNode.hpp"
+#include "parser/ast/expressions/ImportNode.hpp"
 #include "tests/TestsCore.hpp"
 #include "tests/parser/ParserTestsUtilities.hpp"
 
@@ -10,7 +10,7 @@ TEST(Parser, parseSimpleNamespaceDeclaration) {
   auto parser =
       makeParser({{TokenType::t_namespace}, {TokenType::t_identifier, "foo"s}});
 
-  assertNode(parser->parseExpression(),
+  assertNode(parser->parseNamespaceDeclaration(),
              std::make_unique<NamespaceDeclarationNode>(
                  std::make_unique<BasicIdentifierNode>("foo")));
 }
@@ -23,7 +23,7 @@ TEST(Parser, parseCompoundNamespaceDeclaration) {
                             {TokenType::t_dot},
                             {TokenType::t_identifier, "baz"s}});
 
-  assertNode(parser->parseExpression(),
+  assertNode(parser->parseNamespaceDeclaration(),
              std::make_unique<NamespaceDeclarationNode>(
                  std::make_unique<CompoundIdentifierNode>(
                      std::vector<std::string>{"foo", "bar", "baz"})));

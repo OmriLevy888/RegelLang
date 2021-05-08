@@ -1,4 +1,4 @@
-#include "parser/ast/expressions/scope/NamespaceDeclarationNode.hpp"
+#include "parser/ast/constructs/NamespaceDeclarationNode.hpp"
 
 namespace rgl {
 std::string NamespaceDeclarationNode::toTreeStr(size_t spaces) const {

@@ -11,10 +11,13 @@ public:
   virtual std::string toString() const override;
 
   std::shared_ptr<ModuleTableEntry> getMainEntry();
-  std::shared_ptr<ModuleTableEntry> getEntry(const std::string &name);
+  std::shared_ptr<ModuleTableEntry>
+  getEntry(const std::vector<std::string> &name);
+
+  void createModule(const std::vector<std::string> &name);
 
 private:
   std::shared_ptr<llvm::LLVMContext> m_context;
-  std::unordered_map<std::string, std::shared_ptr<ModuleTableEntry>> m_modules;
+  ModuleTableMap m_modules;
 };
 }; // namespace rgl

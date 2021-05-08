@@ -15,10 +15,6 @@ FunctionTableEntryPtr
 FunctionTableMap::get(std::vector<std::string>::const_iterator curr,
                       std::vector<std::string>::const_iterator end) {
   if (curr == end) {
-    return nullptr;
-  }
-
-  if (curr + 1 == end) {
     return m_function;
   }
 
@@ -67,7 +63,9 @@ FunctionTableEntry::make(const std::vector<std::string> &name, TypePtr retType,
   auto functionType = FunctionType::make(std::move(paramTypes), retType);
   auto llvmFunctionType = functionType->toLLVMType();
 
-  const std::string functionName = Formatter<>::joinContainer('.', name);
+  const std::string functionName = Formatter(
+      "{}::{}", Formatter<>::joinContainer('.', Context::module()->getName()),
+      Formatter<>::joinContainer('.', name));
   llvm::Function *llvmFunction =
       llvm::Function::Create(llvmFunctionType, llvm::Function::ExternalLinkage,
                              functionName, Context::llvmModule());

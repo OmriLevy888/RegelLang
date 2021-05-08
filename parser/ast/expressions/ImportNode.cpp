@@ -1,4 +1,4 @@
-#include "parser/ast/expressions/scope/ImportNode.hpp"
+#include "parser/ast/expressions/ImportNode.hpp"
 
 namespace rgl {
 std::string ImportNode::toTreeStr(size_t spaces) const {
