@@ -1,21 +1,22 @@
 #pragma once
 #include "codegen/CompilationContext.hpp"
-#include "codegen/ModuleTable.hpp"
+#include "codegen/SymbolMap.hpp"
 #include <thread>
 
 namespace rgl {
+const std::vector<std::string> MAIN_MODULE_NAME{"main"};
+
 class Context {
 public:
-  static void setCurrContext(const std::vector<std::string> &name) {
-    ModuleTableEntryPtr module = nullptr;
-    if (0 == name.size()) {
-      module = get().m_modules->getMainEntry();
-    } else {
-      module = get().m_modules->getEntry(name);
-      if (nullptr == module) {
-        get().m_modules->createModule(name);
-        module = get().m_modules->getEntry(name);
-      }
+  static void
+  setCurrContext(const std::vector<std::string> &name = MAIN_MODULE_NAME) {
+    SymbolPtr symbol = get().m_modules.get(name);
+    if (nullptr == symbol) {
+    }
+    ModuleSymbolPtr module = std::dynamic_pointer_cast<ModuleSymbol>(symbol);
+    if (nullptr == module) {
+      module = ModuleSymbol::make(name, get().m_llvmContext);
+      get().m_modules.insert(name, module);
     }
 
     size_t threadID = std::hash<std::thread::id>()(std::this_thread::get_id());
@@ -33,31 +34,28 @@ public:
     return get().m_compilationContexts[std::hash<std::thread::id>()(
         std::this_thread::get_id())];
   }
-  static std::shared_ptr<ModuleTableEntry> module() {
-    return getCurrContext()->module();
-  }
+  static ModuleSymbolPtr module() { return getCurrContext()->module(); }
   static llvm::Module *llvmModule() { return getCurrContext()->llvmModule(); }
   static llvm::IRBuilder<> *builder() { return getCurrContext()->builder(); }
 
-  static std::shared_ptr<ModuleTable> modules() { return get().m_modules; }
   static llvm::LLVMContext *llvmContext() { return get().m_llvmContext.get(); }
 
 private:
   std::unordered_map<size_t, std::shared_ptr<CompilationContext>>
       m_compilationContexts;
   std::shared_ptr<llvm::LLVMContext> m_llvmContext;
-  std::shared_ptr<ModuleTable> m_modules;
+  SymbolMap m_modules;
 
-  Context() : m_llvmContext(std::make_shared<llvm::LLVMContext>()) {
-    m_modules = std::make_shared<ModuleTable>(m_llvmContext);
-  }
+  Context()
+      : m_compilationContexts({}),
+        m_llvmContext(std::make_shared<llvm::LLVMContext>()), m_modules({}) {}
 
   static Context &get() {
     static Context instance{};
     static bool initialized = false;
     if (!initialized) {
       initialized = true;
-      setCurrContext(std::vector<std::string>{});
+      setCurrContext();
     }
     return instance;
   }
