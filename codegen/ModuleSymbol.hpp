@@ -18,7 +18,7 @@ public:
 
   llvm::Module *get() { return m_module.get(); }
   llvm::IRBuilder<> *builder() { return m_builder.get(); }
-  SymbolMapPtr &symbols() { return m_symbols; }
+  SymbolMap &symbols() { return m_symbols; }
 
   virtual std::string toString() const override;
 
@@ -26,7 +26,7 @@ private:
   std::vector<std::string> m_name;
   std::shared_ptr<llvm::Module> m_module;
   std::shared_ptr<llvm::IRBuilder<>> m_builder;
-  SymbolMapPtr m_symbols;
+  SymbolMap m_symbols;
 
   ModuleSymbol(const std::vector<std::string> &name,
                std::shared_ptr<llvm::Module> module,

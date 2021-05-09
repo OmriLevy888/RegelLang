@@ -8,7 +8,7 @@ namespace rgl {
 class FunctionSymbol;
 using FunctionSymbolPtr = std::shared_ptr<FunctionSymbol>;
 
-class FunctionSymbol : public ILoggable {
+class FunctionSymbol : public SymbolBase {
 public:
   static FunctionSymbolPtr make(const std::vector<std::string> &name,
                                 TypePtr retType,

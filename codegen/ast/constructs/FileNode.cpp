@@ -6,7 +6,7 @@ namespace rgl {
 void FileNode::genCode() {
   // TODO: implement top level expressions and classes
   if (nullptr == m_namespace) {
-    Context::setCurrContext(std::vector<std::string>{});
+    Context::setCurrContext();
   } else {
     Context::setCurrContext(m_namespace->getName());
   }
