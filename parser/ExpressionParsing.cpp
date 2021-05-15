@@ -783,18 +783,19 @@ FunctionPtr Parser::parseFunction() {
   }
 
   // parse retType
-  TypePtr retType = BasicType::t_implicit();
+  bool explicitReturnType = false;
+  TypePtr retType = BasicType::t_void();
   if (TokenType::t_arrow == m_tokens->getCurr()) {
     m_tokens->getNext(); // consume =>
     retType = parseType();
+    explicitReturnType = true;
     if (nullptr == retType) {
       return nullptr;
     }
   }
 
   // parse body
-  const bool enforceBrackets =
-      (BasicType::t_implicit() != retType) || !multipleParams;
+  const bool enforceBrackets = explicitReturnType || !multipleParams;
   if (enforceBrackets && TokenType::t_open_bracket != m_tokens->getCurr()) {
     ErrorManager::logError(
         ErrorTypes::E_BAD_TOKEN,

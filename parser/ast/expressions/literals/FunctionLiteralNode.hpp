@@ -21,8 +21,7 @@ public:
     // replace "Anonymous" with line number/module name (?)
     const std::string nameStr =
         (nullptr != m_name) ? (m_name->toTreeStr(spaces + 25)) : ("anonymous");
-    const std::string retTypeStr =
-        (nullptr == m_retType) ? ("deduce") : (m_retType->toString());
+    const std::string retTypeStr = m_retType->toString();
     std::string paramsStr{};
     if (0 == m_parameters.size()) {
       paramsStr = "no-params";

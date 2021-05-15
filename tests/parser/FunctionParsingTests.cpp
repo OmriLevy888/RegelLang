@@ -24,7 +24,7 @@ TEST(Parser, functionLiteralWithNameWithParensNoParamsNoRetTypeEmptyBody) {
   assertNode(parser->parseExpression(),
              std::make_unique<FunctionLiteralNode>(
                  std::make_unique<BasicIdentifierNode>("foo"),
-                 std::vector<Parameter>(), BasicType::t_implicit(),
+                 std::vector<Parameter>(), BasicType::t_void(),
                  std::make_unique<BlockNode>()));
 }
 
@@ -62,7 +62,7 @@ TEST(Parser, functionLiteralWithNameWithParensSingleParamNoRetType) {
   assertNode(parser->parseExpression(),
              std::make_unique<FunctionLiteralNode>(
                  std::make_unique<BasicIdentifierNode>("foo"),
-                 std::move(parameters), BasicType::t_implicit(),
+                 std::move(parameters), BasicType::t_void(),
                  std::make_unique<BlockNode>()));
 }
 
@@ -131,7 +131,7 @@ TEST(Parser, functionLiteralWithNameWithParensSingleParamNoRetTypeNoBrackets) {
   assertNode(parser->parseExpression(),
              std::make_unique<FunctionLiteralNode>(
                  std::make_unique<BasicIdentifierNode>("foo"),
-                 std::move(parameters), BasicType::t_implicit(),
+                 std::move(parameters), BasicType::t_void(),
                  std::make_unique<BlockNode>(std::move(statements))));
 }
 
@@ -157,7 +157,7 @@ TEST(Parser, functionLiteralWithNameWithParentsMultipleParamsNoRetType) {
   assertNode(parser->parseExpression(),
              std::make_unique<FunctionLiteralNode>(
                  std::make_unique<BasicIdentifierNode>("foo"),
-                 std::move(parameters), BasicType::t_implicit(),
+                 std::move(parameters), BasicType::t_void(),
                  std::make_unique<BlockNode>()));
 }
 
@@ -182,7 +182,7 @@ TEST(Parser, functionLiteralWithNameWithParensMultipleParamsSameTypeNoRetType) {
   assertNode(parser->parseExpression(),
              std::make_unique<FunctionLiteralNode>(
                  std::make_unique<BasicIdentifierNode>("foo"),
-                 std::move(parameters), BasicType::t_implicit(),
+                 std::move(parameters), BasicType::t_void(),
                  std::make_unique<BlockNode>()));
 }
 
@@ -199,7 +199,7 @@ TEST(Parser, functionLiteralNoNameNoParensSingleParamNoRetType) {
 
   assertNode(parser->parseExpression(),
              std::make_unique<FunctionLiteralNode>(
-                 nullptr, std::move(parameters), BasicType::t_implicit(),
+                 nullptr, std::move(parameters), BasicType::t_void(),
                  std::make_unique<BlockNode>()));
 }
 
@@ -225,7 +225,7 @@ TEST(Parser, functionLiteralNoNameWithParensSingleParamNoRetTypeNoBrackets) {
 
   assertNode(parser->parseExpression(),
              std::make_unique<FunctionLiteralNode>(
-                 nullptr, std::move(parameters), BasicType::t_implicit(),
+                 nullptr, std::move(parameters), BasicType::t_void(),
                  std::make_unique<BlockNode>(std::move(statements))));
 }
 
@@ -244,7 +244,7 @@ TEST(Parser, functionLiteralNoNameWithParensSingleParamNoRetType) {
 
   assertNode(parser->parseExpression(),
              std::make_unique<FunctionLiteralNode>(
-                 nullptr, std::move(parameters), BasicType::t_implicit(),
+                 nullptr, std::move(parameters), BasicType::t_void(),
                  std::make_unique<BlockNode>()));
 }
 
@@ -287,7 +287,7 @@ TEST(Parser, functionLiteralNoNameNoParensNoParamsNoRetType) {
 
   assertNode(parser->parseExpression(),
              std::make_unique<FunctionLiteralNode>(
-                 nullptr, std::vector<Parameter>{}, BasicType::t_implicit(),
+                 nullptr, std::vector<Parameter>{}, BasicType::t_void(),
                  std::make_unique<BlockNode>()));
 }
 
