@@ -1,6 +1,7 @@
 #include "parser/ast/expressions/VarDeclNode.hpp"
 #include "codegen/Context.hpp"
 #include "common/Formatter.hpp"
+#include <iostream>
 
 namespace rgl {
 llvm::Value *VarDeclNode::genCode(llvm::Value *storeLoc) {

@@ -17,9 +17,7 @@ public:
   void genCode();
 
   // TODO: implement this
-  virtual std::string toTreeStr(size_t spaces) const override {
-    return "FileNode";
-  }
+  virtual std::string toTreeStr(size_t spaces) const override;
 
 private:
   NamespaceDeclaration m_namespace;

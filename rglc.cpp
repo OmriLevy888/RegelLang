@@ -73,10 +73,10 @@ int main(int argc, const char **argv, char **envp) {
 
   auto fooVarDecl =
       std::make_unique<ExpressionStatementNode>(std::make_unique<VarDeclNode>(
-          std::make_unique<BasicIdentifierNode>("a"), BasicType::t_int32(),
+          std::make_unique<BasicIdentifierNode>("kraa"), BasicType::t_int32(),
           std::make_unique<IntLiteralNode>(5ull, BasicType::t_int32())));
-  auto fooRet =
-      std::make_unique<ReturnNode>(std::make_unique<BooleanLiteralNode>(true));
+  auto fooRet = std::make_unique<ReturnNode>(
+      std::make_unique<BasicIdentifierNode>("kraa"));
   std::vector<Statement> fooStatements{};
   fooStatements.push_back(std::move(fooVarDecl));
   fooStatements.push_back(std::move(fooRet));
@@ -97,7 +97,7 @@ int main(int argc, const char **argv, char **envp) {
               std::vector<std::string>{"my", "module", "funcking", "works"})),
       std::vector<ClassPtr>{}, std::move(functions), std::vector<Expression>{});
 
-  std::cout << fooFunc->toString() << std::endl;
+  std::cout << fileNode->toString() << std::endl;
 
   std::cout << Context::module()->toString() << std::endl;
   fileNode->genCode();

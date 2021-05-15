@@ -20,19 +20,19 @@ public:
     const std::string spacesStr(spaces + 20, ' ');
     // replace "Anonymous" with line number/module name (?)
     const std::string nameStr =
-        (nullptr != m_name) ? (m_name->toTreeStr(spaces + 25)) : ("Anonymous");
+        (nullptr != m_name) ? (m_name->toTreeStr(spaces + 25)) : ("anonymous");
     const std::string retTypeStr =
         (nullptr == m_retType) ? ("deduce") : (m_retType->toString());
-    std::string paramsStr;
+    std::string paramsStr{};
     if (0 == m_parameters.size()) {
       paramsStr = "no-params";
     } else {
       auto iter = m_parameters.cbegin();
       for (; iter + 1 != m_parameters.cend(); iter++) {
-        paramsStr += Formatter("{},\n{}", (*iter)->toTreeStr(spaces + 27),
+        paramsStr += Formatter("{},\n{}", (*iter)->toTreeStr(spaces + 26),
                                std::string(spaces + 31, ' '));
       }
-      paramsStr += (*iter)->toTreeStr(spaces + 27);
+      paramsStr += (*iter)->toTreeStr(spaces + 26);
     }
     return Formatter("FunctionLitearlNode<name:{},\n{}retType:{},\n{}"
                      "parameters:{},\n{}body:{}>",

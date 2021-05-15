@@ -8,6 +8,8 @@ public:
   ExpressionStatementNode() : m_expr(nullptr) {}
   ExpressionStatementNode(Expression expr) : m_expr(std::move(expr)) {}
 
+  virtual void genCode() override;
+
   virtual std::string toTreeStr(size_t spaces) const override {
     std::string exprStr = (nullptr == m_expr)
                               ? ("empty-statement")

@@ -15,13 +15,15 @@ public:
                                 TypePtr type);
 
   llvm::Value *getStoreLoc() const noexcept { return m_storeLoc; }
+  std::string getName() const { return m_name; }
 
   virtual std::string toString() const override;
 
 private:
+  std::string m_name;
   TypePtr m_type;
   llvm::Value *m_storeLoc;
 
-  VariableSymbol(TypePtr type, llvm::Value *storeLoc);
+  VariableSymbol(const std::string &name, TypePtr type, llvm::Value *storeLoc);
 };
 }; // namespace rgl

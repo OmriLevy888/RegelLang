@@ -52,6 +52,9 @@ void FunctionSymbol::removeStackFrame() {
 SymbolMapPtr FunctionSymbol::getCurrStackFrame() {
   return m_stackFrames[m_stackFrames.size() - 1];
 }
+std::vector<SymbolMapPtr> &FunctionSymbol::getStackFrames() {
+  return m_stackFrames;
+}
 
 std::string FunctionSymbol::toString() const {
   std::string str;

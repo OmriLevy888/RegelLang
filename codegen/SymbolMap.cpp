@@ -89,6 +89,8 @@ SymbolMap::createVariable(const std::vector<std::string> &name,
   auto variableSymbol = VariableSymbol::make(name, variableType);
   value->genCode(variableSymbol->getStoreLoc());
 
+  this->insert(name, variableSymbol);
+
   return variableSymbol;
 }
 
@@ -107,5 +109,11 @@ void SymbolMap::clean() {
   m_symbol = nullptr;
 }
 
-std::string SymbolMap::toString() const { return "SymbolMap"; }
+std::string SymbolMap::toString() const {
+  std::string ret = (nullptr == m_symbol) ? ("") : (m_symbol->toString());
+  for (auto symbolMap : m_maps) {
+    ret += Formatter("{}: <{}>", symbolMap.first, symbolMap.second->toString());
+  }
+  return ret;
+}
 }; // namespace rgl

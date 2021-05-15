@@ -21,6 +21,8 @@ public:
   SymbolMapPtr createStackFrame();
   void removeStackFrame();
   SymbolMapPtr getCurrStackFrame();
+  // The top stack frames is at index [.size() - 1]
+  std::vector<SymbolMapPtr> &getStackFrames();
 
   virtual std::string toString() const override;
 
