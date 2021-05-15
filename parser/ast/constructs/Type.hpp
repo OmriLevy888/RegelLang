@@ -33,6 +33,7 @@ public:
   bool equals(TypePtr other) const;
   bool equals(const std::unique_ptr<Type> &other) const;
 
+  virtual bool isImplicitType() const { return false; }
   virtual bool isSimpleType() const noexcept { return false; }
 
   virtual size_t getHash() const;
@@ -42,6 +43,13 @@ public:
   virtual TypePtr getValueType() const = 0;
   virtual TypePtr getUniquePointerType() const = 0;
   virtual TypePtr getSharedPointerType() const = 0;
+
+  bool isMutable() const;
+  bool isConst() const;
+  bool isOwning() const;
+  bool isPointer() const;
+  bool isUniquePointer() const;
+  bool isSharedPointer() const;
 
   virtual llvm::Type *toLLVMType() = 0;
 

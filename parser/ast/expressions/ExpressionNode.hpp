@@ -10,8 +10,9 @@ public:
   virtual TypePtr getType() const { return BasicType::t_void(); }
   // TODO: add getValue function that returns an LLVMValue
   // TODO: add getStorageLocation function that return an LLVMValue
-  
-  virtual llvm::Value *genCode() { return nullptr; }
+
+  virtual llvm::Value *genCode();
+  virtual llvm::Value *genCode(llvm::Value *storeLoc);
 
   // Returning true means we hit a leaf or something that can't be swapped with
   virtual void propagateLeft(std::unique_ptr<ExpressionNode> expr) {}

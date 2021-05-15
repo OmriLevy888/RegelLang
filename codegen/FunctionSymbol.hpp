@@ -1,5 +1,6 @@
 #pragma once
 #include "codegen/SymbolBase.hpp"
+#include "codegen/SymbolMap.hpp"
 #include "parser/ast/constructs/FunctionType.hpp"
 #include "parser/ast/expressions/literals/ParameterNode.hpp"
 #include "llvm/IR/Function.h"
@@ -17,11 +18,16 @@ public:
 
   llvm::Function *llvmFunction() { return m_llvmFunction; }
 
+  SymbolMapPtr createStackFrame();
+  void removeStackFrame();
+  SymbolMapPtr getCurrStackFrame();
+
   virtual std::string toString() const override;
 
 private:
   FunctionTypePtr m_type;
   llvm::Function *m_llvmFunction;
+  std::vector<SymbolMapPtr> m_stackFrames;
 
   FunctionSymbol(FunctionTypePtr type, llvm::Function *llvmFunction);
 };

@@ -1,7 +1,6 @@
 #include "codegen/FunctionSymbol.hpp"
 #include "codegen/Context.hpp"
 #include "common/Formatter.hpp"
-#include "parser/ast/constructs/FunctionType.hpp"
 #include "llvm/Support/raw_ostream.h"
 
 namespace rgl {
@@ -39,6 +38,19 @@ FunctionSymbolPtr FunctionSymbol::make(const std::vector<std::string> &name,
   }
 
   return FunctionSymbolPtr(new FunctionSymbol(functionType, llvmFunction));
+}
+
+SymbolMapPtr FunctionSymbol::createStackFrame() {
+  auto stackFrame = std::make_shared<SymbolMap>();
+  m_stackFrames.push_back(stackFrame);
+  return stackFrame;
+}
+void FunctionSymbol::removeStackFrame() {
+  m_stackFrames[m_stackFrames.size() - 1]->clean();
+  m_stackFrames.pop_back();
+}
+SymbolMapPtr FunctionSymbol::getCurrStackFrame() {
+  return m_stackFrames[m_stackFrames.size() - 1];
 }
 
 std::string FunctionSymbol::toString() const {

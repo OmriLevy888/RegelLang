@@ -67,6 +67,23 @@ bool Type::equals(const std::unique_ptr<Type> &other) const {
   return thisRepr == otherRepr;
 }
 
+bool Type::isMutable() const {
+  return m_typeProperties & TypeProperties::_mutable;
+}
+bool Type::isConst() const { return !this->isMutable(); }
+bool Type::isOwning() const {
+  return m_typeProperties & TypeProperties::_owning;
+}
+bool Type::isPointer() const {
+  return this->isUniquePointer() || this->isSharedPointer();
+}
+bool Type::isUniquePointer() const {
+  return m_typeProperties & TypeProperties::_isPointer;
+}
+bool Type::isSharedPointer() const {
+  return m_typeProperties & TypeProperties::_isShared;
+}
+
 size_t Type::getSizeBytes() const { return getSizeBits() / 8; }
 size_t Type::getSizeBits() const { return m_sizeBits; }
 

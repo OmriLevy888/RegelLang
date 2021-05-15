@@ -1,6 +1,10 @@
 #include "parser/ast/constructs/BasicType.hpp"
 
 namespace rgl {
+bool BasicType::isImplicitType() const {
+  return m_name.size() == 1 && m_name[0] == "@implicit";
+}
+
 bool BasicType::isSimpleType() const noexcept {
   return (m_name.size() == 1) &&
          (m_typeProperties ==

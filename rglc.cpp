@@ -15,11 +15,13 @@
 #include "parser/ast/expressions/BasicIdentifierNode.hpp"
 #include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/CompoundIdentifierNode.hpp"
+#include "parser/ast/expressions/VarDeclNode.hpp"
 #include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
 #include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
 #include "parser/ast/expressions/literals/class-literal/ClassLiteralNode.hpp"
 #include "parser/ast/expressions/ops/BinOpNode.hpp"
+#include "parser/ast/statements/ExpressionStatementNode.hpp"
 #include "parser/ast/statements/ReturnNode.hpp"
 #include <iostream>
 #include <memory>
@@ -69,16 +71,21 @@ int main(int argc, const char **argv, char **envp) {
       std::make_unique<BasicIdentifierNode>("main"), std::move(parameters),
       BasicType::t_uint64(), std::move(blockNode));
 
+  auto fooVarDecl =
+      std::make_unique<ExpressionStatementNode>(std::make_unique<VarDeclNode>(
+          std::make_unique<BasicIdentifierNode>("a"), BasicType::t_int32(),
+          std::make_unique<IntLiteralNode>(5ull, BasicType::t_int32())));
   auto fooRet =
       std::make_unique<ReturnNode>(std::make_unique<BooleanLiteralNode>(true));
   std::vector<Statement> fooStatements{};
+  fooStatements.push_back(std::move(fooVarDecl));
   fooStatements.push_back(std::move(fooRet));
   auto fooBody = std::make_unique<BlockNode>(std::move(fooStatements));
 
   auto fooFunc = std::make_unique<FunctionLiteralNode>(
       std::make_unique<CompoundIdentifierNode>(
           std::vector<std::string>{"foo", "func"}),
-      std::vector<Parameter>{}, BasicType::t_int8(), std::move(fooBody));
+      std::vector<Parameter>{}, BasicType::t_int32(), std::move(fooBody));
 
   std::vector<FunctionPtr> functions{};
   functions.push_back(std::move(main));
@@ -89,6 +96,8 @@ int main(int argc, const char **argv, char **envp) {
           std::make_unique<CompoundIdentifierNode>(
               std::vector<std::string>{"my", "module", "funcking", "works"})),
       std::vector<ClassPtr>{}, std::move(functions), std::vector<Expression>{});
+
+  std::cout << fooFunc->toString() << std::endl;
 
   std::cout << Context::module()->toString() << std::endl;
   fileNode->genCode();

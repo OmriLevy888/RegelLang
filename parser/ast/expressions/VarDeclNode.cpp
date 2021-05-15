@@ -1,7 +1,6 @@
 #include "parser/ast/expressions/VarDeclNode.hpp"
 
 namespace rgl {
-
 std::string VarDeclNode::toTreeStr(size_t spaces) const {
   std::string spacesStr(spaces + 8, ' ');
   std::string typeStr =

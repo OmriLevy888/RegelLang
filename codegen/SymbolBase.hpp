@@ -5,6 +5,9 @@
 namespace rgl {
 class SymbolBase : public ILoggable {
 public:
+  // Clean when cleaning a namespace (SymbolMap)
+  virtual void clean(){};
+
 private:
 };
 

@@ -7,17 +7,9 @@
 namespace rgl {
 llvm::Value *FunctionLiteralNode::genCode() {
   const bool isVarArg = false;
-  auto functionSymbol =
-      FunctionSymbol::make(m_name->get(), m_retType, m_parameters, isVarArg);
-  Context::module()->symbols().insert(m_name->get(), functionSymbol);
+  auto functionSymbol = Context::module()->symbols().createFunction(
+      m_name->get(), m_body, m_retType, m_parameters, isVarArg);
 
-  auto llvmFunction = functionSymbol->llvmFunction();
-  auto entry =
-      llvm::BasicBlock::Create(*Context::llvmContext(), "entry", llvmFunction);
-  Context::builder()->SetInsertPoint(entry);
-
-  m_body->genCode();
-
-  return llvmFunction;
+  return functionSymbol->llvmFunction();
 }
 }; // namespace rgl

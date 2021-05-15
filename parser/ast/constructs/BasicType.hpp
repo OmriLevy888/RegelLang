@@ -15,6 +15,7 @@ public:
        BitField<TypeProperties> properties = TypeProperties::_default,
        size_t sizeBits = 0, llvm::Type *llvmType = nullptr);
 
+  virtual bool isImplicitType() const override;
   virtual bool isSimpleType() const noexcept override;
 
   virtual size_t getHash() const override;
