@@ -3,6 +3,7 @@
 #include <memory>
 #include <string_view>
 #include <variant>
+#include <optional>
 
 #include "common/Formatter.hpp"
 #include "common/ILoggable.hpp"
