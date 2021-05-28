@@ -34,3 +34,14 @@ private:
 
 using Block = std::unique_ptr<BlockNode>;
 }; // namespace rgl
+
+// TODO:
+// Change name to ScopeNode.
+// Each scope contains a list of defiend types, functions and statements.
+// Codegen for a scope starts by defining all the types, then defining all the
+// functions and lastly generating code for all the functions and statements.
+
+// TODO:
+// Implement `undefined` keyword so that when a variable is declared and has no
+// initial value, this keyword has to be used to implicitly denote that the
+// variable is uninitialized.
