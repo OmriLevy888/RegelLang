@@ -26,10 +26,62 @@
 #include <iostream>
 #include <memory>
 
+//#define LLVM_TEST_MAIN
+
 #ifndef RGL_TESTS
 using namespace rgl;
 
 int main(int argc, const char **argv, char **envp) {
+#ifdef LLVM_TEST_MAIN
+  auto context = std::make_shared<llvm::LLVMContext>();
+  auto module = std::make_shared<llvm::Module>("TestModule", *context);
+  auto builder = std::make_shared<llvm::IRBuilder<>>(*context);
+  auto printModule = [module]() {
+    std::string str{};
+    llvm::raw_string_ostream rso{str};
+    rso << *module;
+    rso.flush();
+    std::cout << str << std::endl;
+  };
+  printModule();
+
+  auto fooType = llvm::FunctionType::get(
+      llvm::Type::getInt32Ty(*context),
+      std::vector<llvm::Type *>{llvm::Type::getInt32Ty(*context)}, false);
+  auto fooFunc = llvm::Function::Create(
+      fooType, llvm::Function::ExternalLinkage, "foo", *module);
+  auto fooEntryBB = llvm::BasicBlock::Create(*context, "entry", fooFunc);
+  builder->SetInsertPoint(fooEntryBB);
+  auto callInstr = builder->CreateCall(
+      fooFunc, llvm::ArrayRef<llvm::Value *>{
+                   llvm::ConstantInt::get(*context, llvm::APInt(32, 5, true)),
+                   llvm::ConstantInt::get(*context, llvm::APInt(32, 0, true))});
+  printModule();
+
+  auto barType = llvm::FunctionType::get(
+      llvm::Type::getVoidTy(*context),
+      std::vector<llvm::Type *>{llvm::Type::getInt32Ty(*context),
+                                llvm::Type::getInt32Ty(*context)},
+      false);
+  auto barFunc = llvm::Function::Create(
+      barType, llvm::Function::ExternalLinkage, "bar", *module);
+  // callInstr->setCalledFunction(barFunc); // does not work with different
+  // return type
+  callInstr->setCalledOperand(barFunc); // works with different
+  callInstr->setName("");
+  auto barCall = builder->CreateCall(
+      barFunc, llvm::ArrayRef<llvm::Value *>{
+                   llvm::ConstantInt::get(*context, llvm::APInt(32, 2, true))});
+  // return type(?)
+  // callInstr->setCalledFunction(barType, barFunc); // does not work with
+  // different return type
+  printModule();
+
+  // barCall->setCalledOperand(fooFunc);
+  barCall->setName("foo");
+  barCall->setCalledFunction(fooType, fooFunc);
+  printModule();
+#else
   /* if (!CliParser::parseCliArgument(argc, argv)) { */
   /*   return -1; */
   /* } */
@@ -87,21 +139,25 @@ int main(int argc, const char **argv, char **envp) {
           std::vector<std::string>{"foo", "func"}),
       std::vector<Parameter>{}, BasicType::t_int32(), std::move(fooBody));
 
-  std::vector<FunctionPtr> functions{};
-  functions.push_back(std::move(main));
-  functions.push_back(std::move(fooFunc));
+  std::vector<Statement> fileStatements{};
+  fileStatements.push_back(
+      std::make_unique<ExpressionStatementNode>(std::move(main)));
+  fileStatements.push_back(
+      std::make_unique<ExpressionStatementNode>(std::move(fooFunc)));
+  auto fileBody = std::make_unique<BlockNode>(std::move(fileStatements));
 
   auto fileNode = std::make_unique<FileNode>(
       std::make_unique<NamespaceDeclarationNode>(
           std::make_unique<CompoundIdentifierNode>(
               std::vector<std::string>{"my", "module", "funcking", "works"})),
-      std::vector<ClassPtr>{}, std::move(functions), std::vector<Expression>{});
+      std::move(fileBody));
 
   std::cout << fileNode->toString() << std::endl;
 
   std::cout << Context::module()->toString() << std::endl;
   fileNode->genCode();
   std::cout << Context::module()->toString() << std::endl;
+#endif
 
   return 0;
 }

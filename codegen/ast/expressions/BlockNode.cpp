@@ -6,11 +6,17 @@ namespace rgl {
 llvm::Value *BlockNode::genCode() {
   auto currFunction = Context::getCurrContext()->getCurrGeneratedFunction();
 
-  currFunction->createStackFrame();
-  for (auto &statement : m_statements) {
-    statement->genCode();
+  if (nullptr != currFunction) {
+    currFunction->createStackFrame();
+    for (auto &statement : m_statements) {
+      statement->genCode();
+    }
+    currFunction->removeStackFrame();
+  } else {
+    for (auto &statement : m_statements) {
+      statement->genCode();
+    }
   }
-  currFunction->removeStackFrame();
 
   // TODO: fix this
   return nullptr;

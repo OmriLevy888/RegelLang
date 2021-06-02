@@ -434,10 +434,16 @@ VarDeclPtr Parser::parseVarDecl(Identifier name, bool allowUninitializedConst,
   return std::make_unique<VarDeclNode>(std::move(name), type, std::move(expr));
 }
 
-Block Parser::parseBlock(bool forceBrackets) {
+Block Parser::parseBlock(bool forceBrackets, bool disallowBrackets) {
   // TODO: implement single line block
   bool isSingleStatement = TokenType::t_open_bracket != m_tokens->getCurr();
-  if (forceBrackets && isSingleStatement) {
+  if (disallowBrackets) {
+    if (!isSingleStatement) {
+      // TODO: write error message
+      return nullptr;
+    }
+    isSingleStatement = false;
+  } else if (forceBrackets && isSingleStatement) {
     // TODO: write error message
     return nullptr;
   }
@@ -456,13 +462,17 @@ Block Parser::parseBlock(bool forceBrackets) {
       statements.push_back(std::move(curr));
     }
 
-    if (TokenType::t_close_bracket != m_tokens->getCurr()) {
+    if (!disallowBrackets &&
+        TokenType::t_close_bracket != m_tokens->getCurr()) {
       ErrorManager::logError(ErrorTypes::E_BAD_TOKEN,
                              {"Expected } but not found", openBracket,
                               m_tokens->getSourceProject()});
       return nullptr;
     }
-    m_tokens->getNext(); // consume }
+
+    if (!disallowBrackets) {
+      m_tokens->getNext();
+    } // consume }
   } else {
     auto statement = parseStatement();
     if (nullptr == statement) {

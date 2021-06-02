@@ -17,6 +17,9 @@ public:
   llvm::Module *llvmModule() { return m_module->get(); }
   llvm::IRBuilder<> *builder() { return m_module->builder(); }
   FunctionSymbolPtr getCurrGeneratedFunction() {
+    if (0 == m_generatingFunctions.size()) {
+      return nullptr;
+    }
     return m_generatingFunctions.top();
   }
   void pushGeneratedFunction(FunctionSymbolPtr function) {

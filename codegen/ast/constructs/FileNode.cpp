@@ -11,8 +11,6 @@ void FileNode::genCode() {
     Context::setCurrContext(m_namespace->getName());
   }
 
-  for (auto &func : m_functions) {
-    func->genCode();
-  }
+  m_body->genCode();
 }
 }; // namespace rgl

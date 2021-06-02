@@ -65,7 +65,7 @@ private:
   VarDeclPtr parseVarDecl(Identifier name = nullptr,
                           bool allowUninitializedConst = false,
                           bool allowValue = true);
-  Block parseBlock(bool forceBrackets = false);
+  Block parseBlock(bool forceBrackets = false, bool disallowBrackets = false);
   Expression parseConditional();
   Expression parseForLoop();
   Expression parseForInLoop();
