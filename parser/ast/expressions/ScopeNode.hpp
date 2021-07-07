@@ -1,13 +1,14 @@
 #pragma once
 #include "parser/ast/expressions/ExpressionNode.hpp"
+#include "parser/ast/expressions/literals/class-literal/ClassLiteralNode.hpp"
 #include "parser/ast/statements/StatementNode.hpp"
 #include <vector>
 
 namespace rgl {
-class BlockNode : public ExpressionNode {
+class ScopeNode : public ExpressionNode {
 public:
-  BlockNode() : m_statements() {}
-  BlockNode(std::vector<Statement> &&statements)
+  ScopeNode() : m_statements() {}
+  ScopeNode(std::vector<Statement> &&statements)
       : m_statements(std::move(statements)) {}
 
   virtual llvm::Value *genCode() override;
@@ -25,14 +26,16 @@ public:
       statementsStr += (*it)->toTreeStr(spaces + 17);
       inner = Formatter("statements:{}", statementsStr);
     }
-    return Formatter("Block<{}>", inner);
+    return Formatter("Scope<{}>", inner);
   }
 
 private:
+  std::vector<ClassPtr> m_classes;
+  std::vector<FunctionPtr> m_functions;
   std::vector<Statement> m_statements;
 };
 
-using Block = std::unique_ptr<BlockNode>;
+using Scope = std::unique_ptr<ScopeNode>;
 }; // namespace rgl
 
 // TODO:

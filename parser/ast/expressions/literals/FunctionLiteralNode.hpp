@@ -1,13 +1,13 @@
 #pragma once
+#include "codegen/ast/DeclarableBaseNode.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/literals/ParameterNode.hpp"
-#include <iostream>
 
 #include <vector>
 
 namespace rgl {
-class FunctionLiteralNode : public ExpressionNode {
+class FunctionLiteralNode : public ExpressionNode, public DeclarableBaseNode {
 public:
   FunctionLiteralNode(Identifier name, std::vector<Parameter> &&parameters,
                       TypePtr retType, Expression body)
@@ -15,6 +15,9 @@ public:
         m_retType(retType), m_body(std::move(body)) {}
 
   virtual llvm::Value *genCode() override;
+
+  virtual void declare() override;
+  virtual void define() override;
 
   std::string toTreeStr(size_t spaces) const override {
     const std::string spacesStr(spaces + 20, ' ');

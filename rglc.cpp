@@ -13,8 +13,8 @@
 #include "lexer/TokenCollection.hpp"
 #include "parser/ast/constructs/FileNode.hpp"
 #include "parser/ast/expressions/BasicIdentifierNode.hpp"
-#include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/CompoundIdentifierNode.hpp"
+#include "parser/ast/expressions/ScopeNode.hpp"
 #include "parser/ast/expressions/VarDeclNode.hpp"
 #include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
 #include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
@@ -105,7 +105,7 @@ int main(int argc, const char **argv, char **envp) {
 
   std::vector<Statement> body{};
   body.push_back(std::move(returnNode));
-  auto blockNode = std::make_unique<BlockNode>(std::move(body));
+  auto blockNode = std::make_unique<ScopeNode>(std::move(body));
 
   std::vector<Parameter> parameters;
   parameters.reserve(3);
@@ -132,7 +132,7 @@ int main(int argc, const char **argv, char **envp) {
   std::vector<Statement> fooStatements{};
   fooStatements.push_back(std::move(fooVarDecl));
   fooStatements.push_back(std::move(fooRet));
-  auto fooBody = std::make_unique<BlockNode>(std::move(fooStatements));
+  auto fooBody = std::make_unique<ScopeNode>(std::move(fooStatements));
 
   auto fooFunc = std::make_unique<FunctionLiteralNode>(
       std::make_unique<CompoundIdentifierNode>(
@@ -144,7 +144,7 @@ int main(int argc, const char **argv, char **envp) {
       std::make_unique<ExpressionStatementNode>(std::move(main)));
   fileStatements.push_back(
       std::make_unique<ExpressionStatementNode>(std::move(fooFunc)));
-  auto fileBody = std::make_unique<BlockNode>(std::move(fileStatements));
+  auto fileBody = std::make_unique<ScopeNode>(std::move(fileStatements));
 
   auto fileNode = std::make_unique<FileNode>(
       std::make_unique<NamespaceDeclarationNode>(

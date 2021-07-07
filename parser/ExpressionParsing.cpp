@@ -6,12 +6,12 @@
 #include "lexer/Token.hpp"
 #include "parser/Parser.hpp"
 #include "parser/ParserUtilities.hpp"
-#include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/ConditionalNode.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/ForInLoopNode.hpp"
 #include "parser/ast/expressions/ForLoopNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
+#include "parser/ast/expressions/ScopeNode.hpp"
 #include "parser/ast/expressions/SwitchCaseNode.hpp"
 #include "parser/ast/expressions/VarDeclNode.hpp"
 #include "parser/ast/expressions/WhileLoopNode.hpp"
@@ -434,7 +434,7 @@ VarDeclPtr Parser::parseVarDecl(Identifier name, bool allowUninitializedConst,
   return std::make_unique<VarDeclNode>(std::move(name), type, std::move(expr));
 }
 
-Block Parser::parseBlock(bool forceBrackets, bool disallowBrackets) {
+Scope Parser::parseBlock(bool forceBrackets, bool disallowBrackets) {
   // TODO: implement single line block
   bool isSingleStatement = TokenType::t_open_bracket != m_tokens->getCurr();
   if (disallowBrackets) {
@@ -481,7 +481,7 @@ Block Parser::parseBlock(bool forceBrackets, bool disallowBrackets) {
     }
     statements.push_back(std::move(statement));
   }
-  return std::make_unique<BlockNode>(std::move(statements));
+  return std::make_unique<ScopeNode>(std::move(statements));
 }
 
 Expression Parser::parseConditional() {
@@ -492,7 +492,7 @@ Expression Parser::parseConditional() {
     return nullptr;
   }
 
-  Block body = parseBlock();
+  Scope body = parseBlock();
   if (nullptr == body) {
     // TODO: write error message
     return nullptr;
@@ -612,7 +612,7 @@ Expression Parser::parseForInLoop() {
     return nullptr;
   }
 
-  Block body = parseBlock();
+  Scope body = parseBlock();
   if (nullptr == body) {
     // TODO: write error message
     return nullptr;
@@ -634,7 +634,7 @@ Expression Parser::parseWhileLoop() {
     }
   }
 
-  Block body = parseBlock();
+  Scope body = parseBlock();
   if (nullptr == body) {
     // TODO: write error message
     return nullptr;

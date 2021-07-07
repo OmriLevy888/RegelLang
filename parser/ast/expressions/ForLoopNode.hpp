@@ -1,11 +1,11 @@
 #pragma once
-#include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
+#include "parser/ast/expressions/ScopeNode.hpp"
 
 namespace rgl {
 class ForLoopNode : public ExpressionNode {
 public:
-  ForLoopNode(Expression init, Expression cond, Expression advance, Block body)
+  ForLoopNode(Expression init, Expression cond, Expression advance, Scope body)
       : m_init(std::move(init)), m_cond(std::move(cond)),
         m_advance(std::move(advance)), m_body(std::move(body)) {}
   ForLoopNode(Expression init, Expression cond, Expression advance,
@@ -14,7 +14,7 @@ public:
         m_advance(std::move(advance)) {
     std::vector<Statement> statements;
     statements.push_back(std::move(body));
-    m_body = std::make_unique<BlockNode>(std::move(statements));
+    m_body = std::make_unique<ScopeNode>(std::move(statements));
   }
 
   virtual std::string toTreeStr(size_t spaces) const override {
@@ -36,6 +36,6 @@ private:
   Expression m_init;
   Expression m_cond;
   Expression m_advance;
-  Block m_body;
+  Scope m_body;
 };
 }; // namespace rgl

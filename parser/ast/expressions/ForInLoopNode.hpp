@@ -1,21 +1,20 @@
 #pragma once
-#include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
+#include "parser/ast/expressions/ScopeNode.hpp"
 #include "parser/ast/statements/StatementNode.hpp"
 
 namespace rgl {
 class ForInLoopNode : public ExpressionNode {
- public:
-  ForInLoopNode(Identifier identifier, Expression iterable, Block body)
-      : m_identifier(std::move(identifier)),
-        m_iterable(std::move(iterable)),
+public:
+  ForInLoopNode(Identifier identifier, Expression iterable, Scope body)
+      : m_identifier(std::move(identifier)), m_iterable(std::move(iterable)),
         m_body(std::move(body)) {}
   ForInLoopNode(Identifier identifier, Expression iterable, Statement body)
       : m_identifier(std::move(identifier)), m_iterable(std::move(iterable)) {
     std::vector<Statement> statements;
     statements.push_back(std::move(body));
-    m_body = std::make_unique<BlockNode>(std::move(statements));
+    m_body = std::make_unique<ScopeNode>(std::move(statements));
   }
 
   virtual std::string toTreeStr(size_t spaces) const override {
@@ -26,9 +25,9 @@ class ForInLoopNode : public ExpressionNode {
                      m_body->toTreeStr(spaces + 19));
   }
 
- private:
+private:
   Identifier m_identifier;
   Expression m_iterable;
-  Block m_body;
+  Scope m_body;
 };
-};  // namespace rgl
+}; // namespace rgl

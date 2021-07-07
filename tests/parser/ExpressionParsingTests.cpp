@@ -210,7 +210,7 @@ TEST(Parser, emptyBlock) {
       parser->parseExpression(),
       std::make_unique<VarDeclNode>(std::make_unique<BasicIdentifierNode>("a"),
                                     BasicType::t_implicit()->getOwningType(),
-                                    std::make_unique<BlockNode>()));
+                                    std::make_unique<ScopeNode>()));
 }
 
 TEST(Parser, fullBlock) {
@@ -239,7 +239,7 @@ TEST(Parser, fullBlock) {
                  std::make_unique<BinOpNode>(
                      BinOpType::b_plus,
                      std::make_unique<IntLiteralNode>(1, BasicType::t_int32()),
-                     std::make_unique<BlockNode>(std::move(statements)))));
+                     std::make_unique<ScopeNode>(std::move(statements)))));
 }
 
 TEST(Parser, compoundTypeNoIdentifier) {

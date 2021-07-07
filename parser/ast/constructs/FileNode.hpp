@@ -1,12 +1,12 @@
 #pragma once
 #include "parser/ast/constructs/ConstructNode.hpp"
 #include "parser/ast/constructs/NamespaceDeclarationNode.hpp"
-#include "parser/ast/expressions/BlockNode.hpp"
+#include "parser/ast/expressions/ScopeNode.hpp"
 
 namespace rgl {
 class FileNode : public ConstructNode {
 public:
-  FileNode(NamespaceDeclaration namespaceDecl, Block body)
+  FileNode(NamespaceDeclaration namespaceDecl, Scope body)
       : m_namespace(std::move(namespaceDecl)), m_body(std::move(body)) {}
 
   void genCode();
@@ -15,7 +15,7 @@ public:
 
 private:
   NamespaceDeclaration m_namespace;
-  Block m_body;
+  Scope m_body;
 };
 
 using File = std::unique_ptr<FileNode>;

@@ -40,7 +40,7 @@ TEST(Parser, classSingleMethod) {
       std::make_unique<FunctionLiteralNode>(
           std::make_unique<BasicIdentifierNode>("bar"),
           std::vector<Parameter>{}, BasicType::t_void(),
-          std::make_unique<BlockNode>()),
+          std::make_unique<ScopeNode>()),
       MethodProperties::_default));
 
   assertNode(parser->parseExpression(),
@@ -76,14 +76,14 @@ TEST(Parser, classMultipleMethods) {
       std::make_unique<FunctionLiteralNode>(
           std::make_unique<BasicIdentifierNode>("bar"),
           std::vector<Parameter>{}, BasicType::t_void(),
-          std::make_unique<BlockNode>()),
+          std::make_unique<ScopeNode>()),
       MethodProperties::_default));
   methods.push_back(std::make_unique<MethodNode>(
       false,
       std::make_unique<FunctionLiteralNode>(
           std::make_unique<BasicIdentifierNode>("baz"),
           std::vector<Parameter>{}, BasicType::t_void(),
-          std::make_unique<BlockNode>()),
+          std::make_unique<ScopeNode>()),
       MethodProperties::_default));
 
   assertNode(parser->parseExpression(),
@@ -178,7 +178,7 @@ TEST(Parser, classPublicMembers) {
       std::make_unique<FunctionLiteralNode>(
           std::make_unique<BasicIdentifierNode>("baz"),
           std::vector<Parameter>{}, BasicType::t_void(),
-          std::make_unique<BlockNode>()),
+          std::make_unique<ScopeNode>()),
       MethodProperties::_default));
 
   assertNode(parser->parseExpression(),

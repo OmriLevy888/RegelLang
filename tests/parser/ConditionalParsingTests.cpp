@@ -205,5 +205,5 @@ TEST(Parser, compoundElse) {
              std::make_unique<ConditionalNode>(
                  std::make_unique<BooleanLiteralNode>(false),
                  std::make_unique<ReturnNode>(),
-                 std::make_unique<BlockNode>(std::move(elseStatements))));
+                 std::make_unique<ScopeNode>(std::move(elseStatements))));
 }

@@ -12,4 +12,8 @@ llvm::Value *FunctionLiteralNode::genCode() {
 
   return functionSymbol->llvmFunction();
 }
+
+// TODO: implement these
+void FunctionLiteralNode::declare() {}
+void FunctionLiteralNode::define() {}
 }; // namespace rgl

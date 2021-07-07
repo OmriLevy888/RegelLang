@@ -1,16 +1,16 @@
 #pragma once
-#include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
+#include "parser/ast/expressions/ScopeNode.hpp"
 
 namespace rgl {
 class WhileLoopNode : public ExpressionNode {
 public:
-  WhileLoopNode(Expression cond, Block body)
+  WhileLoopNode(Expression cond, Scope body)
       : m_cond(std::move(cond)), m_body(std::move(body)) {}
   WhileLoopNode(Expression cond, Statement body) : m_cond(std::move(cond)) {
     std::vector<Statement> statements;
     statements.push_back(std::move(body));
-    m_body = std::make_unique<BlockNode>(std::move(statements));
+    m_body = std::make_unique<ScopeNode>(std::move(statements));
   }
 
   virtual std::string toTreeStr(size_t spaces) const override {
@@ -23,6 +23,6 @@ public:
 
 private:
   Expression m_cond;
-  Block m_body;
+  Scope m_body;
 };
 }; // namespace rgl

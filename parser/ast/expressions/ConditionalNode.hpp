@@ -1,28 +1,28 @@
 #pragma once
-#include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
+#include "parser/ast/expressions/ScopeNode.hpp"
 
 namespace rgl {
 class ConditionalNode : public ExpressionNode {
 public:
-  ConditionalNode(Expression cond, Block body, Expression _else)
+  ConditionalNode(Expression cond, Scope body, Expression _else)
       : m_cond(std::move(cond)), m_body(std::move(body)),
         m_else(std::move(_else)) {}
   ConditionalNode(Expression cond, Statement body, Expression _else = nullptr)
       : m_cond(std::move(cond)), m_else(std::move(_else)) {
     std::vector<Statement> statements;
     statements.push_back(std::move(body));
-    m_body = std::make_unique<BlockNode>(std::move(statements));
+    m_body = std::make_unique<ScopeNode>(std::move(statements));
   }
   ConditionalNode(Expression cond, Statement body, Statement _else)
       : m_cond(std::move(cond)) {
     std::vector<Statement> bodyStatements;
     bodyStatements.push_back(std::move(body));
-    m_body = std::make_unique<BlockNode>(std::move(bodyStatements));
+    m_body = std::make_unique<ScopeNode>(std::move(bodyStatements));
 
     std::vector<Statement> elseStatements;
     elseStatements.push_back(std::move(_else));
-    m_else = std::make_unique<BlockNode>(std::move(elseStatements));
+    m_else = std::make_unique<ScopeNode>(std::move(elseStatements));
   }
 
   virtual std::string toTreeStr(size_t spaces) const override {
@@ -36,7 +36,7 @@ public:
 
 private:
   Expression m_cond;
-  Block m_body;
+  Scope m_body;
   Expression m_else;
 };
 }; // namespace rgl

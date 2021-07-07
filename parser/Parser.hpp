@@ -5,11 +5,11 @@
 #include "parser/ast/constructs/FileNode.hpp"
 #include "parser/ast/constructs/NamespaceDeclarationNode.hpp"
 #include "parser/ast/expressions/BasicIdentifierNode.hpp"
-#include "parser/ast/expressions/BlockNode.hpp"
 #include "parser/ast/expressions/CompoundIdentifierNode.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/ImportNode.hpp"
+#include "parser/ast/expressions/ScopeNode.hpp"
 #include "parser/ast/expressions/SwitchNode.hpp"
 #include "parser/ast/expressions/VarDeclNode.hpp"
 #include "parser/ast/expressions/literals/class-literal/ClassLiteralNode.hpp"
@@ -65,7 +65,7 @@ private:
   VarDeclPtr parseVarDecl(Identifier name = nullptr,
                           bool allowUninitializedConst = false,
                           bool allowValue = true);
-  Block parseBlock(bool forceBrackets = false, bool disallowBrackets = false);
+  Scope parseBlock(bool forceBrackets = false, bool disallowBrackets = false);
   Expression parseConditional();
   Expression parseForLoop();
   Expression parseForInLoop();
