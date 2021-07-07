@@ -1,0 +1,15 @@
+If a function is declared within another function, is cannot access variables
+in the containing function as that would create weird lifetime situations.
+
+Visitor classes for definitions.
+
+TODO:
+  - Definition order
+  - Globals
+  - Variables from outer functions not available in inner functions
+
+Important change:
+-----------------
+A function declaration may only have a name if it is the only expression in the
+current ExpressionStatement, therefore, these are the only functions that can be
+referenced even if they are declared after the place of reference.

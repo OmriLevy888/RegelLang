@@ -32,7 +32,7 @@
 using namespace rgl;
 
 int main(int argc, const char **argv, char **envp) {
-#ifdef LLVM_TEST_MAIN
+  //#ifdef LLVM_TEST_MAIN
   auto context = std::make_shared<llvm::LLVMContext>();
   auto module = std::make_shared<llvm::Module>("TestModule", *context);
   auto builder = std::make_shared<llvm::IRBuilder<>>(*context);
@@ -81,7 +81,7 @@ int main(int argc, const char **argv, char **envp) {
   barCall->setName("foo");
   barCall->setCalledFunction(fooType, fooFunc);
   printModule();
-#else
+  //#else
   /* if (!CliParser::parseCliArgument(argc, argv)) { */
   /*   return -1; */
   /* } */
@@ -157,7 +157,7 @@ int main(int argc, const char **argv, char **envp) {
   std::cout << Context::module()->toString() << std::endl;
   fileNode->genCode();
   std::cout << Context::module()->toString() << std::endl;
-#endif
+  //#endif
 
   return 0;
 }

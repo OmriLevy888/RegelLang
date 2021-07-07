@@ -45,7 +45,7 @@ Expression Parser::parseExpression() {
     case TokenType::t_var:
       return parseVarDecl();
     case TokenType::t_open_bracket:
-      return parseBlock();
+      return parseScope();
     case TokenType::t_func:
       return parseFunction();
     case TokenType::t_class:
@@ -434,54 +434,78 @@ VarDeclPtr Parser::parseVarDecl(Identifier name, bool allowUninitializedConst,
   return std::make_unique<VarDeclNode>(std::move(name), type, std::move(expr));
 }
 
-Scope Parser::parseBlock(bool forceBrackets, bool disallowBrackets) {
-  // TODO: implement single line block
-  bool isSingleStatement = TokenType::t_open_bracket != m_tokens->getCurr();
-  if (disallowBrackets) {
-    if (!isSingleStatement) {
-      // TODO: write error message
-      return nullptr;
-    }
-    isSingleStatement = false;
-  } else if (forceBrackets && isSingleStatement) {
+Scope Parser::parseScope(bool forceBrackets, bool disallowBrackets) {
+  const bool withBrackets = TokenType::t_open_bracket != m_tokens->getCurr();
+  if (disallowBrackets && withBrackets) {
+    // TODO: write error message
+    return nullptr;
+  } else if (forceBrackets && !withBrackets) {
     // TODO: write error message
     return nullptr;
   }
+
+  std::vector<ClassPtr> classes;
+  std::vector<FunctionPtr> functions;
   std::vector<Statement> statements;
 
-  if (!isSingleStatement) {
-    Token openBracket = m_tokens->getCurr();
+  ClassPtr classLiteral = nullptr;
+  FunctionPtr functionLiteral = nullptr;
+  Statement currStatement = nullptr;
+
+  Token openBracket;
+
+  if (withBrackets) {
+    openBracket = m_tokens->getCurr();
     m_tokens->getNext(); // consume {
-    while (TokenType::t_close_bracket != m_tokens->getCurr() &&
-           TokenType::t_eof != m_tokens->getCurr()) {
-      auto curr = parseStatement();
-      if (nullptr == curr) {
+  }
+
+  do {
+    switch (m_tokens->getCurr()) {
+    case TokenType::t_class:
+      classLiteral = parseClass();
+      if (nullptr == classLiteral) {
         // TODO: write error message
         return nullptr;
       }
-      statements.push_back(std::move(curr));
+      classes.push_back(std::move(classLiteral));
+      break;
+    case TokenType::t_func:
+      functionLiteral = parseFunction();
+      if (nullptr == functionLiteral) {
+        // TODO: write error message
+        return nullptr;
+      }
+      functions.push_back(std::move(functionLiteral));
+      break;
+    default:
+      currStatement = parseStatement();
+      if (nullptr == currStatement) {
+        // TODO: write error message
+        return nullptr;
+      }
+      statements.push_back(std::move(currStatement));
+      break;
     }
+  } while (withBrackets && TokenType::t_close_bracket != m_tokens->getCurr() &&
+           TokenType::t_eof != m_tokens->getCurr());
 
-    if (!disallowBrackets &&
-        TokenType::t_close_bracket != m_tokens->getCurr()) {
-      ErrorManager::logError(ErrorTypes::E_BAD_TOKEN,
-                             {"Expected } but not found", openBracket,
-                              m_tokens->getSourceProject()});
-      return nullptr;
-    }
+  if (withBrackets && TokenType::t_close_bracket != m_tokens->getCurr()) {
+    ErrorManager::logError(ErrorTypes::E_BAD_TOKEN,
+                           {"Expected } but not found", openBracket,
+                            m_tokens->getSourceProject()});
+    return nullptr;
+  }
 
-    if (!disallowBrackets) {
-      m_tokens->getNext();
-    } // consume }
-  } else {
-    auto statement = parseStatement();
-    if (nullptr == statement) {
+  if (withBrackets) {
+    if (TokenType::t_close_bracket != m_tokens->getCurr()) {
       // TODO: write error message
       return nullptr;
     }
-    statements.push_back(std::move(statement));
+    m_tokens->getNext(); // consume }
   }
-  return std::make_unique<ScopeNode>(std::move(statements));
+
+  return std::make_unique<ScopeNode>(std::move(classes), std::move(functions),
+                                     std::move(statements));
 }
 
 Expression Parser::parseConditional() {
@@ -492,7 +516,7 @@ Expression Parser::parseConditional() {
     return nullptr;
   }
 
-  Scope body = parseBlock();
+  Scope body = parseScope();
   if (nullptr == body) {
     // TODO: write error message
     return nullptr;
@@ -513,7 +537,7 @@ Expression Parser::parseConditional() {
         return nullptr;
       }
     } else {
-      _else = parseBlock();
+      _else = parseScope();
       if (nullptr == _else) {
         // TODO: write error message
         return nullptr;
@@ -578,7 +602,7 @@ Expression Parser::parseForLoop() {
     }
   }
 
-  auto body = parseBlock();
+  auto body = parseScope();
   if (nullptr == body) {
     // TODO: write error message
     return nullptr;
@@ -612,7 +636,7 @@ Expression Parser::parseForInLoop() {
     return nullptr;
   }
 
-  Scope body = parseBlock();
+  Scope body = parseScope();
   if (nullptr == body) {
     // TODO: write error message
     return nullptr;
@@ -634,7 +658,7 @@ Expression Parser::parseWhileLoop() {
     }
   }
 
-  Scope body = parseBlock();
+  Scope body = parseScope();
   if (nullptr == body) {
     // TODO: write error message
     return nullptr;
@@ -687,7 +711,7 @@ SwitchCase Parser::parseSwitchCase() {
   }
   m_tokens->getNext(); // consume =>
 
-  auto body = parseBlock();
+  auto body = parseScope();
   if (nullptr == body) {
     // TODO: write error message
     return nullptr;
@@ -816,7 +840,7 @@ FunctionPtr Parser::parseFunction() {
     return nullptr;
   }
 
-  Expression body = parseBlock(enforceBrackets);
+  Expression body = parseScope(enforceBrackets);
   if (nullptr == body) {
     return nullptr;
   }

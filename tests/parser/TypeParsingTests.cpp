@@ -1,7 +1,7 @@
 #include "lexer/Token.hpp"
 #include "parser/ast/constructs/FunctionType.hpp"
 #include "parser/ast/constructs/Type.hpp"
-#include "parser/ast/expressions/BlockNode.hpp"
+#include "parser/ast/expressions/ScopeNode.hpp"
 #include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
 #include "parser/ast/expressions/literals/ParameterNode.hpp"

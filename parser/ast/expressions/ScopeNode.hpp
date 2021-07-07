@@ -8,8 +8,15 @@ namespace rgl {
 class ScopeNode : public ExpressionNode {
 public:
   ScopeNode() : m_statements() {}
+  ScopeNode(std::vector<ClassPtr> &&classes,
+            std::vector<FunctionPtr> &&functions,
+            std::vector<Statement> &&statements)
+      : m_classes(std::move(classes)), m_functions(std::move(functions)),
+        m_statements(std::move(statements)) {}
   ScopeNode(std::vector<Statement> &&statements)
-      : m_statements(std::move(statements)) {}
+      : m_classes(std::vector<ClassPtr>{}),
+        m_functions(std::vector<FunctionPtr>{}),
+        m_statements(std::move(statements)) {}
 
   virtual llvm::Value *genCode() override;
 
