@@ -95,12 +95,17 @@ int main(int argc, const char **argv, char **envp) {
                             /* {TokenType::t_semicolon}, */
                             /* {TokenType::t_close_bracket}, */
 
-                            /* {TokenType::t_func}, */
-                            /* {TokenType::t_identifier, "bar"}, */
-                            /* {TokenType::t_open_paren}, */
-                            /* {TokenType::t_close_paren}, */
-                            /* {TokenType::t_open_bracket}, */
-                            /* {TokenType::t_close_bracket}, */
+                            {TokenType::t_func},
+                            {TokenType::t_identifier, "bar"},
+                            {TokenType::t_open_paren},
+                            {TokenType::t_close_paren},
+                            {TokenType::t_arrow},
+                            {TokenType::t_identifier, "i32"},
+                            {TokenType::t_open_bracket},
+                            {TokenType::t_return},
+                            {TokenType::t_int32_literal, 5},
+                            {TokenType::t_semicolon},
+                            {TokenType::t_close_bracket},
 
                             {TokenType::t_func},
                             {TokenType::t_identifier, "foo"},
@@ -113,6 +118,10 @@ int main(int argc, const char **argv, char **envp) {
                             {TokenType::t_open_bracket},
                             {TokenType::t_return},
                             {TokenType::t_identifier, "a"},
+                            {TokenType::t_plus},
+                            {TokenType::t_identifier, "bar"},
+                            {TokenType::t_open_paren},
+                            {TokenType::t_close_paren},
                             {TokenType::t_semicolon},
                             {TokenType::t_close_bracket}});
 

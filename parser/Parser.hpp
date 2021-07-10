@@ -78,7 +78,7 @@ private:
   Statement parseKeywordStatement();
   Statement parseSimpleStatement();
 
-  FunctionPtr parseFunction();
+  FunctionPtr parseFunction(bool withName = false);
 
   ClassPtr parseClass();
   bool parseField(bool isExposed, std::vector<FieldPtr> &fields);

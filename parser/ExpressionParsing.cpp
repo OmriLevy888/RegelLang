@@ -460,6 +460,8 @@ Scope Parser::parseScope(bool forceBrackets, bool disallowBrackets,
     m_tokens->getNext(); // consume {
   }
 
+  // for parsing top-level functions
+  const bool withName = true;
   do {
     switch (m_tokens->getCurr()) {
     case TokenType::t_close_bracket:
@@ -473,7 +475,7 @@ Scope Parser::parseScope(bool forceBrackets, bool disallowBrackets,
       classes.push_back(std::move(classLiteral));
       break;
     case TokenType::t_func:
-      functionLiteral = parseFunction();
+      functionLiteral = parseFunction(withName);
       if (nullptr == functionLiteral) {
         // TODO: write error message
         return nullptr;
@@ -724,10 +726,14 @@ SwitchCase Parser::parseSwitchCase() {
   return std::make_unique<SwitchCaseNode>(std::move(expr), std::move(body));
 }
 
-FunctionPtr Parser::parseFunction() {
+FunctionPtr Parser::parseFunction(bool withName) {
   Identifier name = nullptr;
   m_tokens->saveAnchor();
-  if (TokenType::t_identifier == m_tokens->getNext()) {
+  if (withName) {
+    if (TokenType::t_identifier != m_tokens->getNext()) {
+      // TODO: write error message
+      return nullptr;
+    }
     name = parseBasicIdentifier();
     m_tokens->getNext(); // consume name
   }

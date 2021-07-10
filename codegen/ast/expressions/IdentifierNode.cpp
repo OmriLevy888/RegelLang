@@ -6,7 +6,7 @@ namespace rgl {
 llvm::Value *IdentifierNode::genCode() {
   std::vector<std::string> name = this->get();
 
-  // Search stack frames of current function
+  // search stack frames of current function
   auto stackFrames =
       Context::getCurrContext()->getCurrGeneratedFunction()->getStackFrames();
   for (auto frame = stackFrames.crbegin(); frame != stackFrames.crend();
@@ -23,7 +23,24 @@ llvm::Value *IdentifierNode::genCode() {
           storeLoc, Formatter("{}@load", variableSymbol->getName()).toString());
     }
   }
-  // TODO: look for globals / types
+
+  // look for globals
+  auto global = Context::module()->symbols().get(name);
+  if (nullptr != global) {
+    if (global->isFunction()) {
+      return std::dynamic_pointer_cast<FunctionSymbol>(global)->llvmFunction();
+    } else if (global->isVariable()) { // global variable
+      auto globalVarialbe = std::dynamic_pointer_cast<VariableSymbol>(global);
+      return Context::builder()->CreateLoad(
+          globalVarialbe->getStoreLoc(),
+          Formatter("{}@load", globalVarialbe->getName()).toString());
+    }
+
+    // TODO: wrtie error message
+    return nullptr;
+  }
+
+  // TODO: look for types
   return nullptr;
 }
 }; // namespace rgl
