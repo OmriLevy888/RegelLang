@@ -1,7 +1,5 @@
 #include "lexer/Token.hpp"
-#include "parser/ast/constructs/BasicType.hpp"
-#include "parser/ast/expressions/BasicIdentifierNode.hpp"
-#include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
+#include "parser/ast/constructs/BasicType.hpp" #include "parser/ast/expressions/BasicIdentifierNode.hpp" #include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
 #include "parser/ast/expressions/literals/class-literal/ClassLiteralNode.hpp"
 #include "tests/TestsCore.hpp"
 #include "tests/parser/ParserTestsUtilities.hpp"

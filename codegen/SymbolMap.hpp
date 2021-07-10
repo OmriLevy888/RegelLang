@@ -25,12 +25,14 @@ public:
   SymbolPtr insert(const std::vector<std::string> &name, SymbolPtr symbol);
 
   FunctionSymbolPtr createFunction(const std::vector<std::string> &name,
-                                   const Expression &body, TypePtr retType,
+                                   TypePtr retType,
                                    const std::vector<Parameter> &parameters,
                                    bool isVarArg = false);
   VariableSymbolPtr createVariable(const std::vector<std::string> &name,
                                    const Expression &value,
                                    TypePtr type = nullptr);
+  VariableSymbolPtr createParameter(const std::vector<std::string> &name,
+                                    TypePtr type, llvm::Value *paramValue);
 
   void clean();
 

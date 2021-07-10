@@ -30,7 +30,6 @@ std::string typePropertiesToString(BitField<TypeProperties> properties) {
 }
 
 bool Type::operator==(TypePtr other) const { return this->equals(other); }
-
 bool Type::equals(TypePtr other) const {
   if (this->m_typeID == other->m_typeID) {
     return true;

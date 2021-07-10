@@ -17,7 +17,7 @@ File Parser::parseFile() {
     }
   }
 
-  auto body = parseScope(false, true);
+  auto body = parseScope(false, true, true);
   if (nullptr == body) {
     // TODO: write error message
     return nullptr;

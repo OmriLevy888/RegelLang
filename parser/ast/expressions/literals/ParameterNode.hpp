@@ -11,6 +11,7 @@ public:
 
   TypePtr getType() { return m_type; }
   std::vector<std::string> getName() { return m_name->get(); }
+  std::string getNameString() { return m_name->getString(); }
   llvm::Type *getLLVMType() { return m_type->toLLVMType(); }
 
   std::string toTreeStr(size_t spaces) const override {

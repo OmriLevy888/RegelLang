@@ -16,7 +16,13 @@ public:
                                 const std::vector<Parameter> &parameters,
                                 bool isVarArg = false);
 
+  virtual bool isFunction() const override { return true; }
+
   llvm::Function *llvmFunction() { return m_llvmFunction; }
+
+  // If thisSharedPtr is not passed, the function will look it up
+  void genCode(const Expression &body,
+               FunctionSymbolPtr thisSharedPtr = nullptr);
 
   SymbolMapPtr createStackFrame();
   void removeStackFrame();
@@ -27,10 +33,14 @@ public:
   virtual std::string toString() const override;
 
 private:
+  std::vector<std::string> m_name;
+  std::vector<std::vector<std::string>> m_paramNames;
   FunctionTypePtr m_type;
   llvm::Function *m_llvmFunction;
   std::vector<SymbolMapPtr> m_stackFrames;
 
-  FunctionSymbol(FunctionTypePtr type, llvm::Function *llvmFunction);
+  FunctionSymbol(const std::vector<std::string> &name,
+                 const std::vector<std::vector<std::string>> &paramNames,
+                 FunctionTypePtr type, llvm::Function *llvmFunction);
 };
 }; // namespace rgl

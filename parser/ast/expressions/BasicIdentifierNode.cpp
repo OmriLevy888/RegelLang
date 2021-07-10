@@ -4,6 +4,7 @@ namespace rgl {
 std::vector<std::string> BasicIdentifierNode::get() const {
   return std::vector<std::string>{m_value};
 }
+std::string BasicIdentifierNode::getString() const { return m_value; }
 
 std::string BasicIdentifierNode::toTreeStr(size_t spaces) const {
   return Formatter("BasicIdentifier<value:{}>", m_value);

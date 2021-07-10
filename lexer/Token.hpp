@@ -1,9 +1,9 @@
 #pragma once
 #include <map>
 #include <memory>
+#include <optional>
 #include <string_view>
 #include <variant>
-#include <optional>
 
 #include "common/Formatter.hpp"
 #include "common/ILoggable.hpp"
@@ -113,8 +113,7 @@ enum class TokenType : uint16_t {
 
   t_switch, // switch
 
-  t_func,     // func
-  t_ret_type, // =>
+  t_func, // func
 
   t_class, // class
   t_ctor,  // ctor
@@ -309,7 +308,6 @@ private:
         {TokenType::t_switch, "t_switch"},
 
         {TokenType::t_func, "t_func"},
-        {TokenType::t_ret_type, "t_ret_type"},
 
         {TokenType::t_class, "t_class"},
         {TokenType::t_ctor, "t_ctor"},

@@ -5,5 +5,7 @@ namespace rgl {
 void ReturnNode::genCode() {
   auto retVal = m_expr->genCode();
   Context::builder()->CreateRet(retVal);
+
+  std::cout << Context::module()->toString() << std::endl;
 }
 }; // namespace rgl

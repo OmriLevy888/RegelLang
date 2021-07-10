@@ -52,6 +52,12 @@ ClassPtr Parser::parseClass() {
     }
   }
 
+  if (TokenType::t_close_bracket != m_tokens->getCurr()) {
+    // TODO: write error message
+    return nullptr;
+  }
+  m_tokens->getNext(); // consume }
+
   return std::make_unique<ClassLiteralNode>(std::move(name), std::move(fields),
                                             std::move(methods));
 }

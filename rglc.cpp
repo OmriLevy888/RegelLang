@@ -26,62 +26,43 @@
 #include <iostream>
 #include <memory>
 
+#include "lexer/DummyTokenGenerator.hpp"
+#include "tests/parser/ParserTestsUtilities.hpp"
+namespace rgl {
+std::unique_ptr<Parser>
+makeParser(std::vector<TokenValuePair> &&tokens,
+           std::shared_ptr<SourceProject> sourceProject) {
+  auto tokenGenerator =
+      std::make_unique<DummyTokenGenerator>(std::move(tokens), sourceProject);
+  auto tokenCollection =
+      std::make_unique<TokenCollection>(std::move(tokenGenerator));
+  return std::make_unique<Parser>(std::move(tokenCollection));
+}
+
+std::unique_ptr<Parser> makeParser(const std::string &testName,
+                                   std::vector<TokenValuePair> &&tokens,
+                                   std::vector<std::string> &&source,
+                                   const size_t firstLineNo) {
+  auto project = std::make_shared<SourceProject>(testName);
+
+  SourceFile file{testName};
+  file.m_lines.reserve(source.size());
+  for (size_t idx = 0; idx < source.size(); idx++) {
+    file.m_lines.emplace_back(std::move(source[idx]), tokens,
+                              firstLineNo + idx);
+  }
+
+  project->addFile(std::move(file));
+  return makeParser(std::move(tokens), project);
+}
+}; // namespace rgl
+
 //#define LLVM_TEST_MAIN
 
 #ifndef RGL_TESTS
 using namespace rgl;
 
 int main(int argc, const char **argv, char **envp) {
-  //#ifdef LLVM_TEST_MAIN
-  auto context = std::make_shared<llvm::LLVMContext>();
-  auto module = std::make_shared<llvm::Module>("TestModule", *context);
-  auto builder = std::make_shared<llvm::IRBuilder<>>(*context);
-  auto printModule = [module]() {
-    std::string str{};
-    llvm::raw_string_ostream rso{str};
-    rso << *module;
-    rso.flush();
-    std::cout << str << std::endl;
-  };
-  printModule();
-
-  auto fooType = llvm::FunctionType::get(
-      llvm::Type::getInt32Ty(*context),
-      std::vector<llvm::Type *>{llvm::Type::getInt32Ty(*context)}, false);
-  auto fooFunc = llvm::Function::Create(
-      fooType, llvm::Function::ExternalLinkage, "foo", *module);
-  auto fooEntryBB = llvm::BasicBlock::Create(*context, "entry", fooFunc);
-  builder->SetInsertPoint(fooEntryBB);
-  auto callInstr = builder->CreateCall(
-      fooFunc, llvm::ArrayRef<llvm::Value *>{
-                   llvm::ConstantInt::get(*context, llvm::APInt(32, 5, true)),
-                   llvm::ConstantInt::get(*context, llvm::APInt(32, 0, true))});
-  printModule();
-
-  auto barType = llvm::FunctionType::get(
-      llvm::Type::getVoidTy(*context),
-      std::vector<llvm::Type *>{llvm::Type::getInt32Ty(*context),
-                                llvm::Type::getInt32Ty(*context)},
-      false);
-  auto barFunc = llvm::Function::Create(
-      barType, llvm::Function::ExternalLinkage, "bar", *module);
-  // callInstr->setCalledFunction(barFunc); // does not work with different
-  // return type
-  callInstr->setCalledOperand(barFunc); // works with different
-  callInstr->setName("");
-  auto barCall = builder->CreateCall(
-      barFunc, llvm::ArrayRef<llvm::Value *>{
-                   llvm::ConstantInt::get(*context, llvm::APInt(32, 2, true))});
-  // return type(?)
-  // callInstr->setCalledFunction(barType, barFunc); // does not work with
-  // different return type
-  printModule();
-
-  // barCall->setCalledOperand(fooFunc);
-  barCall->setName("foo");
-  barCall->setCalledFunction(fooType, fooFunc);
-  printModule();
-  //#else
   /* if (!CliParser::parseCliArgument(argc, argv)) { */
   /*   return -1; */
   /* } */
@@ -98,66 +79,48 @@ int main(int argc, const char **argv, char **envp) {
   /*   return -1; */
   /* } */
 
-  auto returnNode = std::make_unique<ReturnNode>(std::make_unique<BinOpNode>(
-      BinOpType::b_plus,
-      std::make_unique<IntLiteralNode>(1, BasicType::t_int32()),
-      std::make_unique<IntLiteralNode>(2, BasicType::t_int32())));
+  auto parser = makeParser({/* {TokenType::t_class}, */
+                            /* {TokenType::t_identifier, "geez"}, */
+                            /* {TokenType::t_open_bracket}, */
+                            /* {TokenType::t_var}, */
+                            /* {TokenType::t_open_square}, */
+                            /* {TokenType::t_identifier, "a"}, */
+                            /* {TokenType::t_comma}, */
+                            /* {TokenType::t_identifier, "b"}, */
+                            /* {TokenType::t_comma}, */
+                            /* {TokenType::t_identifier, "c"}, */
+                            /* {TokenType::t_close_square}, */
+                            /* {TokenType::t_colon}, */
+                            /* {TokenType::t_identifier, "i32"}, */
+                            /* {TokenType::t_semicolon}, */
+                            /* {TokenType::t_close_bracket}, */
 
-  std::vector<Statement> body{};
-  body.push_back(std::move(returnNode));
-  auto blockNode = std::make_unique<ScopeNode>(std::move(body));
+                            /* {TokenType::t_func}, */
+                            /* {TokenType::t_identifier, "bar"}, */
+                            /* {TokenType::t_open_paren}, */
+                            /* {TokenType::t_close_paren}, */
+                            /* {TokenType::t_open_bracket}, */
+                            /* {TokenType::t_close_bracket}, */
 
-  std::vector<Parameter> parameters;
-  parameters.reserve(3);
-  parameters.push_back(std::make_unique<ParameterNode>(
-      BasicType::t_char()->getSharedPointerType(),
-      std::make_unique<BasicIdentifierNode>("argv")));
-  parameters.push_back(std::make_unique<ParameterNode>(
-      BasicType::t_int64(), std::make_unique<BasicIdentifierNode>("argc")));
-  parameters.push_back(std::make_unique<ParameterNode>(
-      BasicType::t_char()->getSharedPointerType(),
-      std::make_unique<CompoundIdentifierNode>(
-          std::vector<std::string>{"args", "envp"})));
+                            {TokenType::t_func},
+                            {TokenType::t_identifier, "foo"},
+                            {TokenType::t_open_paren},
+                            {TokenType::t_identifier, "i32"},
+                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_close_paren},
+                            {TokenType::t_arrow},
+                            {TokenType::t_identifier, "i32"},
+                            {TokenType::t_open_bracket},
+                            {TokenType::t_return},
+                            {TokenType::t_identifier, "a"},
+                            {TokenType::t_semicolon},
+                            {TokenType::t_close_bracket}});
 
-  auto main = std::make_unique<FunctionLiteralNode>(
-      std::make_unique<BasicIdentifierNode>("main"), std::move(parameters),
-      BasicType::t_uint64(), std::move(blockNode));
-
-  auto fooVarDecl =
-      std::make_unique<ExpressionStatementNode>(std::make_unique<VarDeclNode>(
-          std::make_unique<BasicIdentifierNode>("kraa"), BasicType::t_int32(),
-          std::make_unique<IntLiteralNode>(5ull, BasicType::t_int32())));
-  auto fooRet = std::make_unique<ReturnNode>(
-      std::make_unique<BasicIdentifierNode>("kraa"));
-  std::vector<Statement> fooStatements{};
-  fooStatements.push_back(std::move(fooVarDecl));
-  fooStatements.push_back(std::move(fooRet));
-  auto fooBody = std::make_unique<ScopeNode>(std::move(fooStatements));
-
-  auto fooFunc = std::make_unique<FunctionLiteralNode>(
-      std::make_unique<CompoundIdentifierNode>(
-          std::vector<std::string>{"foo", "func"}),
-      std::vector<Parameter>{}, BasicType::t_int32(), std::move(fooBody));
-
-  std::vector<Statement> fileStatements{};
-  fileStatements.push_back(
-      std::make_unique<ExpressionStatementNode>(std::move(main)));
-  fileStatements.push_back(
-      std::make_unique<ExpressionStatementNode>(std::move(fooFunc)));
-  auto fileBody = std::make_unique<ScopeNode>(std::move(fileStatements));
-
-  auto fileNode = std::make_unique<FileNode>(
-      std::make_unique<NamespaceDeclarationNode>(
-          std::make_unique<CompoundIdentifierNode>(
-              std::vector<std::string>{"my", "module", "funcking", "works"})),
-      std::move(fileBody));
-
-  std::cout << fileNode->toString() << std::endl;
-
+  auto file = parser->parseFile();
+  /* std::cout << file->toString() << std::endl; */
+  /* std::cout << Context::module()->toString() << std::endl; */
+  file->genCode();
   std::cout << Context::module()->toString() << std::endl;
-  fileNode->genCode();
-  std::cout << Context::module()->toString() << std::endl;
-  //#endif
 
   return 0;
 }

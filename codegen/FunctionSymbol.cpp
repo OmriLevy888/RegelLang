@@ -4,9 +4,12 @@
 #include "llvm/Support/raw_ostream.h"
 
 namespace rgl {
-FunctionSymbol::FunctionSymbol(FunctionTypePtr type,
-                               llvm::Function *llvmFunction)
-    : m_type(type), m_llvmFunction(llvmFunction) {}
+FunctionSymbol::FunctionSymbol(
+    const std::vector<std::string> &name,
+    const std::vector<std::vector<std::string>> &paramNames,
+    FunctionTypePtr type, llvm::Function *llvmFunction)
+    : m_name(name), m_paramNames(paramNames), m_type(type),
+      m_llvmFunction(llvmFunction) {}
 
 FunctionSymbolPtr FunctionSymbol::make(const std::vector<std::string> &name,
                                        TypePtr retType,
@@ -27,17 +30,50 @@ FunctionSymbolPtr FunctionSymbol::make(const std::vector<std::string> &name,
       llvm::Function::Create(llvmFunctionType, llvm::Function::ExternalLinkage,
                              functionName, Context::llvmModule());
 
-  std::vector<std::string> paramNames{};
-  paramNames.reserve(parameters.size());
-  for (const auto &param : parameters) {
-    paramNames.push_back(Formatter<>::joinContainer('.', param->getName()));
-  }
   size_t idx = 0;
   for (auto &arg : llvmFunction->args()) {
-    arg.setName(paramNames[idx++]);
+    arg.setName(parameters[idx++]->getNameString());
   }
 
-  return FunctionSymbolPtr(new FunctionSymbol(functionType, llvmFunction));
+  std::vector<std::vector<std::string>> paramNames{};
+  paramNames.reserve(parameters.size());
+  for (const auto &param : parameters) {
+    paramNames.push_back(param->getName());
+  }
+
+  return FunctionSymbolPtr(
+      new FunctionSymbol(name, paramNames, functionType, llvmFunction));
+}
+
+void FunctionSymbol::genCode(const Expression &body,
+                             FunctionSymbolPtr thisSharedPtr) {
+  auto functionSymbol = thisSharedPtr;
+  if (nullptr == functionSymbol) {
+    auto symbol = Context::module()->symbols().get(m_name);
+    if (nullptr == symbol || !symbol->isFunction()) {
+      // TODO: propagate error
+    }
+    functionSymbol = std::dynamic_pointer_cast<FunctionSymbol>(symbol);
+  }
+
+  auto llvmFunction = functionSymbol->llvmFunction();
+  auto entry =
+      llvm::BasicBlock::Create(*Context::llvmContext(), "entry", llvmFunction);
+  Context::builder()->SetInsertPoint(entry);
+
+  // Create stack frame
+  Context::getCurrContext()->pushGeneratedFunction(functionSymbol);
+  auto functionTopLevelStackFrame = functionSymbol->createStackFrame();
+
+  for (size_t idx = 0; idx < m_paramNames.size(); idx++) {
+    functionTopLevelStackFrame->createParameter(m_paramNames[idx],
+                                                m_type->paramTypes()[idx],
+                                                llvmFunction->getArg(idx));
+  }
+
+  body->genCode();
+  functionSymbol->removeStackFrame();
+  Context::getCurrContext()->popGeneratedFunction();
 }
 
 SymbolMapPtr FunctionSymbol::createStackFrame() {

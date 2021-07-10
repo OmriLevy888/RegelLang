@@ -30,7 +30,7 @@ public:
 
   virtual llvm::FunctionType *toLLVMType() override;
 
-  std::vector<TypePtr> paramTypes() { return m_params; }
+  std::vector<TypePtr> &paramTypes() { return m_params; }
   TypePtr retType() { return m_retType; }
 
 private:

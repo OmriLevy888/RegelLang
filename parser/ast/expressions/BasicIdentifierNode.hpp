@@ -8,6 +8,7 @@ public:
   BasicIdentifierNode(const std::string &value) : m_value(value) {}
 
   virtual std::vector<std::string> get() const override;
+  virtual std::string getString() const override;
 
   virtual std::string toTreeStr(size_t spaces) const override;
 

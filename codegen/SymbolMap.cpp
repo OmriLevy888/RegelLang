@@ -42,9 +42,10 @@ SymbolPtr SymbolMap::insert(std::vector<std::string>::const_iterator curr,
   return nextMap->insert(curr + 1, end, symbol);
 }
 
-FunctionSymbolPtr SymbolMap::createFunction(
-    const std::vector<std::string> &name, const Expression &body,
-    TypePtr retType, const std::vector<Parameter> &parameters, bool isVarArg) {
+FunctionSymbolPtr
+SymbolMap::createFunction(const std::vector<std::string> &name, TypePtr retType,
+                          const std::vector<Parameter> &parameters,
+                          bool isVarArg) {
   auto functionSymbol =
       FunctionSymbol::make(name, retType, parameters, isVarArg);
 
@@ -52,22 +53,13 @@ FunctionSymbolPtr SymbolMap::createFunction(
   // resolve correctly
   this->insert(name, functionSymbol);
 
-  auto llvmFunction = functionSymbol->llvmFunction();
-  auto entry =
-      llvm::BasicBlock::Create(*Context::llvmContext(), "entry", llvmFunction);
-  Context::builder()->SetInsertPoint(entry);
-
-  // Create stack frame
-  Context::getCurrContext()->pushGeneratedFunction(functionSymbol);
-  body->genCode();
-  Context::getCurrContext()->popGeneratedFunction();
-
   return functionSymbol;
 }
 
 VariableSymbolPtr
 SymbolMap::createVariable(const std::vector<std::string> &name,
                           const Expression &value, TypePtr type) {
+  // TODO: change nullptr == value to value->isUndefined()
   TypePtr variableType = nullptr;
   if (type->isConst() && nullptr == value) {
     // TODO: write error message
@@ -94,9 +86,25 @@ SymbolMap::createVariable(const std::vector<std::string> &name,
   return variableSymbol;
 }
 
+VariableSymbolPtr
+SymbolMap::createParameter(const std::vector<std::string> &name, TypePtr type,
+                           llvm::Value *paramValue) {
+  auto parameterSymbol = VariableSymbol::make(name, type, paramValue);
+
+  this->insert(name, parameterSymbol);
+
+  return parameterSymbol;
+}
+
 void SymbolMap::clean() {
   for (auto &map : m_maps) {
     // Depth first
+    if (nullptr == map.second) {
+      // when lookin into a map to see if it contains an entry, the default
+      // value is put there (nullptr) so skip it if it is there (much easier
+      // than cleaning the null pointers)
+      continue;
+    }
     map.second->clean();
   }
 
@@ -106,7 +114,7 @@ void SymbolMap::clean() {
 
   // TODO: check if this causes some weird problems, might have caused cycled
   // pointers(?)
-  m_symbol = nullptr;
+  /* m_symbol = nullptr; */
 }
 
 std::string SymbolMap::toString() const {

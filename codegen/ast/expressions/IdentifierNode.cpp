@@ -15,6 +15,10 @@ llvm::Value *IdentifierNode::genCode() {
     if (nullptr != variable) {
       auto variableSymbol = std::dynamic_pointer_cast<VariableSymbol>(variable);
       auto storeLoc = variableSymbol->getStoreLoc();
+      if (variableSymbol->isParameter()) {
+        // paramaters are not pointers, do not load them
+        return storeLoc;
+      }
       return Context::builder()->CreateLoad(
           storeLoc, Formatter("{}@load", variableSymbol->getName()).toString());
     }

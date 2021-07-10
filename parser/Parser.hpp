@@ -65,7 +65,8 @@ private:
   VarDeclPtr parseVarDecl(Identifier name = nullptr,
                           bool allowUninitializedConst = false,
                           bool allowValue = true);
-  Scope parseScope(bool forceBrackets = false, bool disallowBrackets = false);
+  Scope parseScope(bool forceBrackets = false, bool disallowBrackets = false,
+                   bool isFileLevel = false);
   Expression parseConditional();
   Expression parseForLoop();
   Expression parseForInLoop();

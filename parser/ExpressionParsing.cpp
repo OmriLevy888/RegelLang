@@ -434,8 +434,9 @@ VarDeclPtr Parser::parseVarDecl(Identifier name, bool allowUninitializedConst,
   return std::make_unique<VarDeclNode>(std::move(name), type, std::move(expr));
 }
 
-Scope Parser::parseScope(bool forceBrackets, bool disallowBrackets) {
-  const bool withBrackets = TokenType::t_open_bracket != m_tokens->getCurr();
+Scope Parser::parseScope(bool forceBrackets, bool disallowBrackets,
+                         bool isFileLevel) {
+  const bool withBrackets = TokenType::t_open_bracket == m_tokens->getCurr();
   if (disallowBrackets && withBrackets) {
     // TODO: write error message
     return nullptr;
@@ -461,6 +462,8 @@ Scope Parser::parseScope(bool forceBrackets, bool disallowBrackets) {
 
   do {
     switch (m_tokens->getCurr()) {
+    case TokenType::t_close_bracket:
+      break;
     case TokenType::t_class:
       classLiteral = parseClass();
       if (nullptr == classLiteral) {
@@ -486,7 +489,8 @@ Scope Parser::parseScope(bool forceBrackets, bool disallowBrackets) {
       statements.push_back(std::move(currStatement));
       break;
     }
-  } while (withBrackets && TokenType::t_close_bracket != m_tokens->getCurr() &&
+  } while ((withBrackets || isFileLevel) &&
+           TokenType::t_close_bracket != m_tokens->getCurr() &&
            TokenType::t_eof != m_tokens->getCurr());
 
   if (withBrackets && TokenType::t_close_bracket != m_tokens->getCurr()) {

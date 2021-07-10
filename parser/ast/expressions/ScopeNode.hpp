@@ -20,21 +20,7 @@ public:
 
   virtual llvm::Value *genCode() override;
 
-  virtual std::string toTreeStr(size_t spaces) const override {
-    std::string inner = "";
-    if (0 != m_statements.size()) {
-      std::string spacesStr(spaces + 17, ' ');
-      std::string statementsStr = "";
-      auto it = m_statements.cbegin();
-      for (; it + 1 != m_statements.cend(); it++) {
-        statementsStr +=
-            Formatter("{},\n{}", (*it)->toTreeStr(spaces + 17), spacesStr);
-      }
-      statementsStr += (*it)->toTreeStr(spaces + 17);
-      inner = Formatter("statements:{}", statementsStr);
-    }
-    return Formatter("Scope<{}>", inner);
-  }
+  virtual std::string toTreeStr(size_t spaces) const override;
 
 private:
   std::vector<ClassPtr> m_classes;
