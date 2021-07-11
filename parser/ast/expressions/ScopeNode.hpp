@@ -18,7 +18,7 @@ public:
         m_functions(std::vector<FunctionPtr>{}),
         m_statements(std::move(statements)) {}
 
-  virtual llvm::Value *genCode() override;
+  virtual ValuePtr genCode() override;
 
   virtual std::string toTreeStr(size_t spaces) const override;
 

@@ -1,9 +1,10 @@
 #include "parser/ast/expressions/IdentifierNode.hpp"
 #include "codegen/Context.hpp"
-#include "codegen/VariableSymbol.hpp"
+#include "codegen/values/BasicValue.hpp"
+#include "codegen/values/symbols/VariableSymbol.hpp"
 
 namespace rgl {
-llvm::Value *IdentifierNode::genCode() {
+ValuePtr IdentifierNode::genCode() {
   std::vector<std::string> name = this->get();
 
   // search stack frames of current function
@@ -14,13 +15,14 @@ llvm::Value *IdentifierNode::genCode() {
     auto variable = (*frame)->get(name);
     if (nullptr != variable) {
       auto variableSymbol = std::dynamic_pointer_cast<VariableSymbol>(variable);
-      auto storeLoc = variableSymbol->getStoreLoc();
+      auto storeLoc = variable->llvmValue();
       if (variableSymbol->isParameter()) {
         // paramaters are not pointers, do not load them
-        return storeLoc;
+        return std::make_shared<BasicValue>(storeLoc);
       }
-      return Context::builder()->CreateLoad(
-          storeLoc, Formatter("{}@load", variableSymbol->getName()).toString());
+      return std::make_shared<BasicValue>(Context::builder()->CreateLoad(
+          storeLoc,
+          Formatter("{}@load", variableSymbol->getName()).toString()));
     }
   }
 
@@ -28,19 +30,19 @@ llvm::Value *IdentifierNode::genCode() {
   auto global = Context::module()->symbols().get(name);
   if (nullptr != global) {
     if (global->isFunction()) {
-      return std::dynamic_pointer_cast<FunctionSymbol>(global)->llvmFunction();
+      return global;
     } else if (global->isVariable()) { // global variable
       auto globalVarialbe = std::dynamic_pointer_cast<VariableSymbol>(global);
-      return Context::builder()->CreateLoad(
-          globalVarialbe->getStoreLoc(),
-          Formatter("{}@load", globalVarialbe->getName()).toString());
+      return std::make_shared<BasicValue>(Context::builder()->CreateLoad(
+          globalVarialbe->llvmValue(),
+          Formatter("{}@load", globalVarialbe->getName()).toString()));
     }
 
     // TODO: wrtie error message
-    return nullptr;
+    return ValueBase::BadValue();
   }
 
   // TODO: look for types
-  return nullptr;
+  return ValueBase::BadValue();
 }
 }; // namespace rgl

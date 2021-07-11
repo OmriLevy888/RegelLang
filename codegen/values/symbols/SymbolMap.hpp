@@ -1,5 +1,5 @@
 #pragma once
-#include "codegen/SymbolBase.hpp"
+#include "codegen/values/symbols/SymbolBase.hpp"
 #include "common/ILoggable.hpp"
 #include "parser/ast/constructs/Type.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"

@@ -1,7 +1,8 @@
-#include "codegen/SymbolMap.hpp"
+#include "codegen/values/symbols/SymbolMap.hpp"
 #include "codegen/Context.hpp"
-#include "codegen/FunctionSymbol.hpp"
-#include "codegen/VariableSymbol.hpp"
+#include "codegen/values/BasicValue.hpp"
+#include "codegen/values/symbols/FunctionSymbol.hpp"
+#include "codegen/values/symbols/VariableSymbol.hpp"
 
 namespace rgl {
 SymbolMap::SymbolMap() : m_maps({}), m_symbol(nullptr) {}
@@ -79,7 +80,7 @@ SymbolMap::createVariable(const std::vector<std::string> &name,
   }
 
   auto variableSymbol = VariableSymbol::make(name, variableType);
-  value->genCode(variableSymbol->getStoreLoc());
+  value->genCode(std::make_shared<BasicValue>(variableSymbol->llvmValue()));
 
   this->insert(name, variableSymbol);
 

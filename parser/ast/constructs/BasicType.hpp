@@ -28,6 +28,7 @@ public:
 
   virtual std::string toTreeStr(size_t spaces) const override;
 
+  // mostly here to make life easier when writing tests
   static TypePtr t_implicit();
   static TypePtr t_void();
   static TypePtr t_int8();

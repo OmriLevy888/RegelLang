@@ -11,7 +11,7 @@ public:
 
   virtual TypePtr getType() const override { return m_type; }
 
-  virtual llvm::Value *genCode() override;
+  virtual ValuePtr genCode() override;
 
   virtual std::string toTreeStr(size_t spaces) const noexcept override {
     return Formatter("UintLiteral<{}, {}>", m_value, *m_type);

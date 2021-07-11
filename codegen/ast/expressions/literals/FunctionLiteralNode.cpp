@@ -1,17 +1,17 @@
 #include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
 #include "codegen/Context.hpp"
-#include "codegen/FunctionSymbol.hpp"
+#include "codegen/values/symbols/FunctionSymbol.hpp"
 #include "common/Formatter.hpp"
 #include "llvm/IR/DerivedTypes.h"
 
 namespace rgl {
-llvm::Value *FunctionLiteralNode::genCode() {
+ValuePtr FunctionLiteralNode::genCode() {
   const bool isVarArg = false;
   auto functionSymbol = Context::module()->symbols().createFunction(
       m_name->get(), m_retType, m_parameters, isVarArg);
   functionSymbol->genCode(m_body);
 
-  return functionSymbol->llvmFunction();
+  return functionSymbol;
 }
 
 void FunctionLiteralNode::declare() {

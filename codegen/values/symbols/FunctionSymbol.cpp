@@ -1,4 +1,4 @@
-#include "codegen/FunctionSymbol.hpp"
+#include "codegen/values/symbols/FunctionSymbol.hpp"
 #include "codegen/Context.hpp"
 #include "common/Formatter.hpp"
 #include "llvm/Support/raw_ostream.h"
@@ -8,8 +8,8 @@ FunctionSymbol::FunctionSymbol(
     const std::vector<std::string> &name,
     const std::vector<std::vector<std::string>> &paramNames,
     FunctionTypePtr type, llvm::Function *llvmFunction)
-    : m_name(name), m_paramNames(paramNames), m_type(type),
-      m_llvmFunction(llvmFunction) {}
+    : SymbolBase(llvmFunction), m_name(name), m_paramNames(paramNames),
+      m_type(type) {}
 
 FunctionSymbolPtr FunctionSymbol::make(const std::vector<std::string> &name,
                                        TypePtr retType,
@@ -56,7 +56,8 @@ void FunctionSymbol::genCode(const Expression &body,
     functionSymbol = std::dynamic_pointer_cast<FunctionSymbol>(symbol);
   }
 
-  auto llvmFunction = functionSymbol->llvmFunction();
+  auto llvmFunction =
+      reinterpret_cast<llvm::Function *>(functionSymbol->llvmValue());
   auto entry =
       llvm::BasicBlock::Create(*Context::llvmContext(), "entry", llvmFunction);
   Context::builder()->SetInsertPoint(entry);
@@ -90,13 +91,5 @@ SymbolMapPtr FunctionSymbol::getCurrStackFrame() {
 }
 std::vector<SymbolMapPtr> &FunctionSymbol::getStackFrames() {
   return m_stackFrames;
-}
-
-std::string FunctionSymbol::toString() const {
-  std::string str;
-  llvm::raw_string_ostream rso{str};
-  rso << *m_llvmFunction;
-  rso.flush();
-  return Formatter("FunctionSymbol<{}>", std::move(str));
 }
 }; // namespace rgl

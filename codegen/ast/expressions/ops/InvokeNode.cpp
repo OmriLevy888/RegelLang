@@ -1,26 +1,27 @@
 #include "parser/ast/expressions/ops/InvokeNode.hpp"
 #include "codegen/Context.hpp"
+#include "codegen/values/BasicValue.hpp"
 
 namespace rgl {
-llvm::Value *InvokeNode::genCode() {
-  std::cout << this->toString() << std::endl;
+ValuePtr InvokeNode::genCode() {
   auto callee = m_callee->genCode();
-  if (nullptr == callee) {
+  if (!callee) {
     // TODO: write error message
-    return nullptr;
+    return ValueBase::BadValue();
   }
 
-  auto calleeType = callee->getType();
+  auto calleeType = callee->llvmType();
   if (!calleeType->isPointerTy() ||
       !calleeType->getPointerElementType()->isFunctionTy()) {
     // TODO: write error message
-    return nullptr;
+    return ValueBase::BadValue();
   }
 
   llvm::FunctionCallee functionCallee{reinterpret_cast<llvm::FunctionType *>(
                                           calleeType->getPointerElementType()),
-                                      callee};
+                                      callee->llvmValue()};
   std::vector<llvm::Value *> args{}; // TODO: implement arguments
-  return Context::builder()->CreateCall(functionCallee, args);
+  return std::make_shared<BasicValue>(
+      Context::builder()->CreateCall(functionCallee, args));
 }
 }; // namespace rgl

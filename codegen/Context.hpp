@@ -1,6 +1,6 @@
 #pragma once
 #include "codegen/CompilationContext.hpp"
-#include "codegen/SymbolMap.hpp"
+#include "codegen/values/symbols/SymbolMap.hpp"
 #include <thread>
 
 namespace rgl {

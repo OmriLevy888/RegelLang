@@ -1,6 +1,6 @@
 #include "parser/ast/expressions/ScopeNode.hpp"
 #include "codegen/Context.hpp"
-#include "codegen/SymbolMap.hpp"
+#include "codegen/values/symbols/SymbolMap.hpp"
 
 namespace rgl {
 template <typename TDeclarable>
@@ -14,7 +14,7 @@ void defineDeclareLoop(const std::vector<TDeclarable> &declarables) {
   }
 }
 
-llvm::Value *ScopeNode::genCode() {
+ValuePtr ScopeNode::genCode() {
   auto currFunction = Context::getCurrContext()->getCurrGeneratedFunction();
 
   if (nullptr != currFunction) {
@@ -22,10 +22,8 @@ llvm::Value *ScopeNode::genCode() {
     currFunction->createStackFrame();
   }
 
-  /* defineDeclareLoop(m_classes); */
-  if (0 != m_functions.size()) {
-    defineDeclareLoop(m_functions);
-  }
+  defineDeclareLoop(m_classes);
+  defineDeclareLoop(m_functions);
 
   for (auto &statement : m_statements) {
     statement->genCode();
@@ -36,6 +34,6 @@ llvm::Value *ScopeNode::genCode() {
   }
 
   // TODO: fix this
-  return nullptr;
+  return ValueBase::BadValue();
 }
 }; // namespace rgl

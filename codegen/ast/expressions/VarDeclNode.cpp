@@ -1,10 +1,10 @@
 #include "parser/ast/expressions/VarDeclNode.hpp"
 #include "codegen/Context.hpp"
+#include "codegen/values/BasicValue.hpp"
 #include "common/Formatter.hpp"
-#include <iostream>
 
 namespace rgl {
-llvm::Value *VarDeclNode::genCode(llvm::Value *storeLoc) {
+ValuePtr VarDeclNode::genCode(ValuePtr storeLoc) {
   // create a variable on the current stack frame
   auto currStackFrame = Context::getCurrContext()
                             ->getCurrGeneratedFunction()
@@ -12,6 +12,6 @@ llvm::Value *VarDeclNode::genCode(llvm::Value *storeLoc) {
   currStackFrame->createVariable(m_name->get(), m_expr, m_type);
 
   // TODO: return the actual value
-  return nullptr;
+  return BasicValue::BadValue();
 }
 }; // namespace rgl

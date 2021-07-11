@@ -9,7 +9,7 @@ public:
 
   virtual TypePtr getType() const override { return BasicType::t_float(); }
 
-  virtual llvm::Value *genCode() override;
+  virtual ValuePtr genCode() override;
 
   std::string toTreeStr(size_t spaces) const override {
     return Formatter("FloatLiteral<{}>", m_value);

@@ -13,3 +13,61 @@ Important change:
 A function declaration may only have a name if it is the only expression in the
 current ExpressionStatement, therefore, these are the only functions that can be
 referenced even if they are declared after the place of reference.
+
+================================================================================
+Type symbols
+Function overload
+Bin ops
+Unary ops
+Invoke with params
+Conditionals
+While
+For
+Modules/Imports
+Globals (initialization and destruction)
+Classes
+
+Type representation:
+- Parser:
+  Only needs to make sure it is a valid type syntactically
+- Codegen:
+  Need to store members, methods, constructors...
+  struct typeDescriptor {
+    TypeDescriptorFlags m_flags; // things such as whether the type is
+                                 // trivally copiable
+    std::vector<FunctionSymbolPtr> m_ctors;
+    FunctionSymbolPtr m_dtor;
+    SymbolMapPtr m_members; // all fields and methods
+  };
+
+
+
+class TypeSymbolBase {
+protected:
+  TypeTraits m_traits;
+};
+using TypeSymbolPtr = std::shared_ptr<TypeSymbolBase>;
+
+class BasicTypeSymbol : public TypeSymbolBase {
+private:
+  std::vector<FunctionSymbolPtr> m_ctors;
+  FunctionSymbolPtr m_dtor;
+  SymbolMapPtr m_members;
+};
+
+class FunctionTypeSymbol : public TypeSymbolBase {
+private:
+  TypeSymbolPtr m_retType;
+  std::vector<TypeSymbolPtr> m_params;
+};
+
+class ArrayTypeSymbol : public TypeSymbolBase {
+private:
+  TypeSymbolPtr m_containedType;
+};
+
+class ModifiedTypeSymbol : public TypeSymbolBase {
+private:
+  TypeModifiers m_modifiers;
+  TypeSymbolPtr m_contained;
+}

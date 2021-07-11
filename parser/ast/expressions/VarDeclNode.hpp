@@ -9,7 +9,7 @@ public:
   VarDeclNode(Identifier name, TypePtr type, Expression expr)
       : m_name(std::move(name)), m_type(type), m_expr(std::move(expr)) {}
 
-  virtual llvm::Value *genCode(llvm::Value *storeLoc) override;
+  virtual ValuePtr genCode(ValuePtr storeLoc) override;
 
   FieldPtr toFieldPtr(bool isExposed = false, bool isMutable = false);
 

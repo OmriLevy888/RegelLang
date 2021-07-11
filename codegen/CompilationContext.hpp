@@ -1,6 +1,6 @@
 #pragma once
-#include "codegen/FunctionSymbol.hpp"
-#include "codegen/ModuleSymbol.hpp"
+#include "codegen/values/symbols/FunctionSymbol.hpp"
+#include "codegen/values/symbols/ModuleSymbol.hpp"
 #include "common/Core.hpp"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
@@ -14,7 +14,7 @@ public:
                      ModuleSymbolPtr module);
 
   ModuleSymbolPtr module() { return m_module; }
-  llvm::Module *llvmModule() { return m_module->get(); }
+  llvm::Module *llvmModule() { return m_module->llvmModule(); }
   llvm::IRBuilder<> *builder() { return m_module->builder(); }
   FunctionSymbolPtr getCurrGeneratedFunction() {
     if (0 == m_generatingFunctions.size()) {

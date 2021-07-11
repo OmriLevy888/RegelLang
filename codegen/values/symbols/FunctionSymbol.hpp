@@ -1,9 +1,8 @@
 #pragma once
-#include "codegen/SymbolBase.hpp"
-#include "codegen/SymbolMap.hpp"
+#include "codegen/values/symbols/SymbolBase.hpp"
+#include "codegen/values/symbols/SymbolMap.hpp"
 #include "parser/ast/constructs/FunctionType.hpp"
 #include "parser/ast/expressions/literals/ParameterNode.hpp"
-#include "llvm/IR/Function.h"
 
 namespace rgl {
 class FunctionSymbol;
@@ -18,8 +17,6 @@ public:
 
   virtual bool isFunction() const override { return true; }
 
-  llvm::Function *llvmFunction() { return m_llvmFunction; }
-
   // If thisSharedPtr is not passed, the function will look it up
   void genCode(const Expression &body,
                FunctionSymbolPtr thisSharedPtr = nullptr);
@@ -30,13 +27,10 @@ public:
   // The top stack frames is at index [.size() - 1]
   std::vector<SymbolMapPtr> &getStackFrames();
 
-  virtual std::string toString() const override;
-
 private:
   std::vector<std::string> m_name;
   std::vector<std::vector<std::string>> m_paramNames;
   FunctionTypePtr m_type;
-  llvm::Function *m_llvmFunction;
   std::vector<SymbolMapPtr> m_stackFrames;
 
   FunctionSymbol(const std::vector<std::string> &name,

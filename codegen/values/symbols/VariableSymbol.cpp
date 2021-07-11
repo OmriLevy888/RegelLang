@@ -1,11 +1,10 @@
-#include "codegen/VariableSymbol.hpp"
+#include "codegen/values/symbols/VariableSymbol.hpp"
 #include "codegen/Context.hpp"
 
 namespace rgl {
-VariableSymbol::VariableSymbol(const std::string &name, TypePtr type,
-                               llvm::Value *storeLoc, bool isParameter)
-    : m_name(name), m_type(type), m_storeLoc(storeLoc),
-      m_isParameter(isParameter) {}
+VariableSymbol::VariableSymbol(const std::string &name, llvm::Value *storeLoc,
+                               bool isParameter)
+    : SymbolBase(storeLoc), m_name(name), m_isParameter(isParameter) {}
 
 VariableSymbolPtr VariableSymbol::make(const std::vector<std::string> &name,
                                        TypePtr type, llvm::Value *paramValue) {
@@ -22,7 +21,7 @@ VariableSymbolPtr VariableSymbol::make(const std::vector<std::string> &name,
   }
 
   return VariableSymbolPtr(
-      new VariableSymbol(joinedName, type, storeLoc, isParameter));
+      new VariableSymbol(joinedName, storeLoc, isParameter));
 }
 
 std::string VariableSymbol::toString() const { return "VariableSymbol"; }

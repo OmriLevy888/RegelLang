@@ -15,7 +15,7 @@ public:
     m_params = std::move(params);
   }
 
-  virtual llvm::Value *genCode() override;
+  virtual ValuePtr genCode() override;
 
   virtual std::string toTreeStr(size_t spaces) const override {
     std::string spacesStr(spaces + 7, ' ');
