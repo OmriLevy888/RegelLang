@@ -7,8 +7,9 @@
 namespace rgl {
 ValuePtr FunctionLiteralNode::genCode() {
   const bool isVarArg = false;
+  auto retTypeSymbol = Context::module()->symbols().getType(m_retType);
   auto functionSymbol = Context::module()->symbols().createFunction(
-      m_name->get(), m_retType, m_parameters, isVarArg);
+      m_name->get(), retTypeSymbol, m_parameters, isVarArg);
   functionSymbol->genCode(m_body);
 
   return functionSymbol;
@@ -16,8 +17,9 @@ ValuePtr FunctionLiteralNode::genCode() {
 
 void FunctionLiteralNode::declare() {
   const bool isVarArg = false;
+  auto retTypeSymbol = Context::module()->symbols().getType(m_retType);
   auto functionSymbol = Context::module()->symbols().createFunction(
-      m_name->get(), m_retType, m_parameters, isVarArg);
+      m_name->get(), retTypeSymbol, m_parameters, isVarArg);
 }
 void FunctionLiteralNode::define() {
   auto symbol = Context::module()->symbols().get(m_name->get());

@@ -1,8 +1,8 @@
 #include "lexer/Token.hpp"
 #include "parser/Parser.hpp"
 #include "parser/ParserUtilities.hpp"
-#include "parser/ast/constructs/FunctionType.hpp"
-#include "parser/ast/constructs/Type.hpp"
+#include "parser/ast/constructs/BasicTypeNode.hpp"
+#include "parser/ast/constructs/FunctionTypeNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
 
@@ -42,7 +42,7 @@ NamespaceDeclaration Parser::parseNamespaceDeclaration() {
   return std::make_unique<NamespaceDeclarationNode>(std::move(name));
 }
 
-TypePtr Parser::parseType(bool skipQualifiers) {
+TypeNodePtr Parser::parseType(bool skipQualifiers) {
   std::optional<BitField<TypeProperties>> properties = TypeProperties::_default;
   if (!skipQualifiers) {
     properties = parseTypeModifiers();
@@ -109,7 +109,7 @@ std::optional<BitField<TypeProperties>> Parser::parseTypeModifiers() {
   return properties;
 }
 
-TypePtr Parser::parseBasicType(BitField<TypeProperties> properties) {
+TypeNodePtr Parser::parseBasicType(BitField<TypeProperties> properties) {
   std::vector<std::string> name;
   if (!ParserUtilities::isIdentifier(m_tokens->getCurr())) {
     ErrorManager::logError(
@@ -136,12 +136,12 @@ TypePtr Parser::parseBasicType(BitField<TypeProperties> properties) {
     m_tokens->getNext(); // consume current identifier
   }
 
-  return BasicType::make(std::move(name), properties);
+  return std::make_unique<BasicTypeNode>(std::move(name), properties);
 }
 
-TypePtr Parser::parseFunctionType(BitField<TypeProperties> properties) {
+TypeNodePtr Parser::parseFunctionType(BitField<TypeProperties> properties) {
   bool multipleParamTypes = (TokenType::t_open_paren == m_tokens->getCurr());
-  std::vector<TypePtr> paramTypes;
+  std::vector<TypeNodePtr> paramTypes;
   if (multipleParamTypes) {
     m_tokens->getNext(); // consume (
     while (TokenType::t_close_paren != m_tokens->getCurr()) {
@@ -161,7 +161,7 @@ TypePtr Parser::parseFunctionType(BitField<TypeProperties> properties) {
       if (nullptr == currType) {
         return nullptr;
       }
-      paramTypes.push_back(currType);
+      paramTypes.push_back(std::move(currType));
     }
 
     if (TokenType::t_close_paren != m_tokens->getCurr()) {
@@ -180,10 +180,10 @@ TypePtr Parser::parseFunctionType(BitField<TypeProperties> properties) {
     if (nullptr == currType) {
       return nullptr;
     }
-    paramTypes.push_back(currType);
+    paramTypes.push_back(std::move(currType));
   }
 
-  TypePtr retType = BasicType::t_void();
+  auto retType = BasicTypeNode::t_void();
   if (TokenType::t_arrow == m_tokens->getCurr()) {
     m_tokens->getNext(); // consume =>
     retType = parseType();
@@ -192,6 +192,7 @@ TypePtr Parser::parseFunctionType(BitField<TypeProperties> properties) {
     }
   }
 
-  return FunctionType::make(std::move(paramTypes), retType, properties);
+  return std::make_unique<FunctionTypeNode>(std::move(paramTypes),
+                                            std::move(retType), properties);
 }
 }; // namespace rgl

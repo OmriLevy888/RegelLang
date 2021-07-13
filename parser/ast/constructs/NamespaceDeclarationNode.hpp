@@ -1,5 +1,5 @@
 #pragma once
-#include "parser/ast/expressions/ExpressionNode.hpp"
+#include "parser/ast/constructs/ConstructNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 
 namespace rgl {

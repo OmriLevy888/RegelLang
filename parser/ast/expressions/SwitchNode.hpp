@@ -1,6 +1,5 @@
 #pragma once
 #include "common/Formatter.hpp"
-#include "parser/ast/constructs/Type.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/SwitchCaseNode.hpp"
 #include <vector>

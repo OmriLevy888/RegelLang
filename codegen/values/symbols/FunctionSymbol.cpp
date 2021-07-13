@@ -1,5 +1,6 @@
 #include "codegen/values/symbols/FunctionSymbol.hpp"
 #include "codegen/Context.hpp"
+#include "codegen/values/symbols/types/FunctionTypeSymbol.hpp"
 #include "common/Formatter.hpp"
 #include "llvm/Support/raw_ostream.h"
 
@@ -7,21 +8,24 @@ namespace rgl {
 FunctionSymbol::FunctionSymbol(
     const std::vector<std::string> &name,
     const std::vector<std::vector<std::string>> &paramNames,
-    FunctionTypePtr type, llvm::Function *llvmFunction)
+    FunctionTypeSymbolPtr type, llvm::Function *llvmFunction)
     : SymbolBase(llvmFunction), m_name(name), m_paramNames(paramNames),
       m_type(type) {}
 
 FunctionSymbolPtr FunctionSymbol::make(const std::vector<std::string> &name,
-                                       TypePtr retType,
+                                       TypeSymbolPtr retType,
                                        const std::vector<Parameter> &parameters,
                                        bool isVarArg) {
-  std::vector<TypePtr> paramTypes{};
+  std::vector<TypeSymbolPtr> paramTypes{};
   paramTypes.reserve(parameters.size());
   for (const auto &param : parameters) {
-    paramTypes.push_back(param->getType());
+    paramTypes.push_back(
+        Context::module()->symbols().getType(param->getType()));
   }
-  auto functionType = FunctionType::make(std::move(paramTypes), retType);
-  auto llvmFunctionType = functionType->toLLVMType();
+  auto functionTypeSymbol = Context::module()->symbols().getFunctionType(
+      std::move(paramTypes), retType);
+  auto llvmFunctionType =
+      reinterpret_cast<llvm::FunctionType *>(functionTypeSymbol->llvmType());
 
   const std::string functionName = Formatter(
       "{}::{}", Formatter<>::joinContainer('.', Context::module()->getName()),
@@ -42,7 +46,7 @@ FunctionSymbolPtr FunctionSymbol::make(const std::vector<std::string> &name,
   }
 
   return FunctionSymbolPtr(
-      new FunctionSymbol(name, paramNames, functionType, llvmFunction));
+      new FunctionSymbol(name, paramNames, functionTypeSymbol, llvmFunction));
 }
 
 void FunctionSymbol::genCode(const Expression &body,

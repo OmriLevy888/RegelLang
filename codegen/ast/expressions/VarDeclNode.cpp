@@ -9,7 +9,8 @@ ValuePtr VarDeclNode::genCode(ValuePtr storeLoc) {
   auto currStackFrame = Context::getCurrContext()
                             ->getCurrGeneratedFunction()
                             ->getCurrStackFrame();
-  currStackFrame->createVariable(m_name->get(), m_expr, m_type);
+  auto variableTypeSymbol = Context::module()->symbols().getType(m_type);
+  currStackFrame->createVariable(m_name->get(), m_expr, variableTypeSymbol);
 
   // TODO: return the actual value
   return BasicValue::BadValue();

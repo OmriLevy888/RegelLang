@@ -6,13 +6,17 @@ namespace rgl {
 class ModifiedTypeSymbol;
 using ModifiedTypeSymbolPtr = std::shared_ptr<ModifiedTypeSymbol>;
 
-enum class TypeModifiers : uint64_t {};
+enum class TypeModifiers : uint64_t { _mutable = 1 };
 
 class ModifiedTypeSymbol : public TypeSymbolBase {
 public:
   static ModifiedTypeSymbolPtr make();
 
   virtual bool isModifiedType() const override { return true; }
+
+  virtual bool isImplicitType() const override {
+    return m_containedType->isImplicitType();
+  }
 
 private:
   BitField<TypeModifiers> m_modifiers;

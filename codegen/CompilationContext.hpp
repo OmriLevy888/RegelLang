@@ -33,5 +33,7 @@ private:
   std::shared_ptr<llvm::LLVMContext> m_context;
   ModuleSymbolPtr m_module;
   std::stack<FunctionSymbolPtr> m_generatingFunctions;
+
+  void initializeBuiltinTypes();
 };
 }; // namespace rgl

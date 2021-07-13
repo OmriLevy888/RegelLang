@@ -4,8 +4,6 @@
 #include "lexer/TokenCollection.hpp"
 #include "parser/ast/constructs/FileNode.hpp"
 #include "parser/ast/constructs/NamespaceDeclarationNode.hpp"
-#include "parser/ast/expressions/BasicIdentifierNode.hpp"
-#include "parser/ast/expressions/CompoundIdentifierNode.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/ImportNode.hpp"
@@ -26,7 +24,7 @@ public:
   File parseFile();
   Expression parseExpression();
   Statement parseStatement();
-  TypePtr parseType(bool skipQualifiers = false);
+  TypeNodePtr parseType(bool skipQualifiers = false);
   NamespaceDeclaration parseNamespaceDeclaration();
 
   std::string toString() const override {
@@ -38,8 +36,8 @@ private:
   uint8_t m_lastPrecedence;
 
   std::optional<BitField<TypeProperties>> parseTypeModifiers();
-  TypePtr parseBasicType(BitField<TypeProperties> properties);
-  TypePtr parseFunctionType(BitField<TypeProperties> properties);
+  TypeNodePtr parseBasicType(BitField<TypeProperties> properties);
+  TypeNodePtr parseFunctionType(BitField<TypeProperties> properties);
 
   Import parseImport();
 
@@ -48,7 +46,6 @@ private:
   Expression parseImplicitStatementExpression();
 
   Identifier parserIdentifier();
-  BasicIdentifier parseBasicIdentifier();
   Expression parseLiteral();
   Expression parseIntLiteral();
   Expression parseRealLiteral();

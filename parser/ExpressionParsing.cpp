@@ -6,6 +6,7 @@
 #include "lexer/Token.hpp"
 #include "parser/Parser.hpp"
 #include "parser/ParserUtilities.hpp"
+#include "parser/ast/constructs/BasicTypeNode.hpp"
 #include "parser/ast/expressions/ConditionalNode.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/ForInLoopNode.hpp"
@@ -64,7 +65,7 @@ Expression Parser::parsePrimary() {
   const Token &tok = m_tokens->getCurr();
 
   if (ParserUtilities::isIdentifier(tok)) {
-    auto identifier = parseBasicIdentifier();
+    auto identifier = parserIdentifier();
     if (TokenType::t_colon == m_tokens->getNext()) {
       return parseVarDecl(std::move(identifier));
     }
@@ -131,15 +132,7 @@ Identifier Parser::parserIdentifier() {
     m_tokens->getNext(); // consume identifier
   }
 
-  if (1 == parts.size()) {
-    return std::make_unique<BasicIdentifierNode>(std::move(parts[0]));
-  }
-  return std::make_unique<CompoundIdentifierNode>(std::move(parts));
-}
-
-BasicIdentifier Parser::parseBasicIdentifier() {
-  return std::make_unique<BasicIdentifierNode>(std::move(
-      std::get<std::string>(std::move(m_tokens->getCurrValue().value()))));
+  return std::make_unique<IdentifierNode>(std::move(parts));
 }
 
 Expression Parser::parseLiteral() {
@@ -158,45 +151,45 @@ Expression Parser::parseLiteral() {
 
 Expression Parser::parseIntLiteral() {
   if (ParserUtilities::isSignedIntLiteral(m_tokens->getCurr())) {
-    std::shared_ptr<Type> intType;
+    TypeNodePtr intType = nullptr;
     switch (m_tokens->getCurr()) {
     case TokenType::t_int8_literal:
-      intType = BasicType::t_int8();
+      intType = BasicTypeNode::t_int8();
       break;
     case TokenType::t_int16_literal:
-      intType = BasicType::t_int16();
+      intType = BasicTypeNode::t_int16();
       break;
     case TokenType::t_int32_literal:
-      intType = BasicType::t_int32();
+      intType = BasicTypeNode::t_int32();
       break;
     case TokenType::t_int64_literal:
-      intType = BasicType::t_int64();
+      intType = BasicTypeNode::t_int64();
       break;
     default:
       return nullptr;
     }
     int64_t intValue = std::get<int64_t>(m_tokens->getCurrValue().value());
-    return std::make_unique<IntLiteralNode>(intValue, intType);
+    return std::make_unique<IntLiteralNode>(intValue, std::move(intType));
   } else if (ParserUtilities::isUnsignedIntLiteral(m_tokens->getCurr())) {
-    std::shared_ptr<Type> uintType;
+    TypeNodePtr uintType = nullptr;
     switch (m_tokens->getCurr()) {
     case TokenType::t_uint8_literal:
-      uintType = BasicType::t_uint8();
+      uintType = BasicTypeNode::t_uint8();
       break;
     case TokenType::t_uint16_literal:
-      uintType = BasicType::t_uint16();
+      uintType = BasicTypeNode::t_uint16();
       break;
     case TokenType::t_uint32_literal:
-      uintType = BasicType::t_uint32();
+      uintType = BasicTypeNode::t_uint32();
       break;
     case TokenType::t_uint64_literal:
-      uintType = BasicType::t_uint64();
+      uintType = BasicTypeNode::t_uint64();
       break;
     default:
       return nullptr;
     }
     uint64_t uintValue = std::get<uint64_t>(m_tokens->getCurrValue().value());
-    return std::make_unique<UintLiteralNode>(uintValue, uintType);
+    return std::make_unique<UintLiteralNode>(uintValue, std::move(uintType));
   }
 
   return nullptr;
@@ -379,7 +372,7 @@ VarDeclPtr Parser::parseVarDecl(Identifier name, bool allowUninitializedConst,
       // TODO: write error message
       return nullptr;
     }
-    name = parseBasicIdentifier();
+    name = parserIdentifier();
     m_tokens->getNext(); // consume identifier
   }
 
@@ -388,7 +381,7 @@ VarDeclPtr Parser::parseVarDecl(Identifier name, bool allowUninitializedConst,
     return nullptr;
   }
 
-  TypePtr type = BasicType::t_implicit();
+  TypeNodePtr type = BasicTypeNode::t_implicit();
   if (TokenType::t_equal != m_tokens->getNext() || !allowValue) {
     type = parseType(true);
     if (nullptr == type) {
@@ -397,13 +390,13 @@ VarDeclPtr Parser::parseVarDecl(Identifier name, bool allowUninitializedConst,
     }
   }
 
-  if (type->equals(BasicType::t_implicit()) &&
-      !allowValue) { // used for class definition
+  if (type->isImplicitType() && !allowValue) { // used for class definition
     // context, no value is allowed but a type has to be specified
     // TODO: wrtie error message
     return nullptr;
   } else if (!allowValue) {
-    return std::make_unique<VarDeclNode>(std::move(name), type, nullptr);
+    return std::make_unique<VarDeclNode>(std::move(name), std::move(type),
+                                         nullptr);
   }
 
   Expression expr;
@@ -431,7 +424,8 @@ VarDeclPtr Parser::parseVarDecl(Identifier name, bool allowUninitializedConst,
     type = type->getOwningType();
   }
 
-  return std::make_unique<VarDeclNode>(std::move(name), type, std::move(expr));
+  return std::make_unique<VarDeclNode>(std::move(name), std::move(type),
+                                       std::move(expr));
 }
 
 Scope Parser::parseScope(bool forceBrackets, bool disallowBrackets,
@@ -623,7 +617,7 @@ Expression Parser::parseForInLoop() {
     // TODO: write error message
     return nullptr;
   }
-  Identifier name = parseBasicIdentifier();
+  Identifier name = parserIdentifier();
   m_tokens->getNext(); // consume identifier
 
   if (TokenType::t_in != m_tokens->getCurr()) {
@@ -734,7 +728,7 @@ FunctionPtr Parser::parseFunction(bool withName) {
       // TODO: write error message
       return nullptr;
     }
-    name = parseBasicIdentifier();
+    name = parserIdentifier();
     m_tokens->getNext(); // consume name
   }
 
@@ -745,7 +739,7 @@ FunctionPtr Parser::parseFunction(bool withName) {
   if (multipleParams) {
     m_tokens->discardAnchor();
     m_tokens->getNext(); // consume (
-    TypePtr lastType = nullptr;
+    TypeNodePtr lastType = nullptr;
     while (TokenType::t_close_paren != m_tokens->getCurr()) {
       if (nullptr != lastType) {
         // if not the first parameter
@@ -761,7 +755,7 @@ FunctionPtr Parser::parseFunction(bool withName) {
 
       // TODO: disable the ErrorManager
       m_tokens->saveAnchorAndCurrentToken();
-      TypePtr paramType = parseType();
+      TypeNodePtr paramType = parseType();
       if (nullptr == paramType && nullptr == lastType) {
         m_tokens->discardAnchor();
         return nullptr;
@@ -771,9 +765,9 @@ FunctionPtr Parser::parseFunction(bool withName) {
       if (TokenType::t_identifier != m_tokens->getCurr()) {
         if (nullptr != lastType && paramType->isSimpleType()) {
           m_tokens->restoreAnchor();
-          paramName = parseBasicIdentifier();
+          paramName = parserIdentifier();
           m_tokens->getNext(); // consume identifier
-          paramType = lastType;
+          paramType = std::move(lastType);
         } else {
           m_tokens->discardAnchor();
           ErrorManager::logError(ErrorTypes::E_BAD_TOKEN,
@@ -784,12 +778,12 @@ FunctionPtr Parser::parseFunction(bool withName) {
         }
       } else {
         m_tokens->discardAnchor();
-        paramName = parseBasicIdentifier();
+        paramName = parserIdentifier();
         m_tokens->getNext(); // consume identifier
       }
-      parameters.push_back(
-          std::make_unique<ParameterNode>(paramType, std::move(paramName)));
-      lastType = paramType;
+      lastType = paramType->clone();
+      parameters.push_back(std::make_unique<ParameterNode>(
+          std::move(paramType), std::move(paramName)));
     }
 
     if (TokenType::t_close_paren != m_tokens->getCurr()) {
@@ -805,7 +799,7 @@ FunctionPtr Parser::parseFunction(bool withName) {
     m_tokens->restoreAnchor();
     name = nullptr;
     m_tokens->saveAnchorAndCurrentToken();
-    TypePtr paramType = parseType();
+    TypeNodePtr paramType = parseType();
     if (nullptr != paramType) {
       m_tokens->discardAnchor();
 
@@ -816,10 +810,10 @@ FunctionPtr Parser::parseFunction(bool withName) {
                                 m_tokens});
         return nullptr;
       }
-      Identifier paramName = parseBasicIdentifier();
+      Identifier paramName = parserIdentifier();
       m_tokens->getNext();
-      parameters.push_back(
-          std::make_unique<ParameterNode>(paramType, std::move(paramName)));
+      parameters.push_back(std::make_unique<ParameterNode>(
+          std::move(paramType), std::move(paramName)));
     } else {
       // in case there are no arguments and no parens
       m_tokens->restoreAnchor();
@@ -828,7 +822,7 @@ FunctionPtr Parser::parseFunction(bool withName) {
 
   // parse retType
   bool explicitReturnType = false;
-  TypePtr retType = BasicType::t_void();
+  TypeNodePtr retType = BasicTypeNode::t_void();
   if (TokenType::t_arrow == m_tokens->getCurr()) {
     m_tokens->getNext(); // consume =>
     retType = parseType();
@@ -856,7 +850,8 @@ FunctionPtr Parser::parseFunction(bool withName) {
   }
 
   return std::make_unique<FunctionLiteralNode>(
-      std::move(name), std::move(parameters), retType, std::move(body));
+      std::move(name), std::move(parameters), std::move(retType),
+      std::move(body));
 }
 
 Import Parser::parseImport() {

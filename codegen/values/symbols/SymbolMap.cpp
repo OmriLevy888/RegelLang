@@ -43,10 +43,9 @@ SymbolPtr SymbolMap::insert(std::vector<std::string>::const_iterator curr,
   return nextMap->insert(curr + 1, end, symbol);
 }
 
-FunctionSymbolPtr
-SymbolMap::createFunction(const std::vector<std::string> &name, TypePtr retType,
-                          const std::vector<Parameter> &parameters,
-                          bool isVarArg) {
+FunctionSymbolPtr SymbolMap::createFunction(
+    const std::vector<std::string> &name, TypeSymbolPtr retType,
+    const std::vector<Parameter> &parameters, bool isVarArg) {
   auto functionSymbol =
       FunctionSymbol::make(name, retType, parameters, isVarArg);
 
@@ -57,11 +56,21 @@ SymbolMap::createFunction(const std::vector<std::string> &name, TypePtr retType,
   return functionSymbol;
 }
 
+// TODO: Implement these
+TypeSymbolPtr SymbolMap::getType(const TypeNodePtr &typeNode) {
+  return nullptr;
+}
+FunctionTypeSymbolPtr
+SymbolMap::getFunctionType(std::vector<TypeSymbolPtr> &&params,
+                           TypeSymbolPtr retType) {
+  return nullptr;
+}
+
 VariableSymbolPtr
 SymbolMap::createVariable(const std::vector<std::string> &name,
-                          const Expression &value, TypePtr type) {
+                          const Expression &value, TypeSymbolPtr type) {
   // TODO: change nullptr == value to value->isUndefined()
-  TypePtr variableType = nullptr;
+  TypeSymbolPtr variableType = nullptr;
   if (type->isConst() && nullptr == value) {
     // TODO: write error message
     return nullptr;
@@ -88,8 +97,8 @@ SymbolMap::createVariable(const std::vector<std::string> &name,
 }
 
 VariableSymbolPtr
-SymbolMap::createParameter(const std::vector<std::string> &name, TypePtr type,
-                           llvm::Value *paramValue) {
+SymbolMap::createParameter(const std::vector<std::string> &name,
+                           TypeSymbolPtr type, llvm::Value *paramValue) {
   auto parameterSymbol = VariableSymbol::make(name, type, paramValue);
 
   this->insert(name, parameterSymbol);

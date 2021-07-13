@@ -1,7 +1,7 @@
 #pragma once
-
 #include "common/Formatter.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
+
 namespace rgl {
 class IndexNode : public ExpressionNode {
 public:

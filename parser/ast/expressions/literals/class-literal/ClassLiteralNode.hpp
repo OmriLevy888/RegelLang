@@ -1,7 +1,5 @@
 #pragma once
 #include "codegen/ast/DeclarableBaseNode.hpp"
-#include "common/errors/ErrorManager.hpp"
-#include "common/errors/ErrorObject.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/literals/class-literal/ClassFieldNode.hpp"
 #include "parser/ast/expressions/literals/class-literal/MethodNode.hpp"

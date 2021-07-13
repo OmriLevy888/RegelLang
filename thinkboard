@@ -71,3 +71,36 @@ private:
   TypeModifiers m_modifiers;
   TypeSymbolPtr m_contained;
 }
+
+================================================================================
+Parser types:
+- TypeBase -> contains type m_modifiers
+- BasicType -> TypeBase with an identifier
+- FunctionType -> TypeBase with representation of function type
+- No need for type map, just have static instances for builtin types
+  (singeltons) for performance when writing tests
+- Equasion done using basic type string representation comparison
+
+merge basic identifier and compound identifier
+
+
+
+
+
+llvm::FunctionType::get(retType, paramTypes, isVarArg);
+
+
+
+
+- Fix all symbols to use TypeSymbolPtr and fix all include problems and make
+  sure the parser uses the new Identifier type and so do all ASTNode sub-classes
+    
+- VariableSymbol::make
+- FunctionSymbol::make
+
+TODO:
+implement BasicTypeSymbol::make and FunctionTypeSymbol::make from
+`const TypeNodePtr &` as argument and implement getType() and getFunctionType()
+methods of `SymbolMap` type. Also ivestigate why the program crashes when
+parsing. Lastly, fix compilation setup so that tests work again and fix them to
+use the new classes.

@@ -1,13 +1,17 @@
 #pragma once
-#include "codegen/values/ValueBase.hpp"
 #include "common/Core.hpp"
 #include "parser/ast/ASTNode.hpp"
-#include "parser/ast/constructs/BasicType.hpp"
 
 namespace rgl {
+class ValueBase;
+using ValuePtr = std::shared_ptr<ValueBase>;
+
+class TypeSymbolBase;
+using TypeSymbolPtr = std::shared_ptr<TypeSymbolBase>;
+
 class ExpressionNode : public ASTNode {
 public:
-  virtual TypePtr getType() const { return BasicType::t_void(); }
+  TypeSymbolPtr getType() const { return nullptr; }
   // TODO: add getValue function that returns an LLVMValue
   // TODO: add getStorageLocation function that return an LLVMValue
 

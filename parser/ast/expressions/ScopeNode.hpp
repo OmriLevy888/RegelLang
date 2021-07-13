@@ -2,7 +2,6 @@
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/literals/class-literal/ClassLiteralNode.hpp"
 #include "parser/ast/statements/StatementNode.hpp"
-#include <vector>
 
 namespace rgl {
 class ScopeNode : public ExpressionNode {

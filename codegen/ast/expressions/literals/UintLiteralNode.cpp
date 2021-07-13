@@ -5,7 +5,9 @@
 
 namespace rgl {
 ValuePtr UintLiteralNode::genCode() {
-  return std::make_shared<BasicValue>(llvm::ConstantInt::get(
-      *Context::llvmContext(), llvm::APInt(m_type->getSizeBits(), m_value)));
+  auto typeSymbol = Context::module()->symbols().getType(m_type);
+  return std::make_shared<BasicValue>(
+      llvm::ConstantInt::get(*Context::llvmContext(),
+                             llvm::APInt(typeSymbol->getSizeBits(), m_value)));
 }
 }; // namespace rgl

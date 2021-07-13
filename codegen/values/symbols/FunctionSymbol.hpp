@@ -1,7 +1,7 @@
 #pragma once
 #include "codegen/values/symbols/SymbolBase.hpp"
 #include "codegen/values/symbols/SymbolMap.hpp"
-#include "parser/ast/constructs/FunctionType.hpp"
+#include "codegen/values/symbols/types/TypeSymbolBase.hpp"
 #include "parser/ast/expressions/literals/ParameterNode.hpp"
 
 namespace rgl {
@@ -11,7 +11,7 @@ using FunctionSymbolPtr = std::shared_ptr<FunctionSymbol>;
 class FunctionSymbol : public SymbolBase {
 public:
   static FunctionSymbolPtr make(const std::vector<std::string> &name,
-                                TypePtr retType,
+                                TypeSymbolPtr retType,
                                 const std::vector<Parameter> &parameters,
                                 bool isVarArg = false);
 
@@ -30,11 +30,11 @@ public:
 private:
   std::vector<std::string> m_name;
   std::vector<std::vector<std::string>> m_paramNames;
-  FunctionTypePtr m_type;
+  FunctionTypeSymbolPtr m_type;
   std::vector<SymbolMapPtr> m_stackFrames;
 
   FunctionSymbol(const std::vector<std::string> &name,
                  const std::vector<std::vector<std::string>> &paramNames,
-                 FunctionTypePtr type, llvm::Function *llvmFunction);
+                 FunctionTypeSymbolPtr type, llvm::Function *llvmFunction);
 };
 }; // namespace rgl

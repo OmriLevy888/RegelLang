@@ -10,9 +10,9 @@ namespace rgl {
 class FunctionLiteralNode : public ExpressionNode, public DeclarableBaseNode {
 public:
   FunctionLiteralNode(Identifier name, std::vector<Parameter> &&parameters,
-                      TypePtr retType, Expression body)
+                      TypeNodePtr retType, Expression body)
       : m_name(std::move(name)), m_parameters(std::move(parameters)),
-        m_retType(retType), m_body(std::move(body)) {}
+        m_retType(std::move(retType)), m_body(std::move(body)) {}
 
   virtual ValuePtr genCode() override;
 
@@ -45,7 +45,7 @@ public:
 private:
   Identifier m_name;
   std::vector<Parameter> m_parameters;
-  TypePtr m_retType;
+  TypeNodePtr m_retType;
   Expression m_body;
 };
 

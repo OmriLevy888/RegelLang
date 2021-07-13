@@ -1,27 +1,27 @@
 #pragma once
 #include "parser/ast/ASTNode.hpp"
-#include "parser/ast/constructs/Type.hpp"
+#include "parser/ast/constructs/TypeNodeBase.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 
 namespace rgl {
 class ParameterNode : public ASTNode {
 public:
-  ParameterNode(TypePtr type, Identifier name)
-      : m_type(type), m_name(std::move(name)) {}
+  ParameterNode(TypeNodePtr type, Identifier name)
+      : m_type(std::move(type)), m_name(std::move(name)) {}
 
-  TypePtr getType() { return m_type; }
+  TypeNodePtr &getType() { return m_type; }
   std::vector<std::string> getName() { return m_name->get(); }
   std::string getNameString() { return m_name->getString(); }
-  llvm::Type *getLLVMType() { return m_type->toLLVMType(); }
 
   std::string toTreeStr(size_t spaces) const override {
     const std::string spacesStr(spaces + 19, ' ');
     return Formatter("ParameterNode<name:{},\n{}type:{}>",
-                     m_name->toTreeStr(spaces + 19), spacesStr, m_type);
+                     m_name->toTreeStr(spaces + 19), spacesStr,
+                     m_type->toString());
   }
 
 private:
-  TypePtr m_type;
+  TypeNodePtr m_type;
   Identifier m_name;
 };
 
