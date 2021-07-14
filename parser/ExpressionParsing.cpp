@@ -65,8 +65,8 @@ Expression Parser::parsePrimary() {
   const Token &tok = m_tokens->getCurr();
 
   if (ParserUtilities::isIdentifier(tok)) {
-    auto identifier = parserIdentifier();
-    if (TokenType::t_colon == m_tokens->getNext()) {
+    auto identifier = parseIdentifier();
+    if (TokenType::t_colon == m_tokens->getCurr()) {
       return parseVarDecl(std::move(identifier));
     }
     return identifier;
@@ -112,7 +112,7 @@ Expression Parser::parseImplicitStatementExpression() {
   return nullptr;
 }
 
-Identifier Parser::parserIdentifier() {
+Identifier Parser::parseIdentifier() {
   if (TokenType::t_identifier != m_tokens->getCurr()) {
     // TODO: write error message
     return nullptr;
@@ -372,8 +372,7 @@ VarDeclPtr Parser::parseVarDecl(Identifier name, bool allowUninitializedConst,
       // TODO: write error message
       return nullptr;
     }
-    name = parserIdentifier();
-    m_tokens->getNext(); // consume identifier
+    name = parseIdentifier();
   }
 
   if (TokenType::t_colon != m_tokens->getCurr()) {
@@ -617,8 +616,7 @@ Expression Parser::parseForInLoop() {
     // TODO: write error message
     return nullptr;
   }
-  Identifier name = parserIdentifier();
-  m_tokens->getNext(); // consume identifier
+  Identifier name = parseIdentifier();
 
   if (TokenType::t_in != m_tokens->getCurr()) {
     // TODO: write error message
@@ -728,8 +726,7 @@ FunctionPtr Parser::parseFunction(bool withName) {
       // TODO: write error message
       return nullptr;
     }
-    name = parserIdentifier();
-    m_tokens->getNext(); // consume name
+    name = parseIdentifier();
   }
 
   // parse parameters
@@ -765,8 +762,7 @@ FunctionPtr Parser::parseFunction(bool withName) {
       if (TokenType::t_identifier != m_tokens->getCurr()) {
         if (nullptr != lastType && paramType->isSimpleType()) {
           m_tokens->restoreAnchor();
-          paramName = parserIdentifier();
-          m_tokens->getNext(); // consume identifier
+          paramName = parseIdentifier();
           paramType = std::move(lastType);
         } else {
           m_tokens->discardAnchor();
@@ -778,8 +774,7 @@ FunctionPtr Parser::parseFunction(bool withName) {
         }
       } else {
         m_tokens->discardAnchor();
-        paramName = parserIdentifier();
-        m_tokens->getNext(); // consume identifier
+        paramName = parseIdentifier();
       }
       lastType = paramType->clone();
       parameters.push_back(std::make_unique<ParameterNode>(
@@ -810,8 +805,7 @@ FunctionPtr Parser::parseFunction(bool withName) {
                                 m_tokens});
         return nullptr;
       }
-      Identifier paramName = parserIdentifier();
-      m_tokens->getNext();
+      Identifier paramName = parseIdentifier();
       parameters.push_back(std::make_unique<ParameterNode>(
           std::move(paramType), std::move(paramName)));
     } else {
@@ -861,7 +855,7 @@ Import Parser::parseImport() {
   }
   m_tokens->getNext(); // consume `import`
 
-  auto name = parserIdentifier();
+  auto name = parseIdentifier();
   if (nullptr == name) {
     // TODO: write error message
     return nullptr;

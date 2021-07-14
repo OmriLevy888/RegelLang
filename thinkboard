@@ -101,6 +101,5 @@ llvm::FunctionType::get(retType, paramTypes, isVarArg);
 TODO:
 implement BasicTypeSymbol::make and FunctionTypeSymbol::make from
 `const TypeNodePtr &` as argument and implement getType() and getFunctionType()
-methods of `SymbolMap` type. Also ivestigate why the program crashes when
-parsing. Lastly, fix compilation setup so that tests work again and fix them to
-use the new classes.
+methods of `SymbolMap` type. Lastly, fix compilation setup so that tests work
+again and fix them to use the new classes.

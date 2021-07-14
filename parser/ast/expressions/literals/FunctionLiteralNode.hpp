@@ -1,5 +1,5 @@
 #pragma once
-#include "codegen/ast/DeclarableBaseNode.hpp"
+#include "codegen/ast/DeclarableNodeBase.hpp"
 #include "parser/ast/expressions/ExpressionNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/literals/ParameterNode.hpp"
@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace rgl {
-class FunctionLiteralNode : public ExpressionNode, public DeclarableBaseNode {
+class FunctionLiteralNode : public ExpressionNode, public DeclarableNodeBase {
 public:
   FunctionLiteralNode(Identifier name, std::vector<Parameter> &&parameters,
                       TypeNodePtr retType, Expression body)

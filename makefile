@@ -18,7 +18,7 @@ WARNING_FLAGS=-Wall -Wpedantic -Werror
 CPPFLAGS=$(WARNING_FLAGS) -I. -Ideps/include/ -std=c++17 -c -I$(shell $(LLVM_DIR)bin/llvm-config --includedir)
 _CXXFLAGS=$(shell $(LLVM_DIR)bin/llvm-config --cxxflags)
 CXXFLAGS=$(WARNING_FLAGS) $(patsubst -fno-exceptions,,$(_CXXFLAGS))
-LDFLAGS=$(shell $(LLVM_DIR)bin/llvm-config --ldflags --libs) -lpthread -lncurses
+LDFLAGS=$(shell $(LLVM_DIR)bin/llvm-config --ldflags --libs) -lpthread -lncurses -rdynamic
 
 DEBUG_CPPFLAGS=-g
 DEBUG_POSTFIX=-debug 

@@ -45,7 +45,7 @@ private:
   Expression parseRest(Expression primary);
   Expression parseImplicitStatementExpression();
 
-  Identifier parserIdentifier();
+  Identifier parseIdentifier();
   Expression parseLiteral();
   Expression parseIntLiteral();
   Expression parseRealLiteral();

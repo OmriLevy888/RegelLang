@@ -57,6 +57,7 @@ public:
   }
 
   template <typename... _TArgs>
+
   static void logErrorFmt(ErrorTypes error, const std::string &pattern,
                           const _TArgs &...rest) {
     s_errors.push(error);
@@ -80,9 +81,11 @@ private:
   static void logErrorImpl(const _T &first, const _TArgs &...rest) {
     std::cerr << "[!] " << toString(first) << ' ';
     logErrorImplRest(rest...);
+    printStackTrace();
   }
   template <typename _T> static void logErrorImpl(const _T &error) {
     std::cerr << "[!] " << toString(error) << std::endl;
+    printStackTrace();
   }
 
   template <typename _T, typename... _TArgs>
@@ -119,5 +122,7 @@ private:
   static std::string toString(const ILoggable &loggable) {
     return loggable.toString();
   }
+
+  static void printStackTrace();
 };
 }; // namespace rgl

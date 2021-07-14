@@ -33,7 +33,7 @@ NamespaceDeclaration Parser::parseNamespaceDeclaration() {
   }
   m_tokens->getNext(); // consume `namespace`
 
-  auto name = parserIdentifier();
+  auto name = parseIdentifier();
   if (nullptr == name) {
     // TODO: write error message
     return nullptr;
