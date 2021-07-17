@@ -26,9 +26,11 @@ void CompilationContext::initializeBuiltinTypes() {
       {llvm::Type::getFloatTy(*Context::llvmContext()), {"float"}},
       {llvm::Type::getDoubleTy(*Context::llvmContext()), {"double"}}};
 
+  const BitField<TypeTraits> defaultTraits = TypeTraits::TriviallyCopiable;
   for (const auto &type : builtinTypes) {
     for (const auto &name : type.typeNames) {
-      auto typeSymbol = BasicTypeSymbol::make(type.llvmType, name);
+      auto typeSymbol =
+          BasicTypeSymbol::make(type.llvmType, defaultTraits, name);
       std::vector<std::string> nameVector;
       nameVector.push_back(name);
       // use m_module rather than Context::module() to make sure there are no

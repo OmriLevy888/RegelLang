@@ -3,6 +3,10 @@
 #include "codegen/values/BasicValue.hpp"
 
 namespace rgl {
+TypeSymbolPtr CharLiteralNode::getType() const {
+  return Context::module()->symbols().getType("char");
+}
+
 ValuePtr CharLiteralNode::genCode() {
   const uint64_t sizeBits = 8; // BasicType::t_char()->getSizeBits();
   return std::make_shared<BasicValue>(llvm::ConstantInt::get(

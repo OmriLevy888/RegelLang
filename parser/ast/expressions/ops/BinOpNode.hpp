@@ -61,6 +61,8 @@ public:
   virtual void setSwap(Expression expr) override { m_rhs = std::move(expr); }
   virtual bool isLeaf() override { return false; }
 
+  virtual TypeSymbolPtr getType() const override;
+
   virtual ValuePtr genCode() override;
 
   virtual std::string toTreeStr(size_t spaces) const override {

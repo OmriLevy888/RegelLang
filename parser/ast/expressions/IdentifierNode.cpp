@@ -5,6 +5,10 @@ IdentifierNode::IdentifierNode(const std::vector<std::string> &value)
     : m_value(value) {}
 IdentifierNode::IdentifierNode(std::vector<std::string> &&value)
     : m_value(std::move(value)) {}
+IdentifierNode::IdentifierNode(std::string &&value) {
+  m_value = std::vector<std::string>();
+  m_value.push_back(std::move(value));
+}
 
 std::string IdentifierNode::getString() const {
   return Formatter<>::joinContainer('.', m_value);

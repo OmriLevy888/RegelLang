@@ -7,8 +7,9 @@ using FunctionTypeNodePtr = std::unique_ptr<FunctionTypeNode>;
 
 class FunctionTypeNode : public TypeNodeBase {
 public:
-  FunctionTypeNode(std::vector<TypeNodePtr> &&params, TypeNodePtr retType,
-                   BitField<TypeProperties> properties)
+  FunctionTypeNode(
+      std::vector<TypeNodePtr> &&params, TypeNodePtr retType,
+      BitField<TypeProperties> properties = TypeProperties::_default)
       : TypeNodeBase(properties | TypeProperties::_isFunction),
         m_params(std::move(params)), m_retType(std::move(retType)) {}
 

@@ -9,6 +9,7 @@ class IdentifierNode : public ExpressionNode {
 public:
   IdentifierNode(const std::vector<std::string> &value);
   IdentifierNode(std::vector<std::string> &&value);
+  IdentifierNode(std::string &&value);
 
   size_t size() { return m_value.size(); }
   std::vector<std::string> &get() { return m_value; };

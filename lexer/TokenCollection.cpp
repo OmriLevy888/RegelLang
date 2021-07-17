@@ -16,8 +16,10 @@ void TokenCollection::saveAnchorAndCurrentToken() {
 void TokenCollection::restoreAnchor() {
   m_backlogIndex = m_anchors.top() - m_baseIndex;
   m_anchors.pop();
-  m_usingBacklog = true;
-  getNext(); // update m_curr and m_value
+  if (m_backlogIndex < m_backlog.size()) {
+    m_usingBacklog = true;
+    getNext(); // update m_curr and m_value
+  }
 }
 
 void TokenCollection::discardAnchor() {
@@ -46,7 +48,7 @@ const Token &TokenCollection::getNext() {
     }
     return m_curr;
   } else {
-    // using the backlog, the the current token from the backlog
+    // using the backlog, the current token from the backlog
     m_curr = m_backlog[m_backlogIndex].m_token;
     m_value = m_backlog[m_backlogIndex++].m_value;
     if (m_backlogIndex >=

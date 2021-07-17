@@ -11,12 +11,14 @@ class BasicTypeSymbol : public TypeSymbolBase {
 public:
   // TODO: implement this static BasicTypeSymbolPtr make(BasicTypePtr
   // basicType); for built in types such as `i32` and `bool`
-  static BasicTypeSymbolPtr make(llvm::Type *llvmType, const std::string &name);
+  static BasicTypeSymbolPtr make(llvm::Type *llvmType,
+                                 BitField<TypeTraits> traits,
+                                 const std::string &name);
 
   virtual bool isBasicType() const override { return true; }
 
   virtual bool isImplicitType() const override {
-    return m_fullyQualifiedName == "auto";
+    return m_fullyQualifiedName == "@implicit";
   }
 
   virtual bool operator==(TypeSymbolPtr other) const override;
@@ -27,7 +29,8 @@ private:
   FunctionSymbolPtr m_dtor;               // easy access to dtor
   SymbolMapPtr m_members; // dtor and all ctors, fields and methods
 
-  BasicTypeSymbol(llvm::Type *llvmType, const std::string &name,
+  BasicTypeSymbol(llvm::Type *llvmType, BitField<TypeTraits> traits,
+                  const std::string &name,
                   const std::vector<FunctionSymbolPtr> &ctors,
                   FunctionSymbolPtr dtor, SymbolMapPtr members);
 };

@@ -1,6 +1,6 @@
 #include "tests/parser/ParserTestsUtilities.hpp"
-
 #include "lexer/DummyTokenGenerator.hpp"
+#include "parser/Parser.hpp"
 #include "gtest/gtest.h"
 
 namespace rgl {

@@ -1,9 +1,12 @@
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
 #include "codegen/Context.hpp"
 #include "codegen/values/BasicValue.hpp"
-#include "llvm/IR/Constants.h"
 
 namespace rgl {
+TypeSymbolPtr IntLiteralNode::getType() const {
+  return Context::module()->symbols().getType(m_type);
+}
+
 ValuePtr IntLiteralNode::genCode() {
   const bool isSigned = true;
   auto typeSymbol = Context::module()->symbols().getType(m_type);

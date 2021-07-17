@@ -1,6 +1,7 @@
 #include "lexer/Token.hpp"
-#include "parser/ast/constructs/BasicType.hpp"
-#include "parser/ast/expressions/BasicIdentifierNode.hpp"
+#include "parser/Parser.hpp"
+#include "parser/ast/constructs/BasicTypeNode.hpp"
+#include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/ScopeNode.hpp"
 #include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
@@ -21,10 +22,11 @@ TEST(Parser, functionLiteralWithNameWithParensNoParamsNoRetTypeEmptyBody) {
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
 
-  assertNode(parser->parseExpression(),
+  const bool allowFunctionName = true;
+  assertNode(parser->parseExpression(allowFunctionName),
              std::make_unique<FunctionLiteralNode>(
-                 std::make_unique<BasicIdentifierNode>("foo"),
-                 std::vector<Parameter>(), BasicType::t_void(),
+                 std::make_unique<IdentifierNode>("foo"s),
+                 std::vector<Parameter>(), BasicTypeNode::t_void(),
                  std::make_unique<ScopeNode>()));
 }
 
@@ -38,10 +40,11 @@ TEST(Parser, functionLiteralWithNameWithParensNoParamsWithRetType) {
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
 
-  assertNode(parser->parseExpression(),
+  const bool allowFunctionName = true;
+  assertNode(parser->parseExpression(allowFunctionName),
              std::make_unique<FunctionLiteralNode>(
-                 std::make_unique<BasicIdentifierNode>("foo"),
-                 std::vector<Parameter>(), BasicType::t_int32(),
+                 std::make_unique<IdentifierNode>("foo"s),
+                 std::vector<Parameter>(), BasicTypeNode::t_int32(),
                  std::make_unique<ScopeNode>()));
 }
 
@@ -57,12 +60,13 @@ TEST(Parser, functionLiteralWithNameWithParensSingleParamNoRetType) {
 
   std::vector<Parameter> parameters;
   parameters.push_back(std::make_unique<ParameterNode>(
-      BasicType::t_int32(), std::make_unique<BasicIdentifierNode>("a")));
+      BasicTypeNode::t_int32(), std::make_unique<IdentifierNode>("a"s)));
 
-  assertNode(parser->parseExpression(),
+  const bool allowFunctionName = true;
+  assertNode(parser->parseExpression(allowFunctionName),
              std::make_unique<FunctionLiteralNode>(
-                 std::make_unique<BasicIdentifierNode>("foo"),
-                 std::move(parameters), BasicType::t_void(),
+                 std::make_unique<IdentifierNode>("foo"s),
+                 std::move(parameters), BasicTypeNode::t_void(),
                  std::make_unique<ScopeNode>()));
 }
 
@@ -80,12 +84,13 @@ TEST(Parser, functionLiteralWithNameWithParensSingleParamWithRetType) {
 
   std::vector<Parameter> parameters;
   parameters.push_back(std::make_unique<ParameterNode>(
-      BasicType::t_int32(), std::make_unique<BasicIdentifierNode>("a")));
+      BasicTypeNode::t_int32(), std::make_unique<IdentifierNode>("a"s)));
 
-  assertNode(parser->parseExpression(),
+  const bool allowFunctionName = true;
+  assertNode(parser->parseExpression(allowFunctionName),
              std::make_unique<FunctionLiteralNode>(
-                 std::make_unique<BasicIdentifierNode>("foo"),
-                 std::move(parameters), BasicType::t_int32(),
+                 std::make_unique<IdentifierNode>("foo"s),
+                 std::move(parameters), BasicTypeNode::t_int32(),
                  std::make_unique<ScopeNode>()));
 }
 
@@ -99,10 +104,11 @@ TEST(Parser, functionLiteralWithNameWithParensNoParamsNoRetTypeNoBrackets) {
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
 
-  assertNode(parser->parseExpression(),
+  const bool allowFunctionName = true;
+  assertNode(parser->parseExpression(allowFunctionName),
              std::make_unique<FunctionLiteralNode>(
-                 std::make_unique<BasicIdentifierNode>("foo"),
-                 std::vector<Parameter>(), BasicType::t_int32(),
+                 std::make_unique<IdentifierNode>("foo"s),
+                 std::vector<Parameter>(), BasicTypeNode::t_int32(),
                  std::make_unique<ScopeNode>()));
 }
 
@@ -121,17 +127,18 @@ TEST(Parser, functionLiteralWithNameWithParensSingleParamNoRetTypeNoBrackets) {
 
   std::vector<Parameter> parameters;
   parameters.push_back(std::make_unique<ParameterNode>(
-      BasicType::t_int32(), std::make_unique<BasicIdentifierNode>("a")));
+      BasicTypeNode::t_int32(), std::make_unique<IdentifierNode>("a"s)));
 
   std::vector<Statement> statements;
   statements.push_back(std::make_unique<ReturnNode>(std::make_unique<BinOpNode>(
-      BinOpType::b_asterisk, std::make_unique<BasicIdentifierNode>("a"),
-      std::make_unique<IntLiteralNode>(2, BasicType::t_int32()))));
+      BinOpType::b_asterisk, std::make_unique<IdentifierNode>("a"s),
+      std::make_unique<IntLiteralNode>(2, BasicTypeNode::t_int32()))));
 
-  assertNode(parser->parseExpression(),
+  const bool allowFunctionName = true;
+  assertNode(parser->parseExpression(allowFunctionName),
              std::make_unique<FunctionLiteralNode>(
-                 std::make_unique<BasicIdentifierNode>("foo"),
-                 std::move(parameters), BasicType::t_void(),
+                 std::make_unique<IdentifierNode>("foo"s),
+                 std::move(parameters), BasicTypeNode::t_void(),
                  std::make_unique<ScopeNode>(std::move(statements))));
 }
 
@@ -150,14 +157,15 @@ TEST(Parser, functionLiteralWithNameWithParentsMultipleParamsNoRetType) {
 
   std::vector<Parameter> parameters;
   parameters.push_back(std::make_unique<ParameterNode>(
-      BasicType::t_int32(), std::make_unique<BasicIdentifierNode>("a")));
+      BasicTypeNode::t_int32(), std::make_unique<IdentifierNode>("a"s)));
   parameters.push_back(std::make_unique<ParameterNode>(
-      BasicType::t_int32(), std::make_unique<BasicIdentifierNode>("b")));
+      BasicTypeNode::t_int32(), std::make_unique<IdentifierNode>("b"s)));
 
-  assertNode(parser->parseExpression(),
+  const bool allowFunctionName = true;
+  assertNode(parser->parseExpression(allowFunctionName),
              std::make_unique<FunctionLiteralNode>(
-                 std::make_unique<BasicIdentifierNode>("foo"),
-                 std::move(parameters), BasicType::t_void(),
+                 std::make_unique<IdentifierNode>("foo"s),
+                 std::move(parameters), BasicTypeNode::t_void(),
                  std::make_unique<ScopeNode>()));
 }
 
@@ -175,14 +183,15 @@ TEST(Parser, functionLiteralWithNameWithParensMultipleParamsSameTypeNoRetType) {
 
   std::vector<Parameter> parameters;
   parameters.push_back(std::make_unique<ParameterNode>(
-      BasicType::t_int32(), std::make_unique<BasicIdentifierNode>("a")));
+      BasicTypeNode::t_int32(), std::make_unique<IdentifierNode>("a"s)));
   parameters.push_back(std::make_unique<ParameterNode>(
-      BasicType::t_int32(), std::make_unique<BasicIdentifierNode>("b")));
+      BasicTypeNode::t_int32(), std::make_unique<IdentifierNode>("b"s)));
 
-  assertNode(parser->parseExpression(),
+  const bool allowFunctionName = true;
+  assertNode(parser->parseExpression(allowFunctionName),
              std::make_unique<FunctionLiteralNode>(
-                 std::make_unique<BasicIdentifierNode>("foo"),
-                 std::move(parameters), BasicType::t_void(),
+                 std::make_unique<IdentifierNode>("foo"s),
+                 std::move(parameters), BasicTypeNode::t_void(),
                  std::make_unique<ScopeNode>()));
 }
 
@@ -195,11 +204,11 @@ TEST(Parser, functionLiteralNoNameNoParensSingleParamNoRetType) {
 
   std::vector<Parameter> parameters;
   parameters.push_back(std::make_unique<ParameterNode>(
-      BasicType::t_int32(), std::make_unique<BasicIdentifierNode>("a")));
+      BasicTypeNode::t_int32(), std::make_unique<IdentifierNode>("a"s)));
 
   assertNode(parser->parseExpression(),
              std::make_unique<FunctionLiteralNode>(
-                 nullptr, std::move(parameters), BasicType::t_void(),
+                 nullptr, std::move(parameters), BasicTypeNode::t_void(),
                  std::make_unique<ScopeNode>()));
 }
 
@@ -217,15 +226,15 @@ TEST(Parser, functionLiteralNoNameWithParensSingleParamNoRetTypeNoBrackets) {
 
   std::vector<Parameter> parameters;
   parameters.push_back(std::make_unique<ParameterNode>(
-      BasicType::t_int32(), std::make_unique<BasicIdentifierNode>("a")));
+      BasicTypeNode::t_int32(), std::make_unique<IdentifierNode>("a"s)));
   std::vector<Statement> statements;
   statements.push_back(std::make_unique<ReturnNode>(std::make_unique<BinOpNode>(
-      BinOpType::b_asterisk, std::make_unique<BasicIdentifierNode>("a"),
-      std::make_unique<IntLiteralNode>(2, BasicType::t_int32()))));
+      BinOpType::b_asterisk, std::make_unique<IdentifierNode>("a"s),
+      std::make_unique<IntLiteralNode>(2, BasicTypeNode::t_int32()))));
 
   assertNode(parser->parseExpression(),
              std::make_unique<FunctionLiteralNode>(
-                 nullptr, std::move(parameters), BasicType::t_void(),
+                 nullptr, std::move(parameters), BasicTypeNode::t_void(),
                  std::make_unique<ScopeNode>(std::move(statements))));
 }
 
@@ -240,11 +249,11 @@ TEST(Parser, functionLiteralNoNameWithParensSingleParamNoRetType) {
 
   std::vector<Parameter> parameters;
   parameters.push_back(std::make_unique<ParameterNode>(
-      BasicType::t_int32(), std::make_unique<BasicIdentifierNode>("a")));
+      BasicTypeNode::t_int32(), std::make_unique<IdentifierNode>("a"s)));
 
   assertNode(parser->parseExpression(),
              std::make_unique<FunctionLiteralNode>(
-                 nullptr, std::move(parameters), BasicType::t_void(),
+                 nullptr, std::move(parameters), BasicTypeNode::t_void(),
                  std::make_unique<ScopeNode>()));
 }
 
@@ -259,11 +268,11 @@ TEST(Parser, functionLiteralNoNameNoParensSingleParamWithRetType) {
 
   std::vector<Parameter> parameters;
   parameters.push_back(std::make_unique<ParameterNode>(
-      BasicType::t_int32(), std::make_unique<BasicIdentifierNode>("a")));
+      BasicTypeNode::t_int32(), std::make_unique<IdentifierNode>("a"s)));
 
   assertNode(parser->parseExpression(),
              std::make_unique<FunctionLiteralNode>(
-                 nullptr, std::move(parameters), BasicType::t_int32(),
+                 nullptr, std::move(parameters), BasicTypeNode::t_int32(),
                  std::make_unique<ScopeNode>()));
 }
 
@@ -276,7 +285,7 @@ TEST(Parser, functionLiteralNoNameNoParensNoParams) {
 
   assertNode(parser->parseExpression(),
              std::make_unique<FunctionLiteralNode>(
-                 nullptr, std::vector<Parameter>{}, BasicType::t_int32(),
+                 nullptr, std::vector<Parameter>{}, BasicTypeNode::t_int32(),
                  std::make_unique<ScopeNode>()));
 }
 
@@ -287,7 +296,7 @@ TEST(Parser, functionLiteralNoNameNoParensNoParamsNoRetType) {
 
   assertNode(parser->parseExpression(),
              std::make_unique<FunctionLiteralNode>(
-                 nullptr, std::vector<Parameter>{}, BasicType::t_void(),
+                 nullptr, std::vector<Parameter>{}, BasicTypeNode::t_void(),
                  std::make_unique<ScopeNode>()));
 }
 
@@ -300,7 +309,7 @@ TEST(Parser, functionLiteralNoParensNoParamsWithRetType) {
 
   assertNode(parser->parseExpression(),
              std::make_unique<FunctionLiteralNode>(
-                 nullptr, std::vector<Parameter>{}, BasicType::t_int32(),
+                 nullptr, std::vector<Parameter>{}, BasicTypeNode::t_int32(),
                  std::make_unique<ScopeNode>()));
 }
 

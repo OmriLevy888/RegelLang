@@ -158,15 +158,16 @@ bool Parser::parseFieldMultipleShorthand(bool isMutable, bool isExposed,
   m_tokens->getNext(); // consume `;`
 
   for (auto &&name : std::move(fieldNames)) {
-    fields.push_back(std::make_unique<ClassFieldNode>(
-        isExposed, std::move(type), std::move(name)));
+    fields.push_back(std::make_unique<ClassFieldNode>(isExposed, type->clone(),
+                                                      std::move(name)));
   }
 
   return true;
 }
 
 bool Parser::parseMethod(bool isExposed, std::vector<MethodPtr> &methods) {
-  auto func = parseFunction();
+  const bool withName = true;
+  auto func = parseFunction(withName);
   if (nullptr == func) {
     return false;
   }

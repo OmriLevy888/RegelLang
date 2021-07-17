@@ -6,7 +6,6 @@
 #include <variant>
 
 #include "common/Formatter.hpp"
-#include "common/ILoggable.hpp"
 
 namespace rgl {
 enum class TokenType : uint16_t {

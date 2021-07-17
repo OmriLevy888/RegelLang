@@ -1,6 +1,7 @@
 #include "lexer/Token.hpp"
-#include "parser/ast/constructs/FunctionType.hpp"
-#include "parser/ast/constructs/Type.hpp"
+#include "parser/Parser.hpp"
+#include "parser/ast/constructs/BasicTypeNode.hpp"
+#include "parser/ast/constructs/FunctionTypeNode.hpp"
 #include "parser/ast/expressions/ScopeNode.hpp"
 #include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
@@ -30,12 +31,22 @@ TEST(Parser, primitiveTypeParsing) {
                             {TokenType::t_identifier, "string"s},
                             {TokenType::t_identifier, "bool"s}});
 
-  std::vector<TypePtr> types{
-      BasicType::t_void(),   BasicType::t_int8(),   BasicType::t_int16(),
-      BasicType::t_int32(),  BasicType::t_int64(),  BasicType::t_uint8(),
-      BasicType::t_uint16(), BasicType::t_uint32(), BasicType::t_uint64(),
-      BasicType::t_float(),  BasicType::t_double(), BasicType::t_char(),
-      BasicType::t_string(), BasicType::t_bool()};
+  std::vector<TypeNodePtr> types;
+  types.reserve(14);
+  types.push_back(BasicTypeNode::t_void());
+  types.push_back(BasicTypeNode::t_int8());
+  types.push_back(BasicTypeNode::t_int16());
+  types.push_back(BasicTypeNode::t_int32());
+  types.push_back(BasicTypeNode::t_int64());
+  types.push_back(BasicTypeNode::t_uint8());
+  types.push_back(BasicTypeNode::t_uint16());
+  types.push_back(BasicTypeNode::t_uint32());
+  types.push_back(BasicTypeNode::t_uint64());
+  types.push_back(BasicTypeNode::t_float());
+  types.push_back(BasicTypeNode::t_double());
+  types.push_back(BasicTypeNode::t_char());
+  types.push_back(BasicTypeNode::t_string());
+  types.push_back(BasicTypeNode::t_bool());
   for (const auto &type : types) {
     ASSERT_EQ(parser->parseType()->toString(), type->toString());
   }
@@ -48,8 +59,10 @@ TEST(Parser, compoundTypeParsing) {
                             {TokenType::t_dot},
                             {TokenType::t_identifier, "c"s}});
 
-  ASSERT_EQ(parser->parseType()->toString(),
-            BasicType::make({"a", "b", "c"})->toString());
+  ASSERT_EQ(
+      parser->parseType()->toString(),
+      std::make_unique<BasicTypeNode>(std::vector<std::string>{"a", "b", "c"})
+          ->toString());
 }
 
 TEST(Parser, functionTypeParsing) {
@@ -62,9 +75,13 @@ TEST(Parser, functionTypeParsing) {
                             {TokenType::t_arrow},
                             {TokenType::t_identifier, "bool"s}});
 
+  std::vector<TypeNodePtr> paramTypes;
+  paramTypes.reserve(2);
+  paramTypes.push_back(BasicTypeNode::t_int32());
+  paramTypes.push_back(BasicTypeNode::t_float());
   ASSERT_EQ(parser->parseType()->toString(),
-            FunctionType::make({BasicType::t_int32(), BasicType::t_float()},
-                               BasicType::t_bool())
+            std::make_unique<FunctionTypeNode>(std::move(paramTypes),
+                                               BasicTypeNode::t_bool())
                 ->toString());
 }
 
@@ -76,11 +93,14 @@ TEST(Parser, pointerTypeParsing) {
                             {TokenType::t_close_bracket},
                             {TokenType::t_identifier, "b"s}});
 
-  std::vector<TypePtr> types{
-      BasicType::make({"a"}, TypeProperties::_isPointer),
-      BasicType::make({"b"},
-                      BitField<TypeProperties>{TypeProperties::_isPointer} |
-                          TypeProperties::_isShared)};
+  std::vector<TypeNodePtr> types;
+  types.reserve(2);
+  types.push_back(std::make_unique<BasicTypeNode>(std::vector<std::string>{"a"},
+                                                  TypeProperties::_isPointer));
+  types.push_back(std::make_unique<BasicTypeNode>(
+      std::vector<std::string>{"b"},
+      BitField<TypeProperties>{TypeProperties::_isPointer} |
+          TypeProperties::_isShared));
   for (const auto &type : types) {
     ASSERT_EQ(parser->parseType()->toString(), type->toString());
   }
@@ -97,9 +117,14 @@ TEST(Parser, typeModifiersParsing) {
                             {TokenType::t_ampersand},
                             {TokenType::t_identifier, "a"s}});
 
-  std::vector<TypePtr> types{BasicType::make({"a"}),
-                             BasicType::make({"a"}, TypeProperties::_owning),
-                             BasicType::make({"a"}, TypeProperties::_mutable)};
+  std::vector<TypeNodePtr> types;
+  types.reserve(3);
+  types.push_back(
+      std::make_unique<BasicTypeNode>(std::vector<std::string>{"a"}));
+  types.push_back(std::make_unique<BasicTypeNode>(std::vector<std::string>{"a"},
+                                                  TypeProperties::_owning));
+  types.push_back(std::make_unique<BasicTypeNode>(std::vector<std::string>{"a"},
+                                                  TypeProperties::_mutable));
   for (const auto &type : types) {
     ASSERT_EQ(parser->parseType()->toString(), type->toString());
   }
@@ -120,22 +145,10 @@ TEST(Parser, functionTypeMissingComma) {
   ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
 }
 
-TEST(Parser, typeEquality) {
-  Type::cleanNonBuiltinTypes();
-  ASSERT_EQ(BasicType::t_int32(), BasicType::t_int32());
-  ASSERT_EQ(BasicType::t_int32(), BasicType::make({"i32"}));
-  ASSERT_EQ(BasicType::make({"a"}), BasicType::make({"a"}));
-  ASSERT_EQ(BasicType::t_int32()->getMutableType()->getUniquePointerType(),
-            BasicType::make(
-                {"i32"}, BitField<TypeProperties>{TypeProperties::_isPointer} |
-                             TypeProperties::_mutable));
-  std::cout << Type::typeBankToString() << std::endl;
-}
-
 TEST(Paresr, typeInequality) {
-  Type::cleanNonBuiltinTypes();
-  ASSERT_NE(BasicType::t_int32(), BasicType::t_double());
-  ASSERT_NE(BasicType::make({"a"}), BasicType::make({"b"}));
-  ASSERT_NE(BasicType::t_bool(), BasicType::t_bool()->getSharedPointerType());
-  std::cout << Type::typeBankToString() << std::endl;
+  ASSERT_NE(BasicTypeNode::t_int32(), BasicTypeNode::t_double());
+  ASSERT_NE(std::make_unique<BasicTypeNode>(std::vector<std::string>{"a"}),
+            std::make_unique<BasicTypeNode>(std::vector<std::string>{"b"}));
+  ASSERT_NE(BasicTypeNode::t_bool(),
+            BasicTypeNode::t_bool()->getSharedPointerType());
 }

@@ -32,7 +32,7 @@
 #include "parser/ast/expressions/ops/UnaryOpNode.hpp"
 
 namespace rgl {
-Expression Parser::parseExpression() {
+Expression Parser::parseExpression(bool allowFunctionName) {
   m_lastPrecedence = 0;
   auto primary = parsePrimary();
   if (nullptr == primary) {
@@ -48,7 +48,7 @@ Expression Parser::parseExpression() {
     case TokenType::t_open_bracket:
       return parseScope();
     case TokenType::t_func:
-      return parseFunction();
+      return parseFunction(allowFunctionName);
     case TokenType::t_class:
       return parseClass();
     case TokenType::t_import:
@@ -719,10 +719,12 @@ SwitchCase Parser::parseSwitchCase() {
 }
 
 FunctionPtr Parser::parseFunction(bool withName) {
+  m_tokens->getNext(); // consume `func`
+
   Identifier name = nullptr;
   m_tokens->saveAnchor();
   if (withName) {
-    if (TokenType::t_identifier != m_tokens->getNext()) {
+    if (TokenType::t_identifier != m_tokens->getCurr()) {
       // TODO: write error message
       return nullptr;
     }
@@ -797,7 +799,6 @@ FunctionPtr Parser::parseFunction(bool withName) {
     TypeNodePtr paramType = parseType();
     if (nullptr != paramType) {
       m_tokens->discardAnchor();
-
       if (TokenType::t_identifier != m_tokens->getCurr()) {
         ErrorManager::logError(ErrorTypes::E_BAD_TOKEN,
                                {Formatter("Expected identifier, found {}",

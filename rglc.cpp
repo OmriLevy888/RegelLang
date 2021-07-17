@@ -11,6 +11,7 @@
 #include "lexer/DummyTokenGenerator.hpp"
 #include "lexer/Lexer.hpp"
 #include "lexer/TokenCollection.hpp"
+#include "parser/Parser.hpp"
 #include "parser/ast/constructs/FileNode.hpp"
 #include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/ScopeNode.hpp"
@@ -25,8 +26,12 @@
 #include <iostream>
 #include <memory>
 
+//#define LLVM_TEST_MAIN
+
+#ifndef RGL_TESTS
 #include "lexer/DummyTokenGenerator.hpp"
 #include "tests/parser/ParserTestsUtilities.hpp"
+
 namespace rgl {
 std::unique_ptr<Parser>
 makeParser(std::vector<TokenValuePair> &&tokens,
@@ -37,28 +42,8 @@ makeParser(std::vector<TokenValuePair> &&tokens,
       std::make_unique<TokenCollection>(std::move(tokenGenerator));
   return std::make_unique<Parser>(std::move(tokenCollection));
 }
-
-std::unique_ptr<Parser> makeParser(const std::string &testName,
-                                   std::vector<TokenValuePair> &&tokens,
-                                   std::vector<std::string> &&source,
-                                   const size_t firstLineNo) {
-  auto project = std::make_shared<SourceProject>(testName);
-
-  SourceFile file{testName};
-  file.m_lines.reserve(source.size());
-  for (size_t idx = 0; idx < source.size(); idx++) {
-    file.m_lines.emplace_back(std::move(source[idx]), tokens,
-                              firstLineNo + idx);
-  }
-
-  project->addFile(std::move(file));
-  return makeParser(std::move(tokens), project);
-}
 }; // namespace rgl
 
-//#define LLVM_TEST_MAIN
-
-#ifndef RGL_TESTS
 using namespace rgl;
 
 int main(int argc, const char **argv, char **envp) {

@@ -23,7 +23,7 @@ FunctionSymbolPtr FunctionSymbol::make(const std::vector<std::string> &name,
         Context::module()->symbols().getType(param->getType()));
   }
   auto functionTypeSymbol = Context::module()->symbols().getFunctionType(
-      std::move(paramTypes), retType);
+      retType, std::move(paramTypes));
   auto llvmFunctionType =
       reinterpret_cast<llvm::FunctionType *>(functionTypeSymbol->llvmType());
 

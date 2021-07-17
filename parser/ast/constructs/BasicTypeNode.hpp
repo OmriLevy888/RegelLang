@@ -26,6 +26,8 @@ public:
 
   virtual TypeNodePtr clone() const override;
 
+  Identifier &name() { return m_name; }
+
   virtual std::string toTreeStr(size_t spaces) const override;
 
   // mostly here to make life easier when writing tests

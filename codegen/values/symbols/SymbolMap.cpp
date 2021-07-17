@@ -3,6 +3,10 @@
 #include "codegen/values/BasicValue.hpp"
 #include "codegen/values/symbols/FunctionSymbol.hpp"
 #include "codegen/values/symbols/VariableSymbol.hpp"
+#include "codegen/values/symbols/types/BasicTypeSymbol.hpp"
+#include "codegen/values/symbols/types/FunctionTypeSymbol.hpp"
+#include "codegen/values/symbols/types/ModifiedTypeSymbol.hpp"
+#include "parser/ast/constructs/BasicTypeNode.hpp"
 
 namespace rgl {
 SymbolMap::SymbolMap() : m_maps({}), m_symbol(nullptr) {}
@@ -56,14 +60,43 @@ FunctionSymbolPtr SymbolMap::createFunction(
   return functionSymbol;
 }
 
-// TODO: Implement these
 TypeSymbolPtr SymbolMap::getType(const TypeNodePtr &typeNode) {
-  return nullptr;
+  TypeSymbolPtr ret = nullptr;
+  if (typeNode->isFunctionType()) {
+    ret = getFunctionType(typeNode);
+  } else {
+    auto basicTypeNode = dynamic_cast<BasicTypeNode *>(typeNode.get());
+    auto symbol = this->get(basicTypeNode->name()->get());
+    if (!symbol->isType()) {
+      // TODO: write error message
+      return nullptr;
+    }
+    ret = std::dynamic_pointer_cast<BasicTypeSymbol>(symbol);
+  }
+
+  return ret;
+  // return ModifiedTypeSymbol::make(ret, typeNode->typeProperties());
+}
+TypeSymbolPtr SymbolMap::getType(const std::string &simpleTypeName) {
+  std::vector<std::string> nameVec;
+  nameVec.push_back(simpleTypeName);
+  return this->getType(nameVec);
+}
+TypeSymbolPtr SymbolMap::getType(const std::vector<std::string> &typeName) {
+  auto symbol = this->get(typeName);
+  if (!symbol->isType()) {
+    // TODO: write error message
+    return nullptr;
+  }
+  return std::dynamic_pointer_cast<BasicTypeSymbol>(symbol);
+}
+FunctionTypeSymbolPtr SymbolMap::getFunctionType(const TypeNodePtr &typeNode) {
+  return FunctionTypeSymbol::make(typeNode);
 }
 FunctionTypeSymbolPtr
-SymbolMap::getFunctionType(std::vector<TypeSymbolPtr> &&params,
-                           TypeSymbolPtr retType) {
-  return nullptr;
+SymbolMap::getFunctionType(TypeSymbolPtr retType,
+                           std::vector<TypeSymbolPtr> &&params) {
+  return FunctionTypeSymbol::make(retType, std::move(params));
 }
 
 VariableSymbolPtr

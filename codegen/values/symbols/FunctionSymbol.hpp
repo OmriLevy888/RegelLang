@@ -27,6 +27,8 @@ public:
   // The top stack frames is at index [.size() - 1]
   std::vector<SymbolMapPtr> &getStackFrames();
 
+  FunctionTypeSymbolPtr type() const { return m_type; }
+
 private:
   std::vector<std::string> m_name;
   std::vector<std::vector<std::string>> m_paramNames;

@@ -1,4 +1,6 @@
 #include "lexer/Token.hpp"
+#include "parser/Parser.hpp"
+#include "parser/ast/constructs/BasicTypeNode.hpp"
 #include "parser/ast/expressions/WhileLoopNode.hpp"
 #include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
 #include "parser/ast/expressions/literals/IntLiteralNode.hpp"
@@ -21,8 +23,8 @@ TEST(Parser, simpleWhileLoop) {
   assertNode(parser->parseExpression(),
              std::make_unique<WhileLoopNode>(
                  std::make_unique<BooleanLiteralNode>(true),
-                 std::make_unique<YieldNode>(
-                     std::make_unique<IntLiteralNode>(1, BasicType::t_int32()))));
+                 std::make_unique<YieldNode>(std::make_unique<IntLiteralNode>(
+                     1, BasicTypeNode::t_int32()))));
 }
 
 TEST(Parser, whileLoopNoCond) {
@@ -33,12 +35,12 @@ TEST(Parser, whileLoopNoCond) {
                             {TokenType::t_semicolon},
                             {TokenType::t_close_bracket}});
 
-  assertNode(
-      parser->parseExpression(),
-      std::make_unique<WhileLoopNode>(
-          nullptr, std::make_unique<YieldNode>(
+  assertNode(parser->parseExpression(),
+             std::make_unique<WhileLoopNode>(
+                 nullptr, std::make_unique<YieldNode>(
 
-                       std::make_unique<IntLiteralNode>(1, BasicType::t_int32()))));
+                              std::make_unique<IntLiteralNode>(
+                                  1, BasicTypeNode::t_int32()))));
 }
 
 TEST(Parser, whileLoopNoBody) {

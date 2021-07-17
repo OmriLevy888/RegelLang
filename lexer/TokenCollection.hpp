@@ -1,7 +1,7 @@
 #pragma once
+#include <optional>
 #include <stack>
 #include <vector>
-#include <optional>
 
 #include "common/ILoggable.hpp"
 #include "common/collections/source-objects/SourceProject.hpp"

@@ -7,6 +7,8 @@ class DoubleLiteralNode : public ExpressionNode {
 public:
   DoubleLiteralNode(double value) : m_value(value) {}
 
+  virtual TypeSymbolPtr getType() const override;
+
   virtual ValuePtr genCode() override;
 
   std::string toTreeStr(size_t spaces) const override {

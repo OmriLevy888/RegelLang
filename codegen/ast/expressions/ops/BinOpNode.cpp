@@ -3,6 +3,10 @@
 #include "codegen/values/BasicValue.hpp"
 
 namespace rgl {
+TypeSymbolPtr BinOpNode::getType() const {
+  return Context::module()->symbols().getType("i32");
+}
+
 ValuePtr BinOpNode::genCode() {
   auto lhs = m_lhs->genCode();
   auto rhs = m_rhs->genCode();

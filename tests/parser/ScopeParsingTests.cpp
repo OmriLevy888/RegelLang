@@ -1,5 +1,6 @@
+#include "parser/Parser.hpp"
 #include "parser/ast/constructs/NamespaceDeclarationNode.hpp"
-#include "parser/ast/expressions/CompoundIdentifierNode.hpp"
+#include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/ImportNode.hpp"
 #include "tests/TestsCore.hpp"
 #include "tests/parser/ParserTestsUtilities.hpp"
@@ -12,7 +13,7 @@ TEST(Parser, parseSimpleNamespaceDeclaration) {
 
   assertNode(parser->parseNamespaceDeclaration(),
              std::make_unique<NamespaceDeclarationNode>(
-                 std::make_unique<BasicIdentifierNode>("foo")));
+                 std::make_unique<IdentifierNode>("foo"s)));
 }
 
 TEST(Parser, parseCompoundNamespaceDeclaration) {
@@ -25,7 +26,7 @@ TEST(Parser, parseCompoundNamespaceDeclaration) {
 
   assertNode(parser->parseNamespaceDeclaration(),
              std::make_unique<NamespaceDeclarationNode>(
-                 std::make_unique<CompoundIdentifierNode>(
+                 std::make_unique<IdentifierNode>(
                      std::vector<std::string>{"foo", "bar", "baz"})));
 }
 
@@ -33,9 +34,9 @@ TEST(Parser, parseSimpleImport) {
   auto parser =
       makeParser({{TokenType::t_import}, {TokenType::t_identifier, "foo"s}});
 
-  assertNode(parser->parseExpression(),
-             std::make_unique<ImportNode>(
-                 std::make_unique<BasicIdentifierNode>("foo")));
+  assertNode(
+      parser->parseExpression(),
+      std::make_unique<ImportNode>(std::make_unique<IdentifierNode>("foo"s)));
 }
 
 TEST(Parser, parseCompoundImport) {
@@ -46,8 +47,7 @@ TEST(Parser, parseCompoundImport) {
                             {TokenType::t_dot},
                             {TokenType::t_identifier, "baz"s}});
 
-  assertNode(
-      parser->parseExpression(),
-      std::make_unique<ImportNode>(std::make_unique<CompoundIdentifierNode>(
-          std::vector<std::string>{"foo", "bar", "baz"})));
+  assertNode(parser->parseExpression(),
+             std::make_unique<ImportNode>(std::make_unique<IdentifierNode>(
+                 std::vector<std::string>{"foo", "bar", "baz"})));
 }

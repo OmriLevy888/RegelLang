@@ -22,7 +22,7 @@ public:
   }
 
   File parseFile();
-  Expression parseExpression();
+  Expression parseExpression(bool allowFunctionName = false);
   Statement parseStatement();
   TypeNodePtr parseType(bool skipQualifiers = false);
   NamespaceDeclaration parseNamespaceDeclaration();

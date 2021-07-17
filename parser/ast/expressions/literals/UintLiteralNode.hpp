@@ -9,6 +9,8 @@ public:
   UintLiteralNode(int64_t value, TypeNodePtr type)
       : m_value(value), m_type(std::move(type)) {}
 
+  virtual TypeSymbolPtr getType() const override;
+
   virtual ValuePtr genCode() override;
 
   virtual std::string toTreeStr(size_t spaces) const noexcept override {

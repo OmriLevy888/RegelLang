@@ -34,8 +34,13 @@ public:
   SymbolPtr insert(const std::vector<std::string> &name, SymbolPtr symbol);
 
   TypeSymbolPtr getType(const TypeNodePtr &typeNode);
-  FunctionTypeSymbolPtr getFunctionType(std::vector<TypeSymbolPtr> &&params,
-                                        TypeSymbolPtr retType);
+  TypeSymbolPtr
+  getType(const std::string &
+              simpleTypeName); /* only works for types with no . in their name*/
+  TypeSymbolPtr getType(const std::vector<std::string> &typeName);
+  FunctionTypeSymbolPtr getFunctionType(const TypeNodePtr &typeNode);
+  FunctionTypeSymbolPtr getFunctionType(TypeSymbolPtr retType,
+                                        std::vector<TypeSymbolPtr> &&params);
 
   FunctionSymbolPtr createFunction(const std::vector<std::string> &name,
                                    TypeSymbolPtr retType,

@@ -10,9 +10,9 @@
 #include "lexer/Token.hpp"
 #include "lexer/TokenCollection.hpp"
 #include "parser/Parser.hpp"
-#include "parser/ast/constructs/Type.hpp"
-#include "parser/ast/expressions/BasicIdentifierNode.hpp"
+#include "parser/ast/constructs/BasicTypeNode.hpp"
 #include "parser/ast/expressions/ConditionalNode.hpp"
+#include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/ScopeNode.hpp"
 #include "parser/ast/expressions/VarDeclNode.hpp"
 #include "parser/ast/expressions/literals/BooleanLiteralNode.hpp"
@@ -33,10 +33,8 @@ TEST(Parser, identifier) {
   auto parser = makeParser(
       {{TokenType::t_identifier, "a"s}, {TokenType::t_identifier, "b"s}});
 
-  assertNode(parser->parseExpression(),
-             std::make_unique<BasicIdentifierNode>("a"));
-  assertNode(parser->parseExpression(),
-             std::make_unique<BasicIdentifierNode>("b"));
+  assertNode(parser->parseExpression(), std::make_unique<IdentifierNode>("a"s));
+  assertNode(parser->parseExpression(), std::make_unique<IdentifierNode>("b"s));
 }
 
 TEST(Parser, literal) {
@@ -46,9 +44,9 @@ TEST(Parser, literal) {
                             {TokenType::t_string_literal, "hello"s}});
 
   assertNode(parser->parseExpression(),
-             std::make_unique<IntLiteralNode>(15, BasicType::t_int16()));
+             std::make_unique<IntLiteralNode>(15, BasicTypeNode::t_int16()));
   assertNode(parser->parseExpression(),
-             std::make_unique<IntLiteralNode>(30, BasicType::t_int32()));
+             std::make_unique<IntLiteralNode>(30, BasicTypeNode::t_int32()));
   assertNode(parser->parseExpression(),
              std::make_unique<BooleanLiteralNode>(true));
   assertNode(parser->parseExpression(),
@@ -62,14 +60,15 @@ TEST(Parser, precedenceNoParens) {
                             {TokenType::t_plus},
                             {TokenType::t_int32_literal, 1l}});
 
-  assertNode(parser->parseExpression(),
-             std::make_unique<BinOpNode>(
-                 BinOpType::b_plus,
-                 std::make_unique<BinOpNode>(
-                     BinOpType::b_asterisk,
-                     std::make_unique<IntLiteralNode>(2, BasicType::t_int32()),
-                     std::make_unique<IntLiteralNode>(3, BasicType::t_int32())),
-                 std::make_unique<IntLiteralNode>(1, BasicType::t_int32())));
+  assertNode(
+      parser->parseExpression(),
+      std::make_unique<BinOpNode>(
+          BinOpType::b_plus,
+          std::make_unique<BinOpNode>(
+              BinOpType::b_asterisk,
+              std::make_unique<IntLiteralNode>(2, BasicTypeNode::t_int32()),
+              std::make_unique<IntLiteralNode>(3, BasicTypeNode::t_int32())),
+          std::make_unique<IntLiteralNode>(1, BasicTypeNode::t_int32())));
 }
 
 TEST(Parser, dotPrecedenceNoParens) {
@@ -86,16 +85,8 @@ TEST(Parser, dotPrecedenceNoParens) {
   assertNode(parser->parseExpression(),
              std::make_unique<BinOpNode>(
                  BinOpType::b_plus,
-                 std::make_unique<BinOpNode>(
-                     BinOpType::b_dot,
-                     std::make_unique<BinOpNode>(
-                         BinOpType::b_dot,
-                         std::make_unique<BinOpNode>(
-                             BinOpType::b_dot,
-                             std::make_unique<BasicIdentifierNode>("a"),
-                             std::make_unique<BasicIdentifierNode>("b")),
-                         std::make_unique<BasicIdentifierNode>("c")),
-                     std::make_unique<BasicIdentifierNode>("d")),
+                 std::make_unique<IdentifierNode>(
+                     std::vector<std::string>{"a", "b", "c", "d"}),
                  std::make_unique<BooleanLiteralNode>(true)));
 }
 
@@ -112,12 +103,12 @@ TEST(Parser, precedenceMultipleParts) {
       parser->parseExpression(),
       std::make_unique<BinOpNode>(
           BinOpType::b_plus,
-          std::make_unique<BinOpNode>(
-              BinOpType::b_asterisk, std::make_unique<BasicIdentifierNode>("a"),
-              std::make_unique<BasicIdentifierNode>("b")),
-          std::make_unique<BinOpNode>(
-              BinOpType::b_asterisk, std::make_unique<BasicIdentifierNode>("c"),
-              std::make_unique<BasicIdentifierNode>("d"))));
+          std::make_unique<BinOpNode>(BinOpType::b_asterisk,
+                                      std::make_unique<IdentifierNode>("a"s),
+                                      std::make_unique<IdentifierNode>("b"s)),
+          std::make_unique<BinOpNode>(BinOpType::b_asterisk,
+                                      std::make_unique<IdentifierNode>("c"s),
+                                      std::make_unique<IdentifierNode>("d"s))));
 }
 
 TEST(Parser, precedenceWithParens) {
@@ -133,11 +124,11 @@ TEST(Parser, precedenceWithParens) {
       parser->parseExpression(),
       std::make_unique<BinOpNode>(
           BinOpType::b_asterisk,
-          std::make_unique<IntLiteralNode>(2, BasicType::t_int32()),
+          std::make_unique<IntLiteralNode>(2, BasicTypeNode::t_int32()),
           std::make_unique<ParenthesesNode>(std::make_unique<BinOpNode>(
               BinOpType::b_plus,
-              std::make_unique<IntLiteralNode>(3, BasicType::t_int32()),
-              std::make_unique<IntLiteralNode>(1, BasicType::t_int32())))));
+              std::make_unique<IntLiteralNode>(3, BasicTypeNode::t_int32()),
+              std::make_unique<IntLiteralNode>(1, BasicTypeNode::t_int32())))));
 }
 
 TEST(Parser, selfModifyingBinOp) {
@@ -150,11 +141,10 @@ TEST(Parser, selfModifyingBinOp) {
   assertNode(
       parser->parseExpression(),
       std::make_unique<BinOpNode>(
-          BinOpType::b_percent_equal,
-          std::make_unique<BasicIdentifierNode>("a"),
-          std::make_unique<BinOpNode>(
-              BinOpType::b_minus, std::make_unique<BasicIdentifierNode>("b"),
-              std::make_unique<BasicIdentifierNode>("c"))));
+          BinOpType::b_percent_equal, std::make_unique<IdentifierNode>("a"s),
+          std::make_unique<BinOpNode>(BinOpType::b_minus,
+                                      std::make_unique<IdentifierNode>("b"s),
+                                      std::make_unique<IdentifierNode>("c"s))));
 }
 
 TEST(Parser, varNoValue) {
@@ -165,8 +155,8 @@ TEST(Parser, varNoValue) {
 
   assertNode(parser->parseExpression(),
              std::make_unique<VarDeclNode>(
-                 std::make_unique<BasicIdentifierNode>("a"),
-                 BasicType::t_int32()->getOwningType(), nullptr));
+                 std::make_unique<IdentifierNode>("a"s),
+                 BasicTypeNode::t_int32()->getOwningType(), nullptr));
 }
 
 TEST(Parser, varImplicitTypeWithValue) {
@@ -178,8 +168,8 @@ TEST(Parser, varImplicitTypeWithValue) {
 
   assertNode(parser->parseExpression(),
              std::make_unique<VarDeclNode>(
-                 std::make_unique<BasicIdentifierNode>("a"),
-                 BasicType::t_implicit()->getMutableType(),
+                 std::make_unique<IdentifierNode>("a"s),
+                 BasicTypeNode::t_implicit()->getMutableType(),
                  std::make_unique<BooleanLiteralNode>(true)));
 }
 
@@ -192,11 +182,13 @@ TEST(Parser, letExplicitTypeWithValue) {
                             {TokenType::t_equal},
                             {TokenType::t_int32_literal, 10l}});
 
-  assertNode(parser->parseExpression(),
-             std::make_unique<VarDeclNode>(
-                 std::make_unique<BasicIdentifierNode>("a"),
-                 BasicType::make({"foo", "bar"}, TypeProperties::_owning),
-                 std::make_unique<IntLiteralNode>(10, BasicType::t_int32())));
+  assertNode(
+      parser->parseExpression(),
+      std::make_unique<VarDeclNode>(
+          std::make_unique<IdentifierNode>("a"s),
+          std::make_unique<BasicTypeNode>(
+              std::vector<std::string>{"foo", "bar"}, TypeProperties::_owning),
+          std::make_unique<IntLiteralNode>(10, BasicTypeNode::t_int32())));
 }
 
 TEST(Parser, emptyBlock) {
@@ -206,11 +198,11 @@ TEST(Parser, emptyBlock) {
                             {TokenType::t_open_bracket},
                             {TokenType::t_close_bracket}});
 
-  assertNode(
-      parser->parseExpression(),
-      std::make_unique<VarDeclNode>(std::make_unique<BasicIdentifierNode>("a"),
-                                    BasicType::t_implicit()->getOwningType(),
-                                    std::make_unique<ScopeNode>()));
+  assertNode(parser->parseExpression(),
+             std::make_unique<VarDeclNode>(
+                 std::make_unique<IdentifierNode>("a"s),
+                 BasicTypeNode::t_implicit()->getOwningType(),
+                 std::make_unique<ScopeNode>()));
 }
 
 TEST(Parser, fullBlock) {
@@ -229,17 +221,19 @@ TEST(Parser, fullBlock) {
 
   std::vector<Statement> statements;
   statements.push_back(std::make_unique<YieldNode>(
-      std::make_unique<IntLiteralNode>(2, BasicType::t_int32())));
+      std::make_unique<IntLiteralNode>(2, BasicTypeNode::t_int32())));
 
-  assertNode(parser->parseExpression(),
-             std::make_unique<VarDeclNode>(
-                 std::make_unique<BasicIdentifierNode>("a"),
-                 BasicType::make({"b"}, BitField(TypeProperties::_mutable) |
-                                            TypeProperties::_owning),
-                 std::make_unique<BinOpNode>(
-                     BinOpType::b_plus,
-                     std::make_unique<IntLiteralNode>(1, BasicType::t_int32()),
-                     std::make_unique<ScopeNode>(std::move(statements)))));
+  assertNode(
+      parser->parseExpression(),
+      std::make_unique<VarDeclNode>(
+          std::make_unique<IdentifierNode>("a"s),
+          std::make_unique<BasicTypeNode>(std::vector<std::string>{"b"},
+                                          BitField(TypeProperties::_mutable) |
+                                              TypeProperties::_owning),
+          std::make_unique<BinOpNode>(
+              BinOpType::b_plus,
+              std::make_unique<IntLiteralNode>(1, BasicTypeNode::t_int32()),
+              std::make_unique<ScopeNode>(std::move(statements)))));
 }
 
 TEST(Parser, compoundTypeNoIdentifier) {

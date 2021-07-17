@@ -10,7 +10,8 @@ enum class TypeModifiers : uint64_t { _mutable = 1 };
 
 class ModifiedTypeSymbol : public TypeSymbolBase {
 public:
-  static ModifiedTypeSymbolPtr make();
+  static ModifiedTypeSymbolPtr make(TypeSymbolPtr typeSymbol,
+                                    BitField<TypeModifiers> modifiers);
 
   virtual bool isModifiedType() const override { return true; }
 

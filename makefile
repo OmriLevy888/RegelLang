@@ -24,7 +24,7 @@ DEBUG_CPPFLAGS=-g
 DEBUG_POSTFIX=-debug 
 TEST_CPPFLAGS=-fprofile-instr-generate -fcoverage-mapping -DRGL_TESTS -Itests/deps/include/ -g
 TEST_POSTFIX=-tests 
-TEST_LDFLAGS=-fprofile-instr-generate -fcoverage-mapping -Ldeps/lib/gtest/ -lgtest
+TEST_LDFLAGS=-fprofile-instr-generate -fcoverage-mapping -lgtest 
 
 .PHONY: clean rglc debug tests cloc coverage
 

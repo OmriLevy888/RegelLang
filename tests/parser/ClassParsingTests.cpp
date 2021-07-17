@@ -1,6 +1,7 @@
 #include "lexer/Token.hpp"
-#include "parser/ast/constructs/BasicType.hpp"
-#include "parser/ast/expressions/BasicIdentifierNode.hpp"
+#include "parser/Parser.hpp"
+#include "parser/ast/constructs/BasicTypeNode.hpp"
+#include "parser/ast/expressions/IdentifierNode.hpp"
 #include "parser/ast/expressions/literals/FunctionLiteralNode.hpp"
 #include "parser/ast/expressions/literals/class-literal/ClassLiteralNode.hpp"
 #include "tests/TestsCore.hpp"
@@ -16,7 +17,7 @@ TEST(Parser, classEmptyDefinition) {
 
   assertNode(parser->parseExpression(),
              std::make_unique<ClassLiteralNode>(
-                 std::make_unique<BasicIdentifierNode>("foo"),
+                 std::make_unique<IdentifierNode>("foo"s),
                  std::vector<FieldPtr>{}, std::vector<MethodPtr>{}));
 }
 
@@ -38,14 +39,13 @@ TEST(Parser, classSingleMethod) {
   methods.push_back(std::make_unique<MethodNode>(
       false,
       std::make_unique<FunctionLiteralNode>(
-          std::make_unique<BasicIdentifierNode>("bar"),
-          std::vector<Parameter>{}, BasicType::t_void(),
-          std::make_unique<ScopeNode>()),
+          std::make_unique<IdentifierNode>("bar"s), std::vector<Parameter>{},
+          BasicTypeNode::t_void(), std::make_unique<ScopeNode>()),
       MethodProperties::_default));
 
   assertNode(parser->parseExpression(),
              std::make_unique<ClassLiteralNode>(
-                 std::make_unique<BasicIdentifierNode>("foo"),
+                 std::make_unique<IdentifierNode>("foo"s),
                  std::vector<FieldPtr>{}, std::move(methods)));
 }
 
@@ -74,21 +74,19 @@ TEST(Parser, classMultipleMethods) {
   methods.push_back(std::make_unique<MethodNode>(
       false,
       std::make_unique<FunctionLiteralNode>(
-          std::make_unique<BasicIdentifierNode>("bar"),
-          std::vector<Parameter>{}, BasicType::t_void(),
-          std::make_unique<ScopeNode>()),
+          std::make_unique<IdentifierNode>("bar"s), std::vector<Parameter>{},
+          BasicTypeNode::t_void(), std::make_unique<ScopeNode>()),
       MethodProperties::_default));
   methods.push_back(std::make_unique<MethodNode>(
       false,
       std::make_unique<FunctionLiteralNode>(
-          std::make_unique<BasicIdentifierNode>("baz"),
-          std::vector<Parameter>{}, BasicType::t_void(),
-          std::make_unique<ScopeNode>()),
+          std::make_unique<IdentifierNode>("baz"s), std::vector<Parameter>{},
+          BasicTypeNode::t_void(), std::make_unique<ScopeNode>()),
       MethodProperties::_default));
 
   assertNode(parser->parseExpression(),
              std::make_unique<ClassLiteralNode>(
-                 std::make_unique<BasicIdentifierNode>("foo"),
+                 std::make_unique<IdentifierNode>("foo"s),
                  std::vector<FieldPtr>{}, std::move(methods)));
 }
 
@@ -106,13 +104,13 @@ TEST(Parser, classSingleField) {
 
   std::vector<FieldPtr> fields{};
   fields.push_back(std::make_unique<ClassFieldNode>(
-      false, BasicType::t_bool()->getOwningType(),
-      std::make_unique<BasicIdentifierNode>("a")));
+      false, BasicTypeNode::t_bool()->getOwningType(),
+      std::make_unique<IdentifierNode>("a"s)));
 
   assertNode(parser->parseExpression(),
              std::make_unique<ClassLiteralNode>(
-                 std::make_unique<BasicIdentifierNode>("foo"),
-                 std::move(fields), std::vector<MethodPtr>{}));
+                 std::make_unique<IdentifierNode>("foo"s), std::move(fields),
+                 std::vector<MethodPtr>{}));
 }
 
 TEST(Parser, classMultipleFields) {
@@ -135,16 +133,16 @@ TEST(Parser, classMultipleFields) {
 
   std::vector<FieldPtr> fields{};
   fields.push_back(std::make_unique<ClassFieldNode>(
-      false, BasicType::t_bool()->getOwningType()->getMutableType(),
-      std::make_unique<BasicIdentifierNode>("a")));
+      false, BasicTypeNode::t_bool()->getOwningType()->getMutableType(),
+      std::make_unique<IdentifierNode>("a"s)));
   fields.push_back(std::make_unique<ClassFieldNode>(
-      false, BasicType::t_double()->getOwningType()->getMutableType(),
-      std::make_unique<BasicIdentifierNode>("b")));
+      false, BasicTypeNode::t_double()->getOwningType()->getMutableType(),
+      std::make_unique<IdentifierNode>("b"s)));
 
   assertNode(parser->parseExpression(),
              std::make_unique<ClassLiteralNode>(
-                 std::make_unique<BasicIdentifierNode>("foo"),
-                 std::move(fields), std::vector<MethodPtr>{}));
+                 std::make_unique<IdentifierNode>("foo"s), std::move(fields),
+                 std::vector<MethodPtr>{}));
 }
 
 TEST(Parser, classPublicMembers) {
@@ -169,22 +167,21 @@ TEST(Parser, classPublicMembers) {
 
   std::vector<FieldPtr> fields{};
   fields.push_back(std::make_unique<ClassFieldNode>(
-      true, BasicType::t_uint8()->getOwningType()->getMutableType(),
-      std::make_unique<BasicIdentifierNode>("bar")));
+      true, BasicTypeNode::t_uint8()->getOwningType()->getMutableType(),
+      std::make_unique<IdentifierNode>("bar"s)));
 
   std::vector<MethodPtr> methods{};
   methods.push_back(std::make_unique<MethodNode>(
       false,
       std::make_unique<FunctionLiteralNode>(
-          std::make_unique<BasicIdentifierNode>("baz"),
-          std::vector<Parameter>{}, BasicType::t_void(),
-          std::make_unique<ScopeNode>()),
+          std::make_unique<IdentifierNode>("baz"s), std::vector<Parameter>{},
+          BasicTypeNode::t_void(), std::make_unique<ScopeNode>()),
       MethodProperties::_default));
 
   assertNode(parser->parseExpression(),
              std::make_unique<ClassLiteralNode>(
-                 std::make_unique<BasicIdentifierNode>("foo"),
-                 std::move(fields), std::move(methods)));
+                 std::make_unique<IdentifierNode>("foo"s), std::move(fields),
+                 std::move(methods)));
 }
 
 TEST(Parser, classMultipleFieldsShorthand) {
@@ -208,17 +205,17 @@ TEST(Parser, classMultipleFieldsShorthand) {
 
   std::vector<FieldPtr> fields{};
   fields.push_back(std::make_unique<ClassFieldNode>(
-      false, BasicType::t_int32()->getOwningType()->getMutableType(),
-      std::make_unique<BasicIdentifierNode>("a")));
+      false, BasicTypeNode::t_int32()->getOwningType()->getMutableType(),
+      std::make_unique<IdentifierNode>("a"s)));
   fields.push_back(std::make_unique<ClassFieldNode>(
-      false, BasicType::t_int32()->getOwningType()->getMutableType(),
-      std::make_unique<BasicIdentifierNode>("b")));
+      false, BasicTypeNode::t_int32()->getOwningType()->getMutableType(),
+      std::make_unique<IdentifierNode>("b"s)));
   fields.push_back(std::make_unique<ClassFieldNode>(
-      false, BasicType::t_int32()->getOwningType()->getMutableType(),
-      std::make_unique<BasicIdentifierNode>("c")));
+      false, BasicTypeNode::t_int32()->getOwningType()->getMutableType(),
+      std::make_unique<IdentifierNode>("c"s)));
 
   assertNode(parser->parseExpression(),
              std::make_unique<ClassLiteralNode>(
-                 std::make_unique<BasicIdentifierNode>("foo"),
-                 std::move(fields), std::vector<MethodPtr>{}));
+                 std::make_unique<IdentifierNode>("foo"s), std::move(fields),
+                 std::vector<MethodPtr>{}));
 }

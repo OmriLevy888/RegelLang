@@ -37,6 +37,9 @@ std::string execCommand(const char *cmd) {
 }
 
 void ErrorManager::printStackTrace() {
+#ifdef RGL_TESTS
+  return;
+#else
   const size_t backtraceMax = 64;
   void *stackFrames[backtraceMax];
   char **strings = nullptr;
@@ -79,5 +82,6 @@ void ErrorManager::printStackTrace() {
     }
   }
   std::free(strings);
+#endif
 }
 }; // namespace rgl

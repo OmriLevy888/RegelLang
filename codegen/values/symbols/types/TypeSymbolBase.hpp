@@ -7,7 +7,7 @@ namespace rgl {
 class TypeSymbolBase;
 using TypeSymbolPtr = std::shared_ptr<TypeSymbolBase>;
 
-enum class TypeTraits : uint64_t { TriviallyCopiable };
+enum class TypeTraits : uint64_t { TriviallyCopiable = 1 };
 
 class TypeSymbolBase : public SymbolBase {
 public:
@@ -23,11 +23,14 @@ public:
 
   virtual bool operator==(TypeSymbolPtr other) const = 0;
 
-  virtual size_t getSizeBits() const { return 0; }
+  virtual size_t getSizeBits() const {
+    return llvmType()->getScalarSizeInBits();
+  }
 
 protected:
   BitField<TypeTraits> m_traits;
 
-  TypeSymbolBase(llvm::Type *llvmType) : SymbolBase(llvmType) {}
+  TypeSymbolBase(llvm::Type *llvmType, BitField<TypeTraits> traits)
+      : SymbolBase(llvmType), m_traits(traits) {}
 };
 }; // namespace rgl
