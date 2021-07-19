@@ -1,7 +1,6 @@
 #pragma once
-
 #include "common/ILoggable.hpp"
-#include "common/collections/source-objects/SourceLine.hpp"
+#include "common/source-objects/SourceLine.hpp"
 
 namespace rgl {
 class SourceFile : public ILoggable {

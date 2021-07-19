@@ -1,10 +1,8 @@
 #include <memory>
 
-#include "common/collections/source-objects/SourceFile.hpp"
-#include "common/collections/source-objects/SourceLine.hpp"
-#include "common/collections/source-objects/SourceProject.hpp"
-#include "common/collections/source-stream/TextSourceStream.hpp"
 #include "common/errors/ErrorManager.hpp"
+#include "common/source-objects/SourceProject.hpp"
+#include "common/source-stream/TextSourceStream.hpp"
 #include "lexer/DummyTokenGenerator.hpp"
 #include "lexer/ITokenGenerator.hpp"
 #include "lexer/Token.hpp"

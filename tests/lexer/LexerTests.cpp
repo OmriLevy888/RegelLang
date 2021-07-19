@@ -1,5 +1,5 @@
-#include "common/collections/source-objects/SourceProject.hpp"
-#include "common/collections/source-stream/TextSourceStream.hpp"
+#include "common/source-objects/SourceProject.hpp"
+#include "common/source-stream/TextSourceStream.hpp"
 #include "lexer/ITokenGenerator.hpp"
 #include "lexer/Token.hpp"
 #include "tests/TestsCore.hpp"
@@ -12,9 +12,9 @@ using namespace rgl;
 
 static Lexer makeLexer(std::string &&source, std::string &&testName) {
   auto ss = std::make_unique<TextSourceStream>(source);
-  auto sp = std::make_shared<SourceProject>(testName);
-  sp->m_files.emplace_back(testName + ".file0");
-  return Lexer(std::move(ss), sp);
+  SourceProject::clean();
+  SourceProject::get().files().emplace_back(testName + ".file0");
+  return Lexer(std::move(ss));
 }
 
 static void assertIdentifier(const TokenValuePair &tvp,

@@ -17,7 +17,7 @@ public:
   virtual ValuePtr genCode() override;
 
   virtual void declare() override;
-  virtual void define() override;
+  virtual ValuePtr define() override;
 
   std::string toTreeStr(size_t spaces) const override {
     const std::string spacesStr(spaces + 20, ' ');

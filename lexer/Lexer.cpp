@@ -1,13 +1,25 @@
 #include "lexer/Lexer.hpp"
+#include "common/source-objects/SourceProject.hpp"
+#include "common/source-stream/ISourceStream.hpp"
+#include "lexer/Token.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cctype>
 #include <string>
 
-#include "lexer/Token.hpp"
-
 namespace rgl {
+Lexer::Lexer(std::unique_ptr<ISourceStream> sourceStream)
+    : m_sourceStream(std::move(sourceStream)), m_state(LexerState::normal),
+      m_value(std::nullopt), m_yieldedEof(false) {
+  m_file =
+      SourceProject::get().files().begin() + m_sourceStream->getFileIndex();
+}
+
+std::string Lexer::toString() const {
+  return "Lexer<sourceStream: " + m_sourceStream->toString() + ">";
+}
+
 TokenValuePair Lexer::getNext() {
   if (m_yieldedEof) {
     return m_eof;
@@ -18,19 +30,19 @@ TokenValuePair Lexer::getNext() {
   return {ret, std::move(m_value)};
 }
 Token Lexer::makeToken(TokenType type, uint32_t reprStartIdx,
-                       uint16_t reprLen) const {
-  return Token(type, reprStartIdx, reprLen, m_sourceStream->getFileIndex(),
-               m_currLineIdx, m_currTokenIdx);
+                       uint32_t reprLen) const {
+  return Token(type, SourceLocation{
+                         static_cast<uint32_t>(m_sourceStream->getFileIndex()),
+                         static_cast<uint32_t>(m_currLineIdx), reprStartIdx,
+                         reprLen});
 }
 
 Token Lexer::getNextImpl() {
-  if ((0 ==
-       m_project->m_files[m_sourceStream->getFileIndex()].m_lines.size()) ||
-      (!skipWhiteSpace())) {
+  if ((0 == m_file->m_lines.size()) || (!skipWhiteSpace())) {
     // new line
     std::string line;
     if (!m_sourceStream->readLine(line)) { // eof
-      const uint32_t reprStartIdx = m_currLine->m_repr.size();
+      const uint32_t reprStartIdx = m_currLine->repr().size();
       m_eof = makeToken(TokenType::t_eof, reprStartIdx, 1);
       addToken(m_eof);
       m_yieldedEof = true;
@@ -38,7 +50,6 @@ Token Lexer::getNextImpl() {
     }
 
     m_file->m_lines.emplace_back(line);
-    m_currTokenIdx = 0;
     m_currLineIdx = m_file->m_lines.size() - 1;
     m_pos = 0;
     m_currLine = m_file->m_lines.begin() + m_currLineIdx;
@@ -67,10 +78,10 @@ Token Lexer::getNextImpl() {
 }
 
 bool Lexer::skipWhiteSpace() {
-  size_t currLineLength = m_currLine->m_repr.length();
+  size_t currLineLength = m_currLine->repr().length();
   for (; m_pos < currLineLength; m_pos++) {
-    if ((m_currLine->m_repr[m_pos] != ' ') &&
-        (m_currLine->m_repr[m_pos] != '\t')) {
+    if ((m_currLine->repr()[m_pos] != ' ') &&
+        (m_currLine->repr()[m_pos] != '\t')) {
       return true;
     }
   }
@@ -78,34 +89,33 @@ bool Lexer::skipWhiteSpace() {
 }
 
 void Lexer::addToken(const Token &token) {
-  m_currLine->m_tokens.push_back(token);
-  m_currTokenIdx++;
+  m_currLine->tokens().push_back(token);
 }
 
 bool Lexer::lexComment() {
   if (m_state == LexerState::multilineComment) {
-    for (; m_pos < m_currLine->m_repr.size() - 1; m_pos++) {
-      const char curr = m_currLine->m_repr[m_pos];
-      const char next = m_currLine->m_repr[m_pos + 1];
+    for (; m_pos < m_currLine->repr().size() - 1; m_pos++) {
+      const char curr = m_currLine->repr()[m_pos];
+      const char next = m_currLine->repr()[m_pos + 1];
       if (curr == '*' && next == '/') {
         m_state = LexerState::normal;
         m_pos += 2;
         return true;
       }
     }
-    m_pos = m_currLine->m_repr.size();
+    m_pos = m_currLine->repr().size();
     return true;
   }
 
-  if (m_pos + 2 > m_currLine->m_repr.size())
+  if (m_pos + 2 > m_currLine->repr().size())
     return false;
 
-  const char first = m_currLine->m_repr[m_pos];
-  const char second = m_currLine->m_repr[m_pos + 1];
+  const char first = m_currLine->repr()[m_pos];
+  const char second = m_currLine->repr()[m_pos + 1];
 
   if (first == '/' &&
       second == '/') { // found a single line comment till the end of the line
-    m_pos = m_currLine->m_repr.size();
+    m_pos = m_currLine->repr().size();
     return true;
   } else if (first == '/' &&
              second == '*') { // found the start of a multiline comment
@@ -138,9 +148,9 @@ bool Lexer::lexKeyword(Token &ret) {
       {"namespace", TokenType::t_namespace},
       {"import", TokenType::t_import}};
 
-  const auto start = m_currLine->m_repr.cbegin() + m_pos;
+  const auto start = m_currLine->repr().cbegin() + m_pos;
   auto it = start + 1;
-  for (; it != m_currLine->m_repr.cend(); it++) {
+  for (; it != m_currLine->repr().cend(); it++) {
     if (!std::isalpha(*it)) {
       break;
     }
@@ -170,13 +180,13 @@ bool Lexer::lexKeyword(Token &ret) {
 }
 
 bool Lexer::lexIdentifier(Token &ret) {
-  const char curr = m_currLine->m_repr[m_pos];
+  const char curr = m_currLine->repr()[m_pos];
   if (!std::isalpha(curr) && '_' != curr) {
     return false;
   }
-  const auto start = m_currLine->m_repr.cbegin() + m_pos;
+  const auto start = m_currLine->repr().cbegin() + m_pos;
   auto it = start + 1;
-  for (; it != m_currLine->m_repr.cend(); it++) {
+  for (; it != m_currLine->repr().cend(); it++) {
     if (!std::isalnum(*it) && '_' != *it) {
       break;
     }
@@ -188,14 +198,14 @@ bool Lexer::lexIdentifier(Token &ret) {
 
   size_t len = it - start;
   ret = makeToken(TokenType::t_identifier, m_pos, len);
-  const char *startPtr = m_currLine->m_repr.c_str() + m_pos;
+  const char *startPtr = m_currLine->repr().c_str() + m_pos;
   m_value = std::string{startPtr, len};
   m_pos += len;
   return true;
 }
 
 bool Lexer::lexSpecialCharacter(Token &ret) {
-  switch (m_currLine->m_repr[m_pos]) {
+  switch (m_currLine->repr()[m_pos]) {
   case '_':
     ret = makeToken(TokenType::t_underscore, m_pos, 1);
     break;
@@ -281,9 +291,9 @@ bool Lexer::lexOperator(Token &ret) {
   static const size_t MAX_OPERATOR_LEN =
       3; // Change this when new operators longer than 3 characters are
   // introduces, though this should probably never happen
-  const size_t lenLeft = m_currLine->m_repr.size() - m_pos;
+  const size_t lenLeft = m_currLine->repr().size() - m_pos;
   const size_t len = std::min(MAX_OPERATOR_LEN, lenLeft);
-  std::string curr = m_currLine->m_repr.substr(m_pos, len);
+  std::string curr = m_currLine->repr().substr(m_pos, len);
   while (0 != curr.size()) {
     const auto match = keywords.find(curr);
     if (keywords.cend() != match) {
@@ -309,7 +319,7 @@ bool Lexer::lexLiteral(Token &ret) {
 }
 
 bool Lexer::lexCharLiteral(Token &ret) {
-  if (m_currLine->m_repr[m_pos] != '\'')
+  if (m_currLine->repr()[m_pos] != '\'')
     return false;
   const size_t originalPos = m_pos++;
   char value;
@@ -317,7 +327,7 @@ bool Lexer::lexCharLiteral(Token &ret) {
     m_pos = originalPos;
     return false;
   }
-  if (m_currLine->m_repr[m_pos++] != '\'') {
+  if (m_currLine->repr()[m_pos++] != '\'') {
     m_pos = originalPos;
     return false;
   }
@@ -327,12 +337,12 @@ bool Lexer::lexCharLiteral(Token &ret) {
 }
 
 bool Lexer::lexStringLiteral(Token &ret) {
-  if (m_currLine->m_repr[m_pos] != '\"')
+  if (m_currLine->repr()[m_pos] != '\"')
     return false;
   const size_t originalPos = m_pos++;
   std::string value;
   char curr;
-  while (m_currLine->m_repr[m_pos] != '\"') {
+  while (m_currLine->repr()[m_pos] != '\"') {
     if (!lexCharacter(curr)) {
       m_pos = originalPos;
       return false;
@@ -352,10 +362,10 @@ bool Lexer::lexIntLiteral(Token &ret) {
 
   const size_t originalPos = m_pos;
   uint8_t base = 10;
-  if (m_currLine->m_repr[m_pos] == '0' &&
-      m_pos + 1 < m_currLine->m_repr.size()) {
+  if (m_currLine->repr()[m_pos] == '0' &&
+      m_pos + 1 < m_currLine->repr().size()) {
     m_pos += 2;
-    switch (m_currLine->m_repr[m_pos - 1]) { // check base
+    switch (m_currLine->repr()[m_pos - 1]) { // check base
     case 'b':
     case 'B':
       base = 2;
@@ -375,9 +385,9 @@ bool Lexer::lexIntLiteral(Token &ret) {
   }
 
   const size_t numStartPos = m_pos;
-  for (; m_pos != m_currLine->m_repr.size();
+  for (; m_pos != m_currLine->repr().size();
        m_pos++) { // search until found invalid digit character
-    char curr = m_currLine->m_repr[m_pos];
+    char curr = m_currLine->repr()[m_pos];
     if (std::distance(digits.cbegin(), std::find(digits.cbegin(), digits.cend(),
                                                  curr)) >= base) {
       break;
@@ -387,19 +397,19 @@ bool Lexer::lexIntLiteral(Token &ret) {
   if (numStartPos == m_pos) { // if found no valid digits
     m_pos = originalPos;
     return false;
-  } else if (m_pos >= m_currLine->m_repr.size()) { // this means we exited the
+  } else if (m_pos >= m_currLine->repr().size()) { // this means we exited the
                                                    // loop cause the line ended
     ret =
         makeToken(TokenType::t_int32_literal, originalPos, m_pos - originalPos);
     m_value = static_cast<int64_t>(
-        std::strtoll(m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
+        std::strtoll(m_currLine->repr().c_str() + numStartPos, nullptr, base));
     return true;
   }
 
-  if (m_currLine->m_repr[m_pos] == 'i' ||
-      m_currLine->m_repr[m_pos] == 'u') { // check literal type
-    const char type = m_currLine->m_repr[m_pos];
-    if (m_currLine->m_repr.size() <=
+  if (m_currLine->repr()[m_pos] == 'i' ||
+      m_currLine->repr()[m_pos] == 'u') { // check literal type
+    const char type = m_currLine->repr()[m_pos];
+    if (m_currLine->repr().size() <=
         m_pos + 1) { // if the type character is the last character
       m_pos++; // m_pos now points outside the current line, so we move to the
                // next line
@@ -408,20 +418,20 @@ bool Lexer::lexIntLiteral(Token &ret) {
         ret = makeToken(TokenType::t_int32_literal, originalPos,
                         m_pos - originalPos);
         m_value = static_cast<int64_t>(std::strtoll(
-            m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
+            m_currLine->repr().c_str() + numStartPos, nullptr, base));
         return true;
       case 'u':
         ret = makeToken(TokenType::t_uint32_literal, originalPos,
                         m_pos - originalPos);
         m_value = static_cast<uint64_t>(std::strtoull(
-            m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
+            m_currLine->repr().c_str() + numStartPos, nullptr, base));
         return true;
       }
     }
 
-    const char first = m_currLine->m_repr[m_pos + 1];
+    const char first = m_currLine->repr()[m_pos + 1];
     m_pos++;
-    if (m_currLine->m_repr.size() <=
+    if (m_currLine->repr().size() <=
         m_pos + 1) { // if there is only one character after the type character
       if (first == '8') {
         m_pos++; // m_pos now points outside the current line, so we move to
@@ -431,13 +441,13 @@ bool Lexer::lexIntLiteral(Token &ret) {
           ret = makeToken(TokenType::t_int8_literal, originalPos,
                           m_pos - originalPos);
           m_value = static_cast<int64_t>(std::strtoll(
-              m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
+              m_currLine->repr().c_str() + numStartPos, nullptr, base));
           return true;
         case 'u':
           ret = makeToken(TokenType::t_uint8_literal, originalPos,
                           m_pos - originalPos);
           m_value = static_cast<uint64_t>(std::strtoull(
-              m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
+              m_currLine->repr().c_str() + numStartPos, nullptr, base));
           return true;
         }
       } else if (std::isdigit(
@@ -450,19 +460,19 @@ bool Lexer::lexIntLiteral(Token &ret) {
           ret = makeToken(TokenType::t_int32_literal, originalPos,
                           m_pos - originalPos);
           m_value = static_cast<int64_t>(std::strtoll(
-              m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
+              m_currLine->repr().c_str() + numStartPos, nullptr, base));
           return true;
         case 'u':
           ret = makeToken(TokenType::t_uint32_literal, originalPos,
                           m_pos - originalPos);
           m_value = static_cast<uint64_t>(std::strtoull(
-              m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
+              m_currLine->repr().c_str() + numStartPos, nullptr, base));
           return true;
         }
       }
     }
 
-    const char second = m_currLine->m_repr[m_pos + 1];
+    const char second = m_currLine->repr()[m_pos + 1];
     m_pos++;
     TokenType tokType = TokenType::t_err;
     uint32_t startIdx = originalPos;
@@ -513,17 +523,17 @@ bool Lexer::lexIntLiteral(Token &ret) {
     ret = makeToken(tokType, startIdx, reprLen);
     if (type == 'i') {
       m_value = static_cast<int64_t>(std::strtoll(
-          m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
+          m_currLine->repr().c_str() + numStartPos, nullptr, base));
     } else {
       m_value = static_cast<uint64_t>(std::strtoull(
-          m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
+          m_currLine->repr().c_str() + numStartPos, nullptr, base));
     }
     return true;
   }
 
   ret = makeToken(TokenType::t_int32_literal, originalPos, m_pos - originalPos);
   m_value = static_cast<int64_t>(
-      std::strtoll(m_currLine->m_repr.c_str() + numStartPos, nullptr, base));
+      std::strtoll(m_currLine->repr().c_str() + numStartPos, nullptr, base));
   return true;
 }
 
@@ -531,30 +541,30 @@ bool Lexer::lexRealLiteral(Token &ret) {
   bool foundDot = false;
   const size_t originalPos = m_pos;
 
-  for (; m_pos < m_currLine->m_repr.size(); m_pos++) {
-    if (!std::isdigit(m_currLine->m_repr[m_pos]))
+  for (; m_pos < m_currLine->repr().size(); m_pos++) {
+    if (!std::isdigit(m_currLine->repr()[m_pos]))
       break;
   }
 
-  if (m_currLine->m_repr[m_pos] == '.') { // found dot, look for fraction
+  if (m_currLine->repr()[m_pos] == '.') { // found dot, look for fraction
     foundDot = true;
-    for (m_pos++; m_pos < m_currLine->m_repr.size(); m_pos++) {
-      if (!std::isdigit(m_currLine->m_repr[m_pos]))
+    for (m_pos++; m_pos < m_currLine->repr().size(); m_pos++) {
+      if (!std::isdigit(m_currLine->repr()[m_pos]))
         break;
     }
   }
 
-  if (m_pos < m_currLine->m_repr.size()) { // check for f or d suffix
-    switch (m_currLine->m_repr[m_pos++]) {
+  if (m_pos < m_currLine->repr().size()) { // check for f or d suffix
+    switch (m_currLine->repr()[m_pos++]) {
     case 'd':
       ret = makeToken(TokenType::t_double_literal, originalPos,
                       m_pos - originalPos);
-      m_value = std::strtod(m_currLine->m_repr.c_str() + originalPos, nullptr);
+      m_value = std::strtod(m_currLine->repr().c_str() + originalPos, nullptr);
       return true;
     case 'f':
       ret = makeToken(TokenType::t_float_literal, originalPos,
                       m_pos - originalPos);
-      m_value = std::strtof(m_currLine->m_repr.c_str() + originalPos, nullptr);
+      m_value = std::strtof(m_currLine->repr().c_str() + originalPos, nullptr);
       return true;
     default:
       m_pos--;
@@ -576,17 +586,17 @@ bool Lexer::lexRealLiteral(Token &ret) {
   // if found dot, the default type is double literal
   ret =
       makeToken(TokenType::t_double_literal, originalPos, m_pos - originalPos);
-  m_value = std::strtod(m_currLine->m_repr.c_str() + originalPos, nullptr);
+  m_value = std::strtod(m_currLine->repr().c_str() + originalPos, nullptr);
   return true;
 }
 
 bool Lexer::lexCharacter(char &value) {
-  const char curr = m_currLine->m_repr[m_pos];
+  const char curr = m_currLine->repr()[m_pos];
   if ('\\' == curr) {
-    if (m_pos >= m_currLine->m_repr.length() - 1)
+    if (m_pos >= m_currLine->repr().length() - 1)
       return false;
 
-    const char second = m_currLine->m_repr[m_pos + 1];
+    const char second = m_currLine->repr()[m_pos + 1];
     m_pos += 2;
     switch (second) {
     case 'a':
@@ -629,10 +639,10 @@ bool Lexer::lexCharacter(char &value) {
     m_pos -= 2;
     if (second != 'x' && second != 'X')
       return false;
-    if (m_pos >= m_currLine->m_repr.length() - 3)
+    if (m_pos >= m_currLine->repr().length() - 3)
       return false;
-    const char third = m_currLine->m_repr[m_pos + 2];
-    const char fourth = m_currLine->m_repr[m_pos + 3];
+    const char third = m_currLine->repr()[m_pos + 2];
+    const char fourth = m_currLine->repr()[m_pos + 3];
     if (isHex(third) && isHex(fourth)) {
       m_pos += 4;
       value = (digitToValue(third) << 4) | digitToValue(fourth);

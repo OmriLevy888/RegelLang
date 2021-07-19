@@ -209,7 +209,7 @@ Expression Parser::parseRealLiteral() {
 }
 
 Expression Parser::parseTextLiteral() {
-  switch (m_tokens->getCurr().getTokenType()) {
+  switch (m_tokens->getCurr()) {
   case TokenType::t_char_literal:
     return std::make_unique<CharLiteralNode>(
         std::get<char>(m_tokens->getCurrValue().value()));
@@ -490,8 +490,7 @@ Scope Parser::parseScope(bool forceBrackets, bool disallowBrackets,
 
   if (withBrackets && TokenType::t_close_bracket != m_tokens->getCurr()) {
     ErrorManager::logError(ErrorTypes::E_BAD_TOKEN,
-                           {"Expected } but not found", openBracket,
-                            m_tokens->getSourceProject()});
+                           {"Expected } but not found", openBracket});
     return nullptr;
   }
 

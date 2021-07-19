@@ -16,6 +16,9 @@ referenced even if they are declared after the place of reference.
 
 ================================================================================
 Codegen errors
+[!] function <func_name> expects <ret_type> but got <actual_type>
+  <return statement source code>
+  
 Codegen tests
 
 Function overload

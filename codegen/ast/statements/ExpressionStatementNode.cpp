@@ -2,8 +2,8 @@
 #include "codegen/Context.hpp"
 
 namespace rgl {
-void ExpressionStatementNode::genCode() {
+ValuePtr ExpressionStatementNode::genCode() {
   // Pass nullptr to invoke the codegen entry point
-  m_expr->genCode(nullptr);
+  return m_expr->genCode(nullptr);
 }
 }; // namespace rgl

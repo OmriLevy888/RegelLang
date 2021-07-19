@@ -11,7 +11,8 @@ using ValuePtr = std::shared_ptr<ValueBase>;
 
 class ValueBase : public ILoggable {
 public:
-  static ValuePtr BadValue() { return ValuePtr(new ValueBase()); }
+  static ValuePtr BadValue() { return ValuePtr(new ValueBase(false)); }
+  static ValuePtr Success() { return ValuePtr(new ValueBase(true)); }
 
   operator bool() const noexcept { return success(); }
   bool success() const noexcept { return m_success; }
@@ -57,7 +58,7 @@ protected:
       m_contained;
   bool m_success;
 
-  ValueBase() : m_contained(nullptr), m_success(false) {}
+  ValueBase(bool success) : m_contained(nullptr), m_success(success) {}
   ValueBase(llvm::Value *llvmValue, bool success)
       : m_contained(llvmValue), m_success(success) {}
   ValueBase(llvm::Module *llvmModule, bool success)

@@ -26,6 +26,7 @@ enum class ErrorTypes : size_t {
 
   E_MISSING_RHS,
 
+  E_TYPE_MISMATCH,
 };
 
 enum class WarningTypes : size_t {
@@ -41,26 +42,25 @@ public:
   template <typename _T, typename... _TArgs>
   static void logError(ErrorTypes error, const _T &first,
                        const _TArgs &...rest) {
-    s_errors.push(error);
+    get().m_errors.push(error);
     logErrorImpl(first, rest...);
   }
   static void logError(ErrorTypes error, const ErrorObject &obj) {
-    s_errors.push(error);
+    get().m_errors.push(error);
     logErrorImpl(obj);
   }
 
   template <typename _T, typename... _TArgs>
   static void logWarning(WarningTypes warning, const _T &first,
                          const _TArgs &...rest) {
-    s_warnings.push(warning);
+    get().m_warnings.push(warning);
     logWarningImpl(first, rest...);
   }
 
   template <typename... _TArgs>
-
   static void logErrorFmt(ErrorTypes error, const std::string &pattern,
                           const _TArgs &...rest) {
-    s_errors.push(error);
+    get().m_errors.push(error);
     std::cerr << "[!] " << Formatter<_TArgs...>(pattern, rest...).toString()
               << std::endl;
   }
@@ -68,24 +68,38 @@ public:
   template <typename... _TArgs>
   static void logWarningFmt(WarningTypes warning, const std::string &pattern,
                             const _TArgs &...rest) {
-    s_warnings.push(warning);
+    get().m_warnings.push(warning);
     std::cerr << "[*] " << Formatter<_TArgs...>(pattern, rest...).toString()
               << std::endl;
   }
 
+  static void setDisplayStackTrace(bool value) {
+    get().m_displayStackTrace = value;
+  }
+
 private:
-  static std::queue<ErrorTypes> s_errors;
-  static std::queue<WarningTypes> s_warnings;
+  std::queue<ErrorTypes> m_errors;
+  std::queue<WarningTypes> m_warnings;
+  bool m_displayStackTrace;
+
+  static ErrorManager &get() {
+    static ErrorManager instance;
+    return instance;
+  }
 
   template <typename _T, typename... _TArgs>
   static void logErrorImpl(const _T &first, const _TArgs &...rest) {
     std::cerr << "[!] " << toString(first) << ' ';
     logErrorImplRest(rest...);
-    printStackTrace();
+    if (get().m_displayStackTrace) {
+      printStackTrace();
+    }
   }
   template <typename _T> static void logErrorImpl(const _T &error) {
     std::cerr << "[!] " << toString(error) << std::endl;
-    printStackTrace();
+    if (get().m_displayStackTrace) {
+      printStackTrace();
+    }
   }
 
   template <typename _T, typename... _TArgs>

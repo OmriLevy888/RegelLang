@@ -8,18 +8,15 @@
 extern char __executable_start;
 
 namespace rgl {
-std::queue<ErrorTypes> ErrorManager::s_errors;
-std::queue<WarningTypes> ErrorManager::s_warnings;
-
 ErrorTypes ErrorManager::getErrorType() {
-  auto ret = ErrorManager::s_errors.front();
-  ErrorManager::s_errors.pop();
+  auto ret = get().m_errors.front();
+  get().m_errors.pop();
   return ret;
 }
 
 WarningTypes ErrorManager::getWarningType() {
-  auto ret = ErrorManager::s_warnings.front();
-  ErrorManager::s_warnings.pop();
+  auto ret = get().m_warnings.front();
+  get().m_warnings.pop();
   return ret;
 }
 

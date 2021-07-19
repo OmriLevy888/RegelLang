@@ -1,17 +1,23 @@
 #include "parser/ast/expressions/ScopeNode.hpp"
 #include "codegen/Context.hpp"
+#include "codegen/values/ValueBase.hpp"
 #include "codegen/values/symbols/SymbolMap.hpp"
 
 namespace rgl {
 template <typename TDeclarable>
-void defineDeclareLoop(const std::vector<TDeclarable> &declarables) {
+ValuePtr defineDeclareLoop(const std::vector<TDeclarable> &declarables) {
   for (auto &node : declarables) {
     node->declare();
   }
 
   for (auto &node : declarables) {
-    node->define();
+    auto ret = node->define();
+    if (!ret->success()) {
+      return ret;
+    }
   }
+
+  return ValueBase::Success();
 }
 
 ValuePtr ScopeNode::genCode() {
@@ -22,18 +28,26 @@ ValuePtr ScopeNode::genCode() {
     currFunction->createStackFrame();
   }
 
-  defineDeclareLoop(m_classes);
-  defineDeclareLoop(m_functions);
+  auto ret = defineDeclareLoop(m_classes);
+  if (!ret->success()) {
+    return ret;
+  }
+  ret = defineDeclareLoop(m_functions);
+  if (!ret->success()) {
+    return ret;
+  }
 
   for (auto &statement : m_statements) {
-    statement->genCode();
+    ret = statement->genCode();
+    if (!ret->success()) {
+      return ret;
+    }
   }
 
   if (nullptr != currFunction) {
     currFunction->removeStackFrame();
   }
 
-  // TODO: fix this
-  return ValueBase::BadValue();
+  return ValueBase::Success();
 }
 }; // namespace rgl

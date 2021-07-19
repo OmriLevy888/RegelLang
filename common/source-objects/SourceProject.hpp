@@ -1,15 +1,24 @@
 #pragma once
-
 #include "common/ILoggable.hpp"
-#include "common/collections/source-objects/SourceFile.hpp"
+#include "common/source-objects/SourceFile.hpp"
 
 namespace rgl {
 class SourceProject : public ILoggable {
 public:
-  std::string m_name;
-  std::vector<SourceFile> m_files;
+  static SourceProject &get() {
+    static SourceProject instance;
+    return instance;
+  }
 
-  SourceProject(const std::string &name) : m_name(name) {}
+  static void clean() {
+    get().m_name = "";
+    get().m_files.clear();
+  }
+
+  std::string &name() { return m_name; }
+  std::string name() const { return m_name; }
+  std::vector<SourceFile> &files() { return m_files; }
+  std::vector<SourceFile> files() const { return m_files; }
 
   // TODO: implement these before switching to multiple lexers/parsers
   void lock() {}
@@ -24,5 +33,11 @@ public:
                      m_files.size())
         .toString();
   }
+
+private:
+  std::string m_name;
+  std::vector<SourceFile> m_files;
+
+  SourceProject() {}
 };
 } // namespace rgl

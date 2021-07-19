@@ -16,7 +16,7 @@ public:
 
   // TODO: implement these
   virtual void declare() override {}
-  virtual void define() override {}
+  virtual ValuePtr define() override;
 
   virtual std::string toTreeStr(size_t spaces) const override;
 

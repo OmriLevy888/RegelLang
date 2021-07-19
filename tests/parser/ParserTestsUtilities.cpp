@@ -1,15 +1,14 @@
 #include "tests/parser/ParserTestsUtilities.hpp"
+#include "common/source-objects/SourceProject.hpp"
 #include "lexer/DummyTokenGenerator.hpp"
 #include "parser/Parser.hpp"
 #include "gtest/gtest.h"
 
 namespace rgl {
 
-std::unique_ptr<Parser>
-makeParser(std::vector<TokenValuePair> &&tokens,
-           std::shared_ptr<SourceProject> sourceProject) {
+std::unique_ptr<Parser> makeParser(std::vector<TokenValuePair> &&tokens) {
   auto tokenGenerator =
-      std::make_unique<DummyTokenGenerator>(std::move(tokens), sourceProject);
+      std::make_unique<DummyTokenGenerator>(std::move(tokens));
   auto tokenCollection =
       std::make_unique<TokenCollection>(std::move(tokenGenerator));
   return std::make_unique<Parser>(std::move(tokenCollection));
@@ -19,7 +18,8 @@ std::unique_ptr<Parser> makeParser(const std::string &testName,
                                    std::vector<TokenValuePair> &&tokens,
                                    std::vector<std::string> &&source,
                                    const size_t firstLineNo) {
-  auto project = std::make_shared<SourceProject>(testName);
+  SourceProject::clean();
+  SourceProject::get().name() = testName;
 
   SourceFile file{testName};
   file.m_lines.reserve(source.size());
@@ -28,8 +28,8 @@ std::unique_ptr<Parser> makeParser(const std::string &testName,
                               firstLineNo + idx);
   }
 
-  project->addFile(std::move(file));
-  return makeParser(std::move(tokens), project);
+  SourceProject::get().addFile(std::move(file));
+  return makeParser(std::move(tokens));
 }
 
 void assertNode(std::unique_ptr<ASTNode> expr,

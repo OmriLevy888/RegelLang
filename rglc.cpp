@@ -3,11 +3,10 @@
 #include "cli/ProjectFileParser.hpp"
 #include "codegen/Context.hpp"
 #include "common/Core.hpp"
-#include "common/collections/source-objects/SourceFile.hpp"
-#include "common/collections/source-objects/SourceProject.hpp"
-#include "common/collections/source-stream/FileSourceStream.hpp"
-#include "common/collections/source-stream/TextSourceStream.hpp"
 #include "common/errors/ErrorManager.hpp"
+#include "common/source-objects/SourceProject.hpp"
+#include "common/source-stream/FileSourceStream.hpp"
+#include "common/source-stream/TextSourceStream.hpp"
 #include "lexer/DummyTokenGenerator.hpp"
 #include "lexer/Lexer.hpp"
 #include "lexer/TokenCollection.hpp"
@@ -33,11 +32,9 @@
 #include "tests/parser/ParserTestsUtilities.hpp"
 
 namespace rgl {
-std::unique_ptr<Parser>
-makeParser(std::vector<TokenValuePair> &&tokens,
-           std::shared_ptr<SourceProject> sourceProject) {
+std::unique_ptr<Parser> makeParser(std::vector<TokenValuePair> &&tokens) {
   auto tokenGenerator =
-      std::make_unique<DummyTokenGenerator>(std::move(tokens), sourceProject);
+      std::make_unique<DummyTokenGenerator>(std::move(tokens));
   auto tokenCollection =
       std::make_unique<TokenCollection>(std::move(tokenGenerator));
   return std::make_unique<Parser>(std::move(tokenCollection));
@@ -98,7 +95,7 @@ int main(int argc, const char **argv, char **envp) {
                             {TokenType::t_identifier, "a"},
                             {TokenType::t_close_paren},
                             {TokenType::t_arrow},
-                            {TokenType::t_identifier, "i32"},
+                            {TokenType::t_identifier, "float"},
                             {TokenType::t_open_bracket},
                             {TokenType::t_return},
                             {TokenType::t_identifier, "a"},
@@ -109,6 +106,7 @@ int main(int argc, const char **argv, char **envp) {
                             {TokenType::t_semicolon},
                             {TokenType::t_close_bracket}});
 
+  ErrorManager::setDisplayStackTrace(true);
   auto file = parser->parseFile();
   /* std::cout << file->toString() << std::endl; */
   /* std::cout << Context::module()->toString() << std::endl; */
