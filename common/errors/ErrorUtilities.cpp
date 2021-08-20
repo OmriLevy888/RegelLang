@@ -3,6 +3,8 @@
 #include "common/source-objects/SourceProject.hpp"
 #include "lexer/TokenCollection.hpp"
 
+#include <iostream>
+
 namespace rgl {
 std::string tokenToString(Token tok) {
   if (TokenType::t_eof == tok) {
@@ -18,7 +20,7 @@ std::string tokenToString(Token tok) {
     return "";
   }
   const auto &line = file.m_lines[sourceLocation.m_line];
-  const auto begin = line.repr().cbegin() + sourceLocation.m_reprStartIdx;
+  const auto begin = line.cbegin() + sourceLocation.m_reprStartIdx;
   return {begin, begin + sourceLocation.m_reprLen};
 }
 std::string tokenToString(const std::unique_ptr<TokenCollection> &tokens) {
@@ -31,7 +33,7 @@ std::string pointAt(Token tok) {
   const size_t lineNo = sourceLocation.m_line;
   const auto &file = SourceProject::get().files()[fileNo];
   const auto &line = file.m_lines[lineNo];
-  const auto [pointerTopStr, pointerBottomStr] = line.pointAt(tok);
+  const auto [pointerTopStr, pointerBottomStr] = line.pointAt(tok.sourceLocation());
   static const std::string pointerBottomExtStr(4, '_');
 
   static const std::string spacesStr(4, ' ');

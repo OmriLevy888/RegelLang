@@ -134,11 +134,11 @@ TEST(Parser, functionTypeMissingComma) {
   std::vector<TokenValuePair> tokens;
 
   auto parser = makeParser("TEST::Parser.functionTypeMissingComma",
-                           {{{0, TokenType::t_func, 0, 4}},
-                            {{1, TokenType::t_open_paren, 5, 1}},
-                            {{2, TokenType::t_identifier, 6, 3}, "i32"s},
-                            {{3, TokenType::t_identifier, 10, 5}, "float"s},
-                            {{4, TokenType::t_close_paren, 16, 1}}},
+                           {{{TokenType::t_func, {0, 0, 0, 4}}},
+                            {{TokenType::t_open_paren, {0, 0, 5, 1}}},
+                            {{TokenType::t_identifier, {0, 0, 6, 3}}, "i32"s},
+                            {{TokenType::t_identifier, {0, 0, 10, 5}}, "float"s},
+                            {{TokenType::t_close_paren, {0, 0, 16, 1}}}},
                            {"func (i32 float)"});
 
   ASSERT_EQ(parser->parseType(), nullptr);

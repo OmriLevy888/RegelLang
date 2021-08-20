@@ -236,11 +236,11 @@ TEST(Parser, fullBlock) {
 
 TEST(Parser, compoundTypeNoIdentifier) {
   auto parser = makeParser("TEST::Parser.compoundTypeNoIdentifier",
-                           {{{TokenType::t_identifier, 0, 1, 0, 1}, "a"s},
-                            {{TokenType::t_colon, 2, 1, 0, 1}},
-                            {{TokenType::t_identifier, 4, 3, 0, 1}, "foo"s},
-                            {{TokenType::t_dot, 7, 1, 0, 1}},
-                            {{TokenType::t_equal, 9, 1, 0, 1}}},
+                           {{{TokenType::t_identifier, {0, 1, 0, 1}}, "a"s},
+                            {{TokenType::t_colon, {0, 1, 2, 1}}},
+                            {{TokenType::t_identifier, {0, 1, 4, 3}}, "foo"s},
+                            {{TokenType::t_dot, {0, 1, 7, 1}}},
+                            {{TokenType::t_equal, {0, 1, 9, 1}}}},
                            {"b := 5;", "a : foo. = 1;", "return a + b;"});
 
   ASSERT_EQ(parser->parseExpression(), nullptr);
@@ -249,13 +249,13 @@ TEST(Parser, compoundTypeNoIdentifier) {
 
 TEST(Parser, parensMissingClose) {
   auto parser = makeParser("TEST::Parser.parensMissingClose",
-                           {{{0, TokenType::t_identifier, 0, 1}, "a"s},
-                            {{1, TokenType::t_asterisk, 2, 1}},
-                            {{2, TokenType::t_open_paren, 4, 1}},
-                            {{3, TokenType::t_identifier, 5, 1}, "b"s},
-                            {{4, TokenType::t_plus, 7, 1}},
-                            {{5, TokenType::t_identifier, 9, 1}, "c"s},
-                            {{6, TokenType::t_semicolon, 10, 1}}},
+                           {{{TokenType::t_identifier, {0, 0, 0, 1}}, "a"s},
+                            {{TokenType::t_asterisk, {0, 0, 2, 1}}},
+                            {{TokenType::t_open_paren, {0, 0, 4, 1}}},
+                            {{TokenType::t_identifier, {0, 0, 5, 1}}, "b"s},
+                            {{TokenType::t_plus, {0, 0, 7, 1}}},
+                            {{TokenType::t_identifier, {0, 0, 9, 1}}, "c"s},
+                            {{TokenType::t_semicolon, {0, 0, 10, 1}}}},
                            {"a * (b + c;"});
 
   ASSERT_EQ(parser->parseExpression(), nullptr);
@@ -264,12 +264,12 @@ TEST(Parser, parensMissingClose) {
 
 TEST(Parser, invokeMissingClose) {
   auto parser = makeParser("TEST::Parser.invokeMissingClose",
-                           {{{0, TokenType::t_identifier, 0, 1, 0}, "a"s},
-                            {{1, TokenType::t_open_paren, 1, 1, 0}},
-                            {{0, TokenType::t_identifier, 0, 1, 1}, "b"s},
-                            {{1, TokenType::t_comma, 1, 1, 1}},
-                            {{2, TokenType::t_identifier, 3, 1, 1}, "c"s},
-                            {{3, TokenType::t_semicolon, 4, 1, 1}}},
+                           {{{TokenType::t_identifier, {0, 0, 0, 1}}, "a"s},
+                            {{TokenType::t_open_paren, {0, 0, 1, 1}}},
+                            {{TokenType::t_identifier, {0, 1, 0, 1}}, "b"s},
+                            {{TokenType::t_comma, {0, 1, 1, 1}}},
+                            {{TokenType::t_identifier, {0, 1, 3, 1}}, "c"s},
+                            {{TokenType::t_semicolon, {0, 1, 4, 1}}}},
                            {"a(", "b, c;"});
 
   ASSERT_EQ(parser->parseExpression(), nullptr);
@@ -278,9 +278,9 @@ TEST(Parser, invokeMissingClose) {
 
 TEST(Parser, indexMissingClose) {
   auto parser = makeParser("TEST::Parser.indexMissingClose",
-                           {{{0, TokenType::t_identifier, 0, 1}, "a"s},
-                            {{1, TokenType::t_open_square, 1, 1}},
-                            {{2, TokenType::t_semicolon, 2, 1}}},
+                           {{{TokenType::t_identifier, {0, 0, 0, 1}}, "a"s},
+                            {{TokenType::t_open_square, {0, 0, 1, 1}}},
+                            {{TokenType::t_semicolon, {0, 0, 2, 1}}}},
                            {"a[;"});
 
   ASSERT_EQ(parser->parseExpression(), nullptr);
@@ -289,10 +289,10 @@ TEST(Parser, indexMissingClose) {
 
 TEST(Parser, blockMissingClose) {
   auto parser = makeParser("TEST::Parser.blockMissingClose",
-                           {{{0, TokenType::t_open_bracket, 0, 1, 0}},
-                            {{0, TokenType::t_yield, 4, 5, 1}},
-                            {{1, TokenType::t_identifier, 10, 1, 1}, "a"s},
-                            {{2, TokenType::t_semicolon, 11, 1, 1}}},
+                           {{{TokenType::t_open_bracket, {0, 0, 0, 1}}},
+                            {{TokenType::t_yield, {0, 1, 4, 5}}},
+                            {{TokenType::t_identifier, {0, 1, 10, 1}}, "a"s},
+                            {{TokenType::t_semicolon, {0, 1, 11, 1}}}},
                            {"{", "    yield a;"});
 
   ASSERT_EQ(parser->parseExpression(), nullptr);

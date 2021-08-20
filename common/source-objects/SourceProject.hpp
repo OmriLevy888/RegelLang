@@ -28,11 +28,7 @@ public:
     return m_files.size() - 1;
   }
 
-  std::string toString() const override {
-    return Formatter("SourceProject<name: \"{}\", files: {}>", m_name,
-                     m_files.size())
-        .toString();
-  }
+  std::string toString() const override;
 
 private:
   std::string m_name;

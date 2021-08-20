@@ -65,9 +65,9 @@ TEST(Parser, expressionStatement) {
 TEST(Parser, expressionStatementMissingSemicolonError) {
   auto parser =
       makeParser("TEST::Parser.expressionStatementMissingSemicolonError",
-                 {{{0, TokenType::t_identifier, 0, 1, 0}, "a"s},
-                  {{0, TokenType::t_for, 0, 3, 1}}},
-                 {"a", "for"});
+                 {{{TokenType::t_identifier, {0, 0, 0, 1}}, "a"s},
+                  {{TokenType::t_for, {0, 1, 0, 3}}}},
+                  {"a", "for"});
 
   ASSERT_EQ(parser->parseStatement(), nullptr);
   ASSERT_EQ(ErrorManager::getErrorType(), ErrorTypes::E_BAD_TOKEN);
@@ -76,7 +76,7 @@ TEST(Parser, expressionStatementMissingSemicolonError) {
 TEST(Parser, keywordStatementMissingSemicolonError) {
   auto parser = makeParser(
       "TEST::Parser.keywordStatementMissingSemicolonError",
-      {{{0, TokenType::t_break, 4, 5, 1}}, {{1, TokenType::t_eof, 9, 1, 1}}},
+      {{{TokenType::t_break, {0, 1, 4, 5}}}, {{TokenType::t_eof, {0, 1, 9, 1}}}},
       {"for var idx = 0; idx < 3; idx++ ", "    break"});
 
   ASSERT_EQ(parser->parseStatement(), nullptr);
@@ -85,9 +85,9 @@ TEST(Parser, keywordStatementMissingSemicolonError) {
 
 TEST(Parser, simpleStatementMissingSemicolonError) {
   auto parser = makeParser("TEST::Parser.simpleStatementMissingSemicolonError",
-                           {{{0, TokenType::t_return, 4, 6, 0}},
-                            {{1, TokenType::t_identifier, 11, 1, 0}, "a"s},
-                            {{0, TokenType::t_close_bracket, 0, 1, 1}}},
+                           {{{TokenType::t_return, {0, 0, 4, 6}}},
+                            {{TokenType::t_identifier, {0, 0, 11, 1}}, "a"s},
+                            {{TokenType::t_close_bracket, {0, 1, 0, 1}}}},
                            {"    return a", "}"});
 
   ASSERT_EQ(parser->parseStatement(), nullptr);

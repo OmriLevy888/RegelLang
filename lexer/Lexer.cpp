@@ -89,7 +89,7 @@ bool Lexer::skipWhiteSpace() {
 }
 
 void Lexer::addToken(const Token &token) {
-  m_currLine->tokens().push_back(token);
+  m_currLine->locations().push_back(token.sourceLocation());
 }
 
 bool Lexer::lexComment() {
@@ -198,8 +198,8 @@ bool Lexer::lexIdentifier(Token &ret) {
 
   size_t len = it - start;
   ret = makeToken(TokenType::t_identifier, m_pos, len);
-  const char *startPtr = m_currLine->repr().c_str() + m_pos;
-  m_value = std::string{startPtr, len};
+  const auto startIt = m_currLine->cbegin() + m_pos;
+  m_value = std::string{startIt, startIt + len};
   m_pos += len;
   return true;
 }

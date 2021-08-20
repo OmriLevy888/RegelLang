@@ -766,11 +766,11 @@ FunctionPtr Parser::parseFunction(bool withName) {
           paramName = parseIdentifier();
           paramType = std::move(lastType);
         } else {
-          m_tokens->discardAnchor();
           ErrorManager::logError(ErrorTypes::E_BAD_TOKEN,
                                  {Formatter("Expected identifier, found {}",
                                             tokenToString(m_tokens)),
                                   m_tokens});
+          m_tokens->discardAnchor();
           return nullptr;
         }
       } else {

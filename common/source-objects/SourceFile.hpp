@@ -10,10 +10,6 @@ public:
 
   SourceFile(const std::string &path) : m_path(path) {}
 
-  std::string toString() const override {
-    return Formatter("SourceFile<path: \"{}\", lines: {}>", m_path,
-                     m_lines.size())
-        .toString();
-  }
+  std::string toString() const override;
 };
 } // namespace rgl
