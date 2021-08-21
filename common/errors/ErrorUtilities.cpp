@@ -3,8 +3,6 @@
 #include "common/source-objects/SourceProject.hpp"
 #include "lexer/TokenCollection.hpp"
 
-#include <iostream>
-
 namespace rgl {
 std::string tokenToString(Token tok) {
   if (TokenType::t_eof == tok) {

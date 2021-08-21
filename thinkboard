@@ -1,7 +1,23 @@
+- Limited C++ compiler implementation
+- Standard library (console & file operations, containers, basic algorithms)
+- Regel compiler implementation, split into modules to then also use for LSP
+
+Limitder C++ compiler implementation:
+-------------------------------------
+- Transfer source information to code generation for better error messages
+- Code generation for:
+  - Operators
+  - Function overloading
+  - Classes & RAII
+  - Invoke
+  - Control flow (conditionals, loops...)
+  - Error handling
+  - Modules
+
+================================================================================
+
 If a function is declared within another function, is cannot access variables
 in the containing function as that would create weird lifetime situations.
-
-Visitor classes for definitions.
 
 TODO:
   - Definition order
@@ -13,21 +29,3 @@ Important change:
 A function declaration may only have a name if it is the only expression in the
 current ExpressionStatement, therefore, these are the only functions that can be
 referenced even if they are declared after the place of reference.
-
-================================================================================
-Codegen errors
-[!] function <func_name> expects <ret_type> but got <actual_type>
-  <return statement source code>
-  
-Codegen tests
-
-Function overload
-Bin ops
-Unary ops
-Invoke with params
-Conditionals
-While
-For
-Modules/Imports
-Globals (initialization and destruction)
-Classes

@@ -22,17 +22,7 @@ public:
       : m_message(std::move(message)), m_hint(std::move(hint)),
         m_tok(tokenCollection->getCurr()) {}
 
-  virtual std::string toString() const override {
-    if (0 == m_hint.size() && TokenType::t_err == m_tok) {
-      return Formatter("{}", m_message);
-    } else if (0 == m_hint.size()) {
-      return Formatter("{}\n{}", m_message, pointAt(m_tok));
-    } else if (TokenType::t_err == m_tok) {
-      return Formatter("{}\n    (HINT: {})", m_message, m_hint);
-    }
-    return Formatter("{}\n    (HINT: {})\n{}", m_message, m_hint,
-                     pointAt(m_tok));
-  }
+  virtual std::string toString() const override;
 
 private:
   const std::string m_message;

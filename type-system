@@ -1,0 +1,121 @@
+func example1() => string {
+  // a is a constant string, its value cannot be changed
+  a := "Hello world";
+  // b is a constant reference to a, it is also constant and can only be used
+  // to view the contents of a but not to modify it
+  b := a;
+  
+  // Error: b cannot outlive a
+  return b; 
+
+  // ok
+  return a;
+}
+
+func example2() {
+  // Error: example1 returns a constant string but we try to assign it to a
+  // variable (a), this could be solved by either prepending example1() with
+  // @ to create a copy of the returned value after the functions exits or
+  // by modifying example1 to return &string, in which case the return
+  // statement return b; would be invalid, we would have to either prepend
+  // b with the @ operator to cause a copy or with the : to move the value
+  // in b out of the function
+  var a := example1();
+}
+
+func example3() {
+  var a := "This is some data";
+  // Error: cannot have two mutable accesses to the same object. Can either
+  // use the @ operator to create a new copy, and have a and b be two
+  // different objects or use the : operator to move the object in a to b,
+  // making a invalid from this line onward
+  var b := &a;
+}
+
+func example4() {
+  var names := ["Amy", "John", "Molly", "Daniel"];
+  // This compiles only if print sinply receives a string since name is
+  // immutable due to names being passed as is and without any accessibility
+  // modifier (@, &, :)
+  for name in names {
+    console.print(name);
+  }
+
+  // Now that we have name annotated as a mutable variable and made sure to
+  // annotate names as mutable (missing one of the two would cause the
+  // compilation to fail), any changes we make to name inside the loop cause
+  // the underlying object inside the array to be modified
+  for var name in &names {
+    name += " Trump";
+  }
+}
+
+func example5() {
+  var someString := "hello everyone";
+  // From this line, thanks to the & operator we can know that upper()
+  // changes someString
+  someString.&upper();
+
+  // Since we do not have the &operator, we can be sure that asLower()
+  // does not modify someString and since it is defined as returning
+  // @string, the compiler simply moves the new string object in place 
+  originalString := someString.asLower();
+}
+
+func example6() => @string {
+  // Error: unknown type and value
+  var a;
+
+  // Error: unknown value
+  var b : string;
+
+  // Error: unknown type
+  var c := undefined;
+
+  // Error: string may not be undefined
+  var d : string = undefined;
+
+  // Compiles, in general, since almost everything in Regel is an expression
+  // and can return a value, using this pattern of having a variable
+  // declared before usage can mostly be avoided, but if you cannot avoid it,
+  // Regel allows you to define the variable with the special undefined
+  // keyword that can be accepted only by ? types meaning the compiler will
+  // enforce checking the object before accessing the value
+  var e : string? = undefined;
+
+  if random.RandInt(0, 10) == 0 {
+    e = console.Prompt("Please enter some stirng\n> ");
+  }
+  
+  // Error: the function is supposed to return a new string object but e is
+  // of type string?
+  return e;
+
+  // Error: cannot move value of string? to create a new string, it may be
+  // undefined
+  return :e; 
+
+
+  // The ? operator on T? types will check if the object is undefined, if so,
+  // it returns the right hand side, otherwise it returns the object, both
+  // side of the ? operator must have :T notation
+  return e? "undefined";
+}
+
+func example7(i32 a, b, // If two parameters have the same type, can annotate
+                        // them just once
+              string c, // c is constant and cannot be changed or moved inside
+                        // the function, though it can be copied
+              &string d, // d is a mutable string which modifyies and
+                         // underlying object passed to the function, it can
+                         // be passed as string or &string to any other
+                         // functions that may be called from this one and it
+                         // may also be copied inside the function but it
+                         // cannot be moved
+              :string e, // e is mutable and is an actual object, not a
+                         // reference to one, it is a moved object from outside
+                         // the function, it may be modified, copied or even
+                         // moved to some function inside this one
+  ) {
+  
+}
