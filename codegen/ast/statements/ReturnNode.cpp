@@ -13,7 +13,8 @@ ValuePtr ReturnNode::genCode() {
     ErrorManager::logError(
         ErrorTypes::E_TYPE_MISMATCH,
         {Formatter("Function expects `{}` return type but got `{}`",
-                   funcRetType->toString(), exprType->toString())});
+                   funcRetType->toString(), exprType->toString()),
+         m_expr->getSourceRange()});
     return ValueBase::BadValue();
   }
   auto retVal = m_expr->genCode();

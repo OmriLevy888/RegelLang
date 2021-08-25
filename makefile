@@ -28,15 +28,19 @@ TEST_LDFLAGS=-fprofile-instr-generate -fcoverage-mapping -lgtest
 
 .PHONY: clean rglc debug tests cloc coverage
 
-rglc: $(RELEASE_OBJS)
+rglc: bin/rglc
+debug: bin/rglc-debug
+tests: bin/rglc-tests
+
+bin/rglc: $(RELEASE_OBJS) $(MAINOBJ)
 	$(eval MAINOBJ := $(RELEASE_OBJDIR)rglc.o)
 	mkdir -p $(RELEASE_OBJDIR)
 	mkdir -p $(OUTDIR)
 
-	@$(CPPC) $(CXXFLAGS) $(CPPFLAGS) $(DEBUG_CPPFLAGS) -o $(MAINOBJ) rglc.cpp 
+	@$(CPPC) $(CXXFLAGS) $(CPPFLAGS) -o $(MAINOBJ) rglc.cpp 
 	@$(CPPC) $(LDFLAGS) -o $(OUTDIR)rglc$(POSTFIX) $(RELEASE_OBJS) $(MAINOBJ)
 
-debug: $(DEBUG_OBJS)
+bin/rglc-debug: $(DEBUG_OBJS)
 	$(eval MAINOBJ := $(DEBUG_OBJDIR)rglc.o)
 	mkdir -p $(DEBUG_OBJDIR)
 	mkdir -p $(OUTDIR)
@@ -44,7 +48,7 @@ debug: $(DEBUG_OBJS)
 	@$(CPPC) $(CXXFLAGS) $(CPPFLAGS) $(DEBUG_CPPFLAGS) -o $(MAINOBJ) rglc.cpp 
 	@$(CPPC) $(LDFLAGS) -o $(OUTDIR)rglc$(DEBUG_POSTFIX) $(DEBUG_OBJS) $(MAINOBJ)
 
-tests: $(TEST_OBJS)
+bin/rglc-tests: $(TEST_OBJS)
 	$(eval MAINOBJ := $(TEST_OBJDIR)rglc.o)
 	mkdir -p $(TEST_OBJDIR)
 	mkdir -p $(OUTDIR)

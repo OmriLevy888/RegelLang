@@ -5,14 +5,22 @@
 namespace rgl {
 class InvokeNode : public ExpressionNode {
 public:
-  InvokeNode(Expression callee, std::vector<Expression> &&params)
-      : m_callee(std::move(callee)), m_params(std::move(params)) {}
-  InvokeNode(Expression callee) : m_callee(std::move(callee)) {}
-  InvokeNode(Expression callee, Expression param)
+  InvokeNode(Expression callee, std::vector<Expression> &&params,
+             const SourceRange &endRange = SourceRange{})
+      : m_callee(std::move(callee)), m_params(std::move(params)) {
+    m_range = m_callee->getSourceRange().to(endRange);
+  }
+  InvokeNode(Expression callee, const SourceRange &endRange = SourceRange{})
+      : m_callee(std::move(callee)) {
+    m_range = m_callee->getSourceRange().to(endRange);
+  }
+  InvokeNode(Expression callee, Expression param,
+             const SourceRange &endRange = SourceRange{})
       : m_callee(std::move(callee)) {
     std::vector<Expression> params;
     params.push_back(std::move(param));
     m_params = std::move(params);
+    m_range = m_callee->getSourceRange().to(endRange);
   }
 
   virtual ValuePtr genCode() override;
@@ -35,8 +43,11 @@ public:
                      m_callee->toTreeStr(spaces + 14), spacesStr, paramsStr);
   }
 
+  virtual SourceRange getSourceRange() const override { return m_range; }
+
 private:
   Expression m_callee;
   std::vector<Expression> m_params;
+  SourceRange m_range;
 };
 }; // namespace rgl

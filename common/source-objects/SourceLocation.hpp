@@ -13,7 +13,5 @@ public:
                  uint32_t reprStartIdx = 0, uint32_t reprLen = 0);
 
   virtual std::string toString() const override;
-
-private:
 };
 }; // namespace rgl

@@ -1,6 +1,7 @@
 #pragma once
 #include "common/ILoggable.hpp"
 #include "common/source-objects/SourceLocation.hpp"
+#include "common/source-objects/SourceRange.hpp"
 
 #include <vector>
 
@@ -22,7 +23,7 @@ public:
   
   std::vector<SourceLocation> &locations() { return m_locations; }
 
-  std::pair<std::string, std::string> pointAt(const SourceLocation &tok) const;
+  std::string pointAt(const SourceRange &range) const;
 
   virtual std::string toString() const override;
 

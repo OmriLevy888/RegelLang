@@ -27,19 +27,16 @@ SourceLine::SourceLine(std::string &&repr,
   }
 }
 
-std::pair<std::string, std::string>
-SourceLine::pointAt(const SourceLocation &sourceLocation) const {
-  const std::string_view repr{m_repr.c_str() + sourceLocation.m_reprStartIdx,
-                              sourceLocation.m_reprLen};
+std::string SourceLine::pointAt(const SourceRange &range) const {
+  const std::string_view repr{m_repr.c_str() + range.m_startOffset,
+                              range.m_endOffset - range.m_startOffset};
 
   size_t numSpaces = repr.cbegin() - m_repr.c_str();
-  size_t numUnderline = repr.length();
-  size_t numHandle = numSpaces + (numUnderline / 2);
+  size_t numUnderline = repr.length() - 1;
   std::string spaces(numSpaces, ' ');
   std::string underline(numUnderline, '^');
-  std::string handle(numHandle, '_');
 
-  return {spaces + underline, handle + "|"};
+  return spaces + underline;
 }
 
 std::string SourceLine::toString() const {

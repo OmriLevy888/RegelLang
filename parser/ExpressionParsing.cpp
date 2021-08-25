@@ -118,6 +118,8 @@ Identifier Parser::parseIdentifier() {
     return nullptr;
   }
 
+  const auto start = SourceRange(m_tokens->getCurr().sourceLocation());
+  auto end = start;
   std::vector<std::string> parts{};
   parts.push_back(std::get<std::string>(m_tokens->getCurrValue().value()));
   m_tokens->getNext(); // consume Identifier
@@ -129,10 +131,12 @@ Identifier Parser::parseIdentifier() {
       return nullptr;
     }
     parts.push_back(std::get<std::string>(m_tokens->getCurrValue().value()));
+    end = SourceRange(m_tokens->getCurr().sourceLocation());
     m_tokens->getNext(); // consume identifier
   }
 
-  return std::make_unique<IdentifierNode>(std::move(parts));
+  const auto range = start.to(end);
+  return std::make_unique<IdentifierNode>(std::move(parts), range);
 }
 
 Expression Parser::parseLiteral() {
@@ -169,7 +173,8 @@ Expression Parser::parseIntLiteral() {
       return nullptr;
     }
     int64_t intValue = std::get<int64_t>(m_tokens->getCurrValue().value());
-    return std::make_unique<IntLiteralNode>(intValue, std::move(intType));
+    return std::make_unique<IntLiteralNode>(intValue, std::move(intType),
+                                            m_tokens->getCurr().sourceLocation());
   } else if (ParserUtilities::isUnsignedIntLiteral(m_tokens->getCurr())) {
     TypeNodePtr uintType = nullptr;
     switch (m_tokens->getCurr()) {
@@ -189,7 +194,8 @@ Expression Parser::parseIntLiteral() {
       return nullptr;
     }
     uint64_t uintValue = std::get<uint64_t>(m_tokens->getCurrValue().value());
-    return std::make_unique<UintLiteralNode>(uintValue, std::move(uintType));
+    return std::make_unique<UintLiteralNode>(uintValue, std::move(uintType),
+                                             m_tokens->getCurr().sourceLocation());
   }
 
   return nullptr;
@@ -199,10 +205,12 @@ Expression Parser::parseRealLiteral() {
   const Token &curr = m_tokens->getCurr();
   if (curr == TokenType::t_float_literal) {
     float floatValue = std::get<float>(m_tokens->getCurrValue().value());
-    return std::make_unique<FloatLiteralNode>(floatValue);
+    return std::make_unique<FloatLiteralNode>(floatValue,
+                                              m_tokens->getCurr().sourceLocation());
   } else if (curr == TokenType::t_double_literal) {
     double doubleValue = std::get<double>(m_tokens->getCurrValue().value());
-    return std::make_unique<DoubleLiteralNode>(doubleValue);
+    return std::make_unique<DoubleLiteralNode>(doubleValue,
+                                               m_tokens->getCurr().sourceLocation());
   }
 
   return nullptr;
@@ -212,10 +220,12 @@ Expression Parser::parseTextLiteral() {
   switch (m_tokens->getCurr()) {
   case TokenType::t_char_literal:
     return std::make_unique<CharLiteralNode>(
-        std::get<char>(m_tokens->getCurrValue().value()));
+        std::get<char>(m_tokens->getCurrValue().value()),
+        m_tokens->getCurr().sourceLocation());
   case TokenType::t_string_literal:
     return std::make_unique<StringLiteralNode>(std::move(
-        std::get<std::string>(std::move(m_tokens->getCurrValue().value()))));
+        std::get<std::string>(std::move(m_tokens->getCurrValue().value()))),
+                              m_tokens->getCurr().sourceLocation());
   default:
     return nullptr;
   }
@@ -223,7 +233,8 @@ Expression Parser::parseTextLiteral() {
 
 Expression Parser::parseBoolLiteral() {
   bool value = std::get<bool>(m_tokens->getCurrValue().value());
-  return std::make_unique<BooleanLiteralNode>(value);
+  return std::make_unique<BooleanLiteralNode>(value,
+                                              m_tokens->getCurr().sourceLocation());
 }
 
 Expression Parser::parseParentheses() {
@@ -329,10 +340,11 @@ Expression Parser::parseInvoke(Expression primary) {
          "Did you forget the closing parenthesis?"});
     return nullptr;
   }
+  auto endRange = SourceRange(m_tokens->getCurr().sourceLocation());
   m_tokens->getNext(); // consume )
 
   return parseRest(
-      std::make_unique<InvokeNode>(std::move(primary), std::move(params)));
+      std::make_unique<InvokeNode>(std::move(primary), std::move(params), endRange));
 }
 
 Expression Parser::parseIndex(Expression primary) {

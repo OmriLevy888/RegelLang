@@ -39,6 +39,24 @@ std::unique_ptr<Parser> makeParser(std::vector<TokenValuePair> &&tokens) {
       std::make_unique<TokenCollection>(std::move(tokenGenerator));
   return std::make_unique<Parser>(std::move(tokenCollection));
 }
+
+std::unique_ptr<Parser> makeParser(const std::string &testName,
+                                   std::vector<TokenValuePair> &&tokens,
+                                   std::vector<std::string> &&source,
+                                    size_t firstLineNo) {
+  SourceProject::clean();
+  SourceProject::get().name() = testName;
+
+  SourceFile file{testName};
+  file.m_lines.reserve(source.size());
+  for (size_t idx = 0; idx < source.size(); idx++) {
+    file.m_lines.emplace_back(std::move(source[idx]), tokens,
+                              firstLineNo + idx);
+  }
+
+  SourceProject::get().addFile(std::move(file));
+  return makeParser(std::move(tokens));
+}
 }; // namespace rgl
 
 using namespace rgl;
@@ -60,51 +78,56 @@ int main(int argc, const char **argv, char **envp) {
   /*   return -1; */
   /* } */
 
-  auto parser = makeParser({/* {TokenType::t_class}, */
-                            /* {TokenType::t_identifier, "geez"}, */
-                            /* {TokenType::t_open_bracket}, */
-                            /* {TokenType::t_var}, */
-                            /* {TokenType::t_open_square}, */
-                            /* {TokenType::t_identifier, "a"}, */
-                            /* {TokenType::t_comma}, */
-                            /* {TokenType::t_identifier, "b"}, */
-                            /* {TokenType::t_comma}, */
-                            /* {TokenType::t_identifier, "c"}, */
-                            /* {TokenType::t_close_square}, */
-                            /* {TokenType::t_colon}, */
-                            /* {TokenType::t_identifier, "i32"}, */
-                            /* {TokenType::t_semicolon}, */
-                            /* {TokenType::t_close_bracket}, */
+  auto parser = makeParser(
+      "GENERIC-TEST",
+      {/* {TokenType::t_class}, */
+       /* {TokenType::t_identifier, "geez"}, */
+       /* {TokenType::t_open_bracket}, */
+       /* {TokenType::t_var}, */
+       /* {TokenType::t_open_square}, */
+       /* {TokenType::t_identifier, "a"}, */
+       /* {TokenType::t_comma}, */
+       /* {TokenType::t_identifier, "b"}, */
+       /* {TokenType::t_comma}, */
+       /* {TokenType::t_identifier, "c"}, */
+       /* {TokenType::t_close_square}, */
+       /* {TokenType::t_colon}, */
+       /* {TokenType::t_identifier, "i32"}, */
+       /* {TokenType::t_semicolon}, */
+       /* {TokenType::t_close_bracket}, */
 
-                            {TokenType::t_func},
-                            {TokenType::t_identifier, "bar"},
-                            {TokenType::t_open_paren},
-                            {TokenType::t_close_paren},
-                            {TokenType::t_arrow},
-                            {TokenType::t_identifier, "i32"},
-                            {TokenType::t_open_bracket},
-                            {TokenType::t_return},
-                            {TokenType::t_int32_literal, 5},
-                            {TokenType::t_semicolon},
-                            {TokenType::t_close_bracket},
+       {{TokenType::t_func, {0, 0, 0, 4}}},
+       {{TokenType::t_identifier, {0, 0, 5, 3}}, "bar"},
+       {{TokenType::t_open_paren, {0, 0, 8, 1}}},
+       {{TokenType::t_close_paren, {0, 0, 9, 1}}},
+       {{TokenType::t_arrow, {0, 0, 11, 2}}},
+       {{TokenType::t_identifier, {0, 0, 14, 3}}, "i32"},
+       {{TokenType::t_open_bracket, {0, 0, 18, 1}}},
+       {{TokenType::t_return, {0, 1, 4, 6}}},
+       {{TokenType::t_int32_literal, {0, 1, 11, 1}}, 5},
+       {{TokenType::t_semicolon, {0, 1, 12, 1}}},
+       {{TokenType::t_close_bracket, {0, 2, 0, 1}}},
 
-                            {TokenType::t_func},
-                            {TokenType::t_identifier, "foo"},
-                            {TokenType::t_open_paren},
-                            {TokenType::t_identifier, "i32"},
-                            {TokenType::t_identifier, "a"},
-                            {TokenType::t_close_paren},
-                            {TokenType::t_arrow},
-                            {TokenType::t_identifier, "float"},
-                            {TokenType::t_open_bracket},
-                            {TokenType::t_return},
-                            {TokenType::t_identifier, "a"},
-                            {TokenType::t_plus},
-                            {TokenType::t_identifier, "bar"},
-                            {TokenType::t_open_paren},
-                            {TokenType::t_close_paren},
-                            {TokenType::t_semicolon},
-                            {TokenType::t_close_bracket}});
+       {{TokenType::t_func, {0, 4, 0, 4}}},
+       {{TokenType::t_identifier, {0, 4, 5, 3}}, "foo"},
+       {{TokenType::t_open_paren, {0, 4, 8, 1}}},
+       {{TokenType::t_identifier, {0, 4, 9, 3}}, "i32"},
+       {{TokenType::t_identifier, {0, 4, 13, 1}}, "a"},
+       {{TokenType::t_close_paren, {0, 4, 14, 1}}},
+       {{TokenType::t_arrow, {0, 4, 16, 2}}},
+       {{TokenType::t_identifier, {0, 4, 19, 5}}, "float"},
+       {{TokenType::t_open_bracket, {0, 4, 25, 1}}},
+       {{TokenType::t_return, {0, 5, 4, 6}}},
+       {{TokenType::t_identifier, {0, 5, 11, 1}}, "a"},
+       {{TokenType::t_plus, {0, 5, 13, 1}}},
+       {{TokenType::t_identifier, {0, 5, 15, 3}}, "bar"},
+       {{TokenType::t_open_paren, {0, 5, 19, 1}}},
+       {{TokenType::t_close_paren, {0, 5, 20, 1}}},
+       {{TokenType::t_semicolon, {0, 5, 21, 1}}},
+       {{TokenType::t_close_bracket, {0, 6, 0, 1}}}},
+
+      {"func bar() => i32 {", "    return 5;", "}", "",
+       "func foo(i32 a) => float {", "    return a + bar();", "}"});
 
   ErrorManager::setDisplayStackTrace(true);
   auto file = parser->parseFile();

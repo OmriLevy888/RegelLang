@@ -5,7 +5,8 @@
 namespace rgl {
 class CharLiteralNode : public ExpressionNode {
 public:
-  CharLiteralNode(char value) : m_value(value) {}
+  CharLiteralNode(char value, const SourceRange &range = SourceRange{})
+    : m_value(value), m_range(range) {}
 
   virtual TypeSymbolPtr getType() const override;
 
@@ -15,7 +16,10 @@ public:
     return Formatter("CharLiteral<{}>", m_value);
   }
 
+  virtual SourceRange getSourceRange() const override { return m_range; }
+
 private:
   char m_value;
+  SourceRange m_range;
 };
 }; // namespace rgl

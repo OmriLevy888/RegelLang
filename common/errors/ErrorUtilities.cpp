@@ -1,5 +1,6 @@
 #include "common/errors/ErrorUtilities.hpp"
 #include "common/Formatter.hpp"
+#include "common/source-objects/SourceRange.hpp"
 #include "common/source-objects/SourceProject.hpp"
 #include "lexer/TokenCollection.hpp"
 
@@ -26,27 +27,30 @@ std::string tokenToString(const std::unique_ptr<TokenCollection> &tokens) {
 }
 
 std::string pointAt(Token tok) {
-  const auto sourceLocation = tok.sourceLocation();
-  const size_t fileNo = sourceLocation.m_file;
-  const size_t lineNo = sourceLocation.m_line;
+  return pointAt(SourceRange(tok.sourceLocation()));
+}
+std::string pointAt(const std::unique_ptr<TokenCollection> &tokens) {
+  return pointAt(tokens->getCurr());
+}
+std::string pointAt(const SourceRange &range) {
+  const size_t fileNo = range.m_file;
+  const size_t lineNo = range.m_startLine;
   const auto &file = SourceProject::get().files()[fileNo];
   const auto &line = file.m_lines[lineNo];
-  const auto [pointerTopStr, pointerBottomStr] = line.pointAt(tok.sourceLocation());
-  static const std::string pointerBottomExtStr(4, '_');
+  const auto pointerTopStr = line.pointAt(range);
 
-  static const std::string spacesStr(4, ' ');
+  static const std::string spacesStr(1, ' ');
   static const std::string blankLinNoStr(11, ' ');
   const auto lineNoStr = padLeft(padLeft(lineNo, 7), 11, ' ');
 
   std::string formatted =
-      Formatter("{}|{}{}\n{}|{}{}\n{}|{}{}", lineNoStr, spacesStr, line.repr(),
-                blankLinNoStr, spacesStr, pointerTopStr, blankLinNoStr,
-                pointerBottomExtStr, pointerBottomStr);
+      Formatter("{}|{}{}\n{}|{}{}", lineNoStr, spacesStr, line.repr(),
+                blankLinNoStr, spacesStr, pointerTopStr);
 
   if (lineNo < file.m_lines.size() - 1) { // add next line
     const auto nextLineNoStr = padLeft(padLeft(lineNo + 1, 7), 11, ' ');
     formatted = Formatter("{}\n{}|{}{}", formatted, nextLineNoStr, spacesStr,
-                          file.m_lines[fileNo + 1].repr());
+                          file.m_lines[lineNo + 1].repr());
   }
 
   if (lineNo > 0) { // add previous line
@@ -62,8 +66,5 @@ std::string pointAt(Token tok) {
   }
 
   return formatted;
-}
-std::string pointAt(const std::unique_ptr<TokenCollection> &tokens) {
-  return pointAt(tokens->getCurr());
 }
 }; // namespace rgl

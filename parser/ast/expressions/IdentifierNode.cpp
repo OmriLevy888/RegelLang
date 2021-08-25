@@ -1,11 +1,12 @@
 #include "parser/ast/expressions/IdentifierNode.hpp"
 
 namespace rgl {
-IdentifierNode::IdentifierNode(const std::vector<std::string> &value)
-    : m_value(value) {}
-IdentifierNode::IdentifierNode(std::vector<std::string> &&value)
-    : m_value(std::move(value)) {}
-IdentifierNode::IdentifierNode(std::string &&value) {
+IdentifierNode::IdentifierNode(const std::vector<std::string> &value, const SourceRange &range)
+    : m_value(value), m_range(range) {}
+IdentifierNode::IdentifierNode(std::vector<std::string> &&value, const SourceRange &range)
+    : m_value(std::move(value)), m_range(range) {}
+IdentifierNode::IdentifierNode(std::string &&value, const SourceRange &range)
+ : m_range(range) {
   m_value = std::vector<std::string>();
   m_value.push_back(std::move(value));
 }
@@ -39,4 +40,6 @@ std::string IdentifierNode::toTreeStr(size_t spaces) const {
   return Formatter("IdentifierNode<value:{}>",
                    Formatter<>::joinContainer('.', m_value));
 }
+
+SourceRange IdentifierNode::getSourceRange() const { return m_range; }
 }; // namespace rgl

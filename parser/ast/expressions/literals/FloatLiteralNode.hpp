@@ -5,7 +5,8 @@
 namespace rgl {
 class FloatLiteralNode : public ExpressionNode {
 public:
-  FloatLiteralNode(float value) : m_value(value) {}
+  FloatLiteralNode(float value, const SourceRange &range = SourceRange{})
+    : m_value(value), m_range(range) {}
 
   virtual TypeSymbolPtr getType() const override;
 
@@ -15,7 +16,10 @@ public:
     return Formatter("FloatLiteral<{}>", m_value);
   }
 
+  virtual SourceRange getSourceRange() const override { return m_range; }
+
 private:
   float m_value;
+  SourceRange m_range;
 };
 }; // namespace rgl
