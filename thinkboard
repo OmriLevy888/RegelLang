@@ -4,7 +4,6 @@
 
 Limitder C++ compiler implementation:
 -------------------------------------
-- Transfer source information to code generation for better error messages
 - Code generation for:
   - Operators
   - Function overloading

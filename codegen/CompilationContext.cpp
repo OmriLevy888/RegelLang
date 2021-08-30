@@ -9,6 +9,7 @@ CompilationContext::CompilationContext(
     : m_context(context), m_module(module),
       m_generatingFunctions(std::stack<FunctionSymbolPtr>{}) {
   initializeBuiltinTypes();
+  initializeBuiltInOperators();
 }
 
 void CompilationContext::initializeBuiltinTypes() {
@@ -38,6 +39,10 @@ void CompilationContext::initializeBuiltinTypes() {
       m_module->symbols().insert(nameVector, typeSymbol);
     }
   }
+}
+
+void CompilationContext::initializeBuiltInOperators() {
+  
 }
 
 std::string CompilationContext::toString() const {

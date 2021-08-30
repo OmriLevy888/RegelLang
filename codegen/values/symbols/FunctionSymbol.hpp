@@ -1,5 +1,5 @@
 #pragma once
-#include "codegen/values/symbols/SymbolBase.hpp"
+#include "codegen/values/symbols/CallableSymbol.hpp"
 #include "codegen/values/symbols/SymbolMap.hpp"
 #include "codegen/values/symbols/types/TypeSymbolBase.hpp"
 #include "parser/ast/expressions/literals/ParameterNode.hpp"
@@ -8,7 +8,7 @@ namespace rgl {
 class FunctionSymbol;
 using FunctionSymbolPtr = std::shared_ptr<FunctionSymbol>;
 
-class FunctionSymbol : public SymbolBase {
+class FunctionSymbol : public CallableSymbol {
 public:
   static FunctionSymbolPtr make(const std::vector<std::string> &name,
                                 TypeSymbolPtr retType,

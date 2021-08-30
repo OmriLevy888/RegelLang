@@ -10,7 +10,7 @@ TypeSymbolPtr BinOpNode::getType() const {
 ValuePtr BinOpNode::genCode() {
   auto lhs = m_lhs->genCode();
   auto rhs = m_rhs->genCode();
-  if (!lhs or !rhs) {
+  if (!lhs || !rhs) {
     // TODO: write error message
     return BasicValue::BadValue();
   }

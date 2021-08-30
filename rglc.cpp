@@ -115,8 +115,8 @@ int main(int argc, const char **argv, char **envp) {
        {{TokenType::t_identifier, {0, 4, 13, 1}}, "a"},
        {{TokenType::t_close_paren, {0, 4, 14, 1}}},
        {{TokenType::t_arrow, {0, 4, 16, 2}}},
-       {{TokenType::t_identifier, {0, 4, 19, 5}}, "float"},
-       {{TokenType::t_open_bracket, {0, 4, 25, 1}}},
+       {{TokenType::t_identifier, {0, 4, 19, 3}}, "i32"},
+       {{TokenType::t_open_bracket, {0, 4, 23, 1}}},
        {{TokenType::t_return, {0, 5, 4, 6}}},
        {{TokenType::t_identifier, {0, 5, 11, 1}}, "a"},
        {{TokenType::t_plus, {0, 5, 13, 1}}},
@@ -127,7 +127,7 @@ int main(int argc, const char **argv, char **envp) {
        {{TokenType::t_close_bracket, {0, 6, 0, 1}}}},
 
       {"func bar() => i32 {", "    return 5;", "}", "",
-       "func foo(i32 a) => float {", "    return a + bar();", "}"});
+       "func foo(i32 a) => i32 {", "    return a + bar();", "}"});
 
   ErrorManager::setDisplayStackTrace(true);
   auto file = parser->parseFile();

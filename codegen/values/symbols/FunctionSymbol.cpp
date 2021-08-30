@@ -9,7 +9,7 @@ FunctionSymbol::FunctionSymbol(
     const std::vector<std::string> &name,
     const std::vector<std::vector<std::string>> &paramNames,
     FunctionTypeSymbolPtr type, llvm::Function *llvmFunction)
-    : SymbolBase(llvmFunction), m_name(name), m_paramNames(paramNames),
+    : CallableSymbol(llvmFunction), m_name(name), m_paramNames(paramNames),
       m_type(type) {}
 
 FunctionSymbolPtr FunctionSymbol::make(const std::vector<std::string> &name,

@@ -3,8 +3,8 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Value.h"
 #include "llvm/Support/raw_ostream.h"
+#include <optional>
 #include <variant>
-
 namespace rgl {
 class ValueBase;
 using ValuePtr = std::shared_ptr<ValueBase>;
@@ -18,21 +18,23 @@ public:
   bool success() const noexcept { return m_success; }
 
   llvm::Value *llvmValue() const noexcept {
-    return std::get<llvm::Value *>(m_contained);
+    return std::get<llvm::Value *>(m_contained.value());
   }
   llvm::Type *llvmType() const noexcept {
-    if (std::holds_alternative<llvm::Value *>(m_contained)) {
+    if (holds_alternative<llvm::Value *>()) {
       return llvmValue()->getType();
     } else {
-      return std::get<llvm::Type *>(m_contained);
+      return std::get<llvm::Type *>(m_contained.value());
     }
   }
 
   llvm::Module *llvmModule() const noexcept {
-    return std::get<llvm::Module *>(m_contained);
+    return std::get<llvm::Module *>(m_contained.value());
   }
 
+  virtual bool isCallable() const { return false; }
   virtual bool isFunction() const { return false; }
+  virtual bool isMacro() const { return false; }
   virtual bool isNamespace() const { return false; }
   virtual bool isVariable() const { return false; }
   virtual bool isParameter() const { return false; }
@@ -44,7 +46,7 @@ public:
     llvm::raw_string_ostream rso{str};
     if (isModule()) {
       rso << *llvmModule();
-    } else if (std::holds_alternative<llvm::Value *>(m_contained)) {
+    } else if (holds_alternative<llvm::Value *>()) {
       rso << *llvmValue();
     } else {
       rso << *llvmType();
@@ -54,16 +56,26 @@ public:
   }
 
 protected:
-  std::variant<std::nullptr_t, llvm::Value *, llvm::Module *, llvm::Type *>
+  std::optional<std::variant<llvm::Value *, llvm::Module *, llvm::Type *>>
       m_contained;
   bool m_success;
 
-  ValueBase(bool success) : m_contained(nullptr), m_success(success) {}
-  ValueBase(llvm::Value *llvmValue, bool success)
-      : m_contained(llvmValue), m_success(success) {}
-  ValueBase(llvm::Module *llvmModule, bool success)
-      : m_contained(llvmModule), m_success(success) {}
-  ValueBase(llvm::Type *llvmType, bool success)
-      : m_contained(llvmType), m_success(success) {}
+  explicit ValueBase(bool success) : m_contained(std::nullopt), m_success(success) {}
+  ValueBase(llvm::Value *llvmValue)
+      : m_contained(llvmValue), m_success(llvmValue != nullptr) {}
+  ValueBase(llvm::Module *llvmModule)
+      : m_contained(llvmModule), m_success(llvmModule != nullptr) {}
+  ValueBase(llvm::Type *llvmType)
+      : m_contained(llvmType), m_success(llvmType != nullptr) {}
+
+private:
+  template<typename T>
+  bool holds_alternative() const {
+    if (!m_contained.has_value()) {
+      return false;
+    }
+
+    return std::holds_alternative<T>(m_contained.value());
+  }
 };
 }; // namespace rgl

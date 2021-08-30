@@ -2,6 +2,7 @@
 #include "codegen/Context.hpp"
 #include "codegen/values/ValueBase.hpp"
 #include "codegen/values/symbols/SymbolMap.hpp"
+#include <iostream>
 
 namespace rgl {
 template <typename TDeclarable>
@@ -11,6 +12,7 @@ ValuePtr defineDeclareLoop(const std::vector<TDeclarable> &declarables) {
   }
 
   for (auto &node : declarables) {
+    std::cout << node->toString() << std::endl;
     auto ret = node->define();
     if (!ret->success()) {
       return ret;

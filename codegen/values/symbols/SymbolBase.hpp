@@ -10,12 +10,10 @@ public:
   virtual void clean(){};
 
 protected:
-  SymbolBase(llvm::Value *llvmValue, bool success = true)
-      : ValueBase(llvmValue, success) {}
-  SymbolBase(llvm::Module *llvmModule, bool success = true)
-      : ValueBase(llvmModule, success) {}
-  SymbolBase(llvm::Type *llvmType, bool success = true)
-      : ValueBase(llvmType, success) {}
+  SymbolBase(bool success) : ValueBase(success) {}
+  SymbolBase(llvm::Value *llvmValue) : ValueBase(llvmValue) {}
+  SymbolBase(llvm::Module *llvmModule) : ValueBase(llvmModule) {}
+  SymbolBase(llvm::Type *llvmType) : ValueBase(llvmType) {}
 };
 
 using SymbolPtr = std::shared_ptr<SymbolBase>;

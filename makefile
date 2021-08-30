@@ -32,7 +32,7 @@ rglc: bin/rglc
 debug: bin/rglc-debug
 tests: bin/rglc-tests
 
-bin/rglc: $(RELEASE_OBJS) $(MAINOBJ)
+bin/rglc: $(RELEASE_OBJS) rglc.cpp
 	$(eval MAINOBJ := $(RELEASE_OBJDIR)rglc.o)
 	mkdir -p $(RELEASE_OBJDIR)
 	mkdir -p $(OUTDIR)
@@ -40,7 +40,7 @@ bin/rglc: $(RELEASE_OBJS) $(MAINOBJ)
 	@$(CPPC) $(CXXFLAGS) $(CPPFLAGS) -o $(MAINOBJ) rglc.cpp 
 	@$(CPPC) $(LDFLAGS) -o $(OUTDIR)rglc$(POSTFIX) $(RELEASE_OBJS) $(MAINOBJ)
 
-bin/rglc-debug: $(DEBUG_OBJS)
+bin/rglc-debug: $(DEBUG_OBJS) rglc.cpp
 	$(eval MAINOBJ := $(DEBUG_OBJDIR)rglc.o)
 	mkdir -p $(DEBUG_OBJDIR)
 	mkdir -p $(OUTDIR)
@@ -48,7 +48,7 @@ bin/rglc-debug: $(DEBUG_OBJS)
 	@$(CPPC) $(CXXFLAGS) $(CPPFLAGS) $(DEBUG_CPPFLAGS) -o $(MAINOBJ) rglc.cpp 
 	@$(CPPC) $(LDFLAGS) -o $(OUTDIR)rglc$(DEBUG_POSTFIX) $(DEBUG_OBJS) $(MAINOBJ)
 
-bin/rglc-tests: $(TEST_OBJS)
+bin/rglc-tests: $(TEST_OBJS) rglc.cpp
 	$(eval MAINOBJ := $(TEST_OBJDIR)rglc.o)
 	mkdir -p $(TEST_OBJDIR)
 	mkdir -p $(OUTDIR)

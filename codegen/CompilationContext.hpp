@@ -35,5 +35,6 @@ private:
   std::stack<FunctionSymbolPtr> m_generatingFunctions;
 
   void initializeBuiltinTypes();
+  void initializeBuiltInOperators();
 };
-}; // namespace rgl
+} // namespace rgl

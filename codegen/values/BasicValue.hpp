@@ -4,8 +4,8 @@
 namespace rgl {
 class BasicValue : public ValueBase {
 public:
-  explicit BasicValue(llvm::Value *llvmValue, bool success = true)
-      : ValueBase(llvmValue, success) {}
+  explicit BasicValue(llvm::Value *llvmValue)
+      : ValueBase(llvmValue) {}
 };
 
 using BasicValuePtr = std::shared_ptr<BasicValue>;
