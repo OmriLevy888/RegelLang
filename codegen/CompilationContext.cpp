@@ -14,11 +14,12 @@ CompilationContext::CompilationContext(
 }
 
 void CompilationContext::initializeBuiltinTypes() {
-  struct builtinTypeDesc {
+  struct BuiltinTypeDesc {
     llvm::Type *llvmType;
     std::vector<std::string> typeNames;
   };
-  std::vector<builtinTypeDesc> builtinTypes{
+
+  std::vector<BuiltinTypeDesc> builtinTypes{
       {llvm::Type::getVoidTy(*Context::llvmContext()), {"void"}},
       {llvm::Type::getInt1Ty(*Context::llvmContext()), {"bool"}},
       {llvm::Type::getInt8Ty(*Context::llvmContext()), {"i8", "u8", "char"}},
@@ -43,7 +44,8 @@ void CompilationContext::initializeBuiltinTypes() {
 }
 
 void CompilationContext::initializeBuiltInOperators() {
-  MacroSymbol<ValuePtr(ValuePtr, ValuePtr)>::make([](ValuePtr lhs, ValuePtr rhs) {
+  // types:
+  BinOpMacroSymbol::make([](auto lhs, auto rhs) {
         return nullptr;
       });
 }

@@ -2,25 +2,26 @@
 #include "codegen/values/symbols/CallableSymbol.hpp"
 
 namespace rgl {
-class MacroSymbolBase;
-using MacroSymbolPtr = std::shared_ptr<MacroSymbolBase>;
+class MacroSymbol;
+using MacroSymbolPtr = std::shared_ptr<MacroSymbol>;
 
-class MacroSymbolBase : public CallableSymbol {
+class MacroSymbol : public CallableSymbol {
 public:
+  using CallableSymbol::CallableSymbol;
+
   virtual bool isMacro() const override { return true; }
 };
 
-template<typename TMacro>
-class MacroSymbol : public MacroSymbolBase {
+class BinOpMacroSymbol : public MacroSymbol {
 public:
-  static MacroSymbolPtr make(const std::function<TMacro> &macro) {
+  using macro_t = ValuePtr(ValuePtr, ValuePtr);
 
-  }
+  static MacroSymbolPtr make(const std::function<macro_t> &macro);
 
 private:
-  std::function<TMacro> m_macro;
+  std::function<macro_t> m_macro;
+  //std::function<TMacro> m_macro;
 
-  MacroSymbol(const std::function<TMacro> &macro) :
-    m_macro(macro) {}
+  BinOpMacroSymbol(const std::function<macro_t> &macro);
 };
 } // namespace rgl
