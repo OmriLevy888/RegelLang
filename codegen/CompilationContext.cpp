@@ -1,6 +1,7 @@
 #include "codegen/CompilationContext.hpp"
 #include "codegen/Context.hpp"
 #include "codegen/values/symbols/types/BasicTypeSymbol.hpp"
+#include "codegen/values/symbols/MacroSymbol.hpp"
 #include "llvm/IR/Type.h"
 
 namespace rgl {
@@ -42,7 +43,9 @@ void CompilationContext::initializeBuiltinTypes() {
 }
 
 void CompilationContext::initializeBuiltInOperators() {
-  
+  MacroSymbol<ValuePtr(ValuePtr, ValuePtr)>::make([](ValuePtr lhs, ValuePtr rhs) {
+        return nullptr;
+      });
 }
 
 std::string CompilationContext::toString() const {
