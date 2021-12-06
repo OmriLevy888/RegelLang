@@ -5,6 +5,7 @@
 #include "llvm/Support/raw_ostream.h"
 #include <optional>
 #include <variant>
+
 namespace rgl {
 class ValueBase;
 using ValuePtr = std::shared_ptr<ValueBase>;

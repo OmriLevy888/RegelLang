@@ -7,7 +7,8 @@
 namespace rgl {
 class IntLiteralNode : public ExpressionNode {
 public:
-  IntLiteralNode(int64_t value, TypeNodePtr type, const SourceRange &range = SourceRange{})
+  IntLiteralNode(int64_t value, TypeNodePtr type,
+                 const SourceRange &range = SourceRange{})
       : m_value(value), m_type(std::move(type)), m_range(range) {}
 
   virtual TypeSymbolPtr getType() const override;

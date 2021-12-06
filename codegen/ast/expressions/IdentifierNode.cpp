@@ -21,7 +21,7 @@ ValuePtr IdentifierNode::genCode() {
         return std::make_shared<BasicValue>(storeLoc);
       }
       return std::make_shared<BasicValue>(Context::builder()->CreateLoad(
-          storeLoc,
+          variable->llvmType(), storeLoc,
           Formatter("{}@load", variableSymbol->getName()).toString()));
     }
   }
@@ -34,7 +34,7 @@ ValuePtr IdentifierNode::genCode() {
     } else if (global->isVariable()) { // global variable
       auto globalVarialbe = std::dynamic_pointer_cast<VariableSymbol>(global);
       return std::make_shared<BasicValue>(Context::builder()->CreateLoad(
-          globalVarialbe->llvmValue(),
+          globalVarialbe->llvmType(), globalVarialbe->llvmValue(),
           Formatter("{}@load", globalVarialbe->getName()).toString()));
     }
 
