@@ -23,8 +23,14 @@ using TypeSymbolPtr = std::shared_ptr<TypeSymbolBase>;
 class BasicTypeSymbol;
 using BasicTypeSymbolPtr = std::shared_ptr<BasicTypeSymbol>;
 
+class CallableSymbol;
+using CallableSymbolPtr = std::shared_ptr<CallableSymbol>;
+
 class FunctionTypeSymbol;
 using FunctionTypeSymbolPtr = std::shared_ptr<FunctionTypeSymbol>;
+
+class OperatorMap;
+using OperatorMapPtr = std::shared_ptr<OperatorMap>;
 
 class SymbolMap : public ILoggable {
 public:
@@ -33,6 +39,7 @@ public:
   SymbolPtr get(const std::vector<std::string> &name);
   SymbolPtr insert(const std::vector<std::string> &name, SymbolPtr symbol);
 
+  TypeSymbolPtr getType(const llvm::Type *llvmType);
   TypeSymbolPtr getType(const TypeNodePtr &typeNode);
   TypeSymbolPtr
   getType(const std::string &
@@ -41,6 +48,8 @@ public:
   FunctionTypeSymbolPtr getFunctionType(const TypeNodePtr &typeNode);
   FunctionTypeSymbolPtr getFunctionType(TypeSymbolPtr retType,
                                         std::vector<TypeSymbolPtr> &&params);
+
+  // TODO: create function for getOperator to return OperatorMapPtr
 
   FunctionSymbolPtr createFunction(const std::vector<std::string> &name,
                                    TypeSymbolPtr retType,

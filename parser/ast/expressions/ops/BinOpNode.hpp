@@ -1,7 +1,7 @@
 #pragma once
 #include "parser/ast/expressions/ExpressionNode.hpp"
-#include <unordered_map>
 #include <iostream>
+#include <unordered_map>
 
 namespace rgl {
 enum class BinOpType : uint8_t {
@@ -73,7 +73,7 @@ public:
                      m_rhs->toTreeStr(spaces + 10));
   }
 
-  virtual SourceRange getSourceRange() const override { 
+  virtual SourceRange getSourceRange() const override {
     return m_lhs->getSourceRange().to(m_rhs->getSourceRange());
   }
 

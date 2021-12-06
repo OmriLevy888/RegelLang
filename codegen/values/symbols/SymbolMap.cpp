@@ -60,11 +60,14 @@ FunctionSymbolPtr SymbolMap::createFunction(
   return functionSymbol;
 }
 
+TypeSymbolPtr SymbolMap::getType(const llvm::Type *llvmType) {
+  // TODO: implement this
+  return nullptr;
+}
 TypeSymbolPtr SymbolMap::getType(const TypeNodePtr &typeNode) {
   TypeSymbolPtr ret = nullptr;
   if (typeNode->isFunctionType()) {
-    ret = getFunctionType(typeNode);
-  } else {
+    ret = getFunctionType(typeNode); } else {
     auto basicTypeNode = dynamic_cast<BasicTypeNode *>(typeNode.get());
     auto symbol = this->get(basicTypeNode->name()->get());
     if (!symbol->isType()) {
