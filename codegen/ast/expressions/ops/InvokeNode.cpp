@@ -4,8 +4,14 @@
 
 namespace rgl {
 TypeSymbolPtr InvokeNode::getType() const {
-  // TODO: implement this
-  return nullptr; 
+  auto calleeType = m_callee->getType();
+  if (calleeType->success() && calleeType->isFunctionType()) {
+    auto functionType = std::dynamic_pointer_cast<FunctionTypeSymbol>(calleeType);
+    return functionType->retType();
+  }
+  
+  // TODO: implement this code path or add error message
+  return TypeSymbolBase::BadValue(); 
 }
   
 ValuePtr InvokeNode::genCode() {
@@ -14,6 +20,8 @@ ValuePtr InvokeNode::genCode() {
     // TODO: write error message
     return ValueBase::BadValue();
   }
+
+  // TODO: change this to use FunctionSymbol invoke
 
   auto calleeType = callee->llvmType();
   if (!calleeType->isPointerTy() ||

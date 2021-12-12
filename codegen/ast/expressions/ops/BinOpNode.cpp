@@ -19,11 +19,7 @@ ValuePtr BinOpNode::genCode() {
 
   auto lhsType = m_lhs->getType();
   auto rhsType = m_rhs->getType();
-  std::cout << (lhsType == nullptr) << " or " << (rhsType == nullptr) << std::endl;
   if (!lhsType || !rhsType) {
-    std::cout << m_lhs->toString() << std::endl;
-    std::cout << lhsType->toString() << std::endl;
-    std::cout << m_rhs->toString() << std::endl;
     // TODO: write error message
     return BasicValue::BadValue();
   }
