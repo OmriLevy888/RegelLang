@@ -22,6 +22,8 @@ public:
     m_params = std::move(params);
     m_range = m_callee->getSourceRange().to(endRange);
   }
+  
+  virtual TypeSymbolPtr getType() const override;
 
   virtual ValuePtr genCode() override;
 

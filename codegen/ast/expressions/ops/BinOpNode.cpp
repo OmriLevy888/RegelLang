@@ -2,6 +2,8 @@
 #include "codegen/Context.hpp"
 #include "codegen/values/BasicValue.hpp"
 
+#include <iostream>
+
 namespace rgl {
 TypeSymbolPtr BinOpNode::getType() const {
   return Context::module()->symbols().getType("i32");
@@ -10,32 +12,42 @@ TypeSymbolPtr BinOpNode::getType() const {
 ValuePtr BinOpNode::genCode() {
   auto lhs = m_lhs->genCode();
   auto rhs = m_rhs->genCode();
-  if (!lhs || !rhs) {
+  if (!lhs->success() || !rhs->success()) {
     // TODO: write error message
     return BasicValue::BadValue();
   }
 
   auto lhsType = m_lhs->getType();
   auto rhsType = m_rhs->getType();
+  std::cout << (lhsType == nullptr) << " or " << (rhsType == nullptr) << std::endl;
   if (!lhsType || !rhsType) {
+    std::cout << m_lhs->toString() << std::endl;
+    std::cout << lhsType->toString() << std::endl;
+    std::cout << m_rhs->toString() << std::endl;
     // TODO: write error message
     return BasicValue::BadValue();
   }
 
-  auto operator = Context::module()->symbols().getOperator(m_op);
-  if (nullptr == operator) {
+  auto binOp = Context::module()->symbols().getOperator(m_op);
+  if (nullptr == binOp) {
     // TODO: write error message
     return BasicValue::BadValue();
   }
-  
-  auto overload = operator->forTypes(lhsType, rhsType);
-  if (nullptr == overload) {
-    // TODO: write error message
-    return BasicValue::BadValue();   
-  }
 
-  return overload->invoke(lhs, rhs);
+  std::cout << "Found operator" << std::endl;
+
+  // TODO: uncomment this code
+  /*   auto overload = operator->forTypes(lhsType, rhsType); */
+  /*   if (nullptr == overload) { */
+  /*     // TODO: write error message */
+  /*     return BasicValue::BadValue();    */
+  /*   } */
+  /*  */
+  /*   return overload->invoke(lhs, rhs); */
+
+  return nullptr;
   /* return std::make_shared<BasicValue>( */
-  /*     Context::builder()->CreateAdd(lhs->llvmValue(), rhs->llvmValue(), "add")); */
+  /*     Context::builder()->CreateAdd(lhs->llvmValue(), rhs->llvmValue(),
+   * "add")); */
 }
 }; // namespace rgl

@@ -2,11 +2,11 @@
 
 namespace rgl {
 IdentifierNode::IdentifierNode(const std::vector<std::string> &value, const SourceRange &range)
-    : m_value(value), m_range(range) {}
+    : m_value(value), m_range(range), m_cachedTypeSymbol(nullptr) {}
 IdentifierNode::IdentifierNode(std::vector<std::string> &&value, const SourceRange &range)
-    : m_value(std::move(value)), m_range(range) {}
+    : m_value(std::move(value)), m_range(range), m_cachedTypeSymbol(nullptr)  {}
 IdentifierNode::IdentifierNode(std::string &&value, const SourceRange &range)
- : m_range(range) {
+ : m_range(range), m_cachedTypeSymbol(nullptr)  {
   m_value = std::vector<std::string>();
   m_value.push_back(std::move(value));
 }

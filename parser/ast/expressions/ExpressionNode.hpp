@@ -12,7 +12,6 @@ using TypeSymbolPtr = std::shared_ptr<TypeSymbolBase>;
 class ExpressionNode : public ASTNode {
 public:
   virtual TypeSymbolPtr getType() const { return nullptr; }
-  // TODO: add getValue function that returns an LLVMValue
   // TODO: add getStorageLocation function that return an LLVMValue
 
   virtual ValuePtr genCode();

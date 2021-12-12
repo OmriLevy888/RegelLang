@@ -11,6 +11,11 @@ enum class TypeTraits : uint64_t { TriviallyCopiable = 1 };
 
 class TypeSymbolBase : public SymbolBase {
 public:
+  static TypeSymbolPtr BadValue() {
+    return TypeSymbolPtr(
+        new TypeSymbolBase(nullptr, TypeTraits::TriviallyCopiable));
+  }
+
   static TypeSymbolPtr make(TypeNodePtr typeNode);
 
   virtual bool isType() const override { return true; }
@@ -21,7 +26,7 @@ public:
   virtual bool isConst() const { return false; }
   virtual bool isImplicitType() const { return false; }
 
-  virtual bool operator==(TypeSymbolPtr other) const = 0;
+  virtual bool operator==(TypeSymbolPtr other) const { return false; }
 
   virtual size_t getSizeBits() const {
     return llvmType()->getScalarSizeInBits();

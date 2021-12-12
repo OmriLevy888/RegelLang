@@ -2,6 +2,7 @@
 #include "codegen/values/symbols/CallableSymbol.hpp"
 #include "codegen/values/symbols/SymbolMap.hpp"
 #include "codegen/values/symbols/types/TypeSymbolBase.hpp"
+#include "codegen/values/symbols/types/FunctionTypeSymbol.hpp"
 #include "parser/ast/expressions/literals/ParameterNode.hpp"
 
 namespace rgl {

@@ -7,6 +7,7 @@
 #include "codegen/values/symbols/types/FunctionTypeSymbol.hpp"
 #include "codegen/values/symbols/types/ModifiedTypeSymbol.hpp"
 #include "parser/ast/constructs/BasicTypeNode.hpp"
+#include "parser/ast/expressions/ops/BinOpNode.hpp"
 
 namespace rgl {
 SymbolMap::SymbolMap() : m_maps({}), m_symbol(nullptr) {}
@@ -100,6 +101,12 @@ FunctionTypeSymbolPtr
 SymbolMap::getFunctionType(TypeSymbolPtr retType,
                            std::vector<TypeSymbolPtr> &&params) {
   return FunctionTypeSymbol::make(retType, std::move(params));
+}
+
+BinaryOperatorPtr SymbolMap::getOperator(BinOpType op) {
+  std::vector<std::string> fullyQuallifiedName = {
+    Formatter("@operator::", BinOpNode::getOpString(op))};
+  return nullptr;
 }
 
 VariableSymbolPtr

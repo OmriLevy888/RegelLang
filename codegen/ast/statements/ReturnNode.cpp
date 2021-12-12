@@ -1,6 +1,7 @@
 #include "parser/ast/statements/ReturnNode.hpp"
 #include "codegen/Context.hpp"
 #include "codegen/values/symbols/types/FunctionTypeSymbol.hpp"
+#include "codegen/values/BasicValue.hpp"
 #include "common/errors/ErrorManager.hpp"
 
 namespace rgl {
@@ -17,7 +18,13 @@ ValuePtr ReturnNode::genCode() {
          m_expr->getSourceRange()});
     return ValueBase::BadValue();
   }
+  
   auto retVal = m_expr->genCode();
+  if (!retVal->success()) {
+    // TODO: write error message
+    return BasicValue::BadValue();
+  }
+  
   Context::builder()->CreateRet(retVal->llvmValue());
   return ValueBase::Success();
 }

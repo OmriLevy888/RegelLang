@@ -29,8 +29,9 @@ using CallableSymbolPtr = std::shared_ptr<CallableSymbol>;
 class FunctionTypeSymbol;
 using FunctionTypeSymbolPtr = std::shared_ptr<FunctionTypeSymbol>;
 
-class OperatorMap;
-using OperatorMapPtr = std::shared_ptr<OperatorMap>;
+class BinaryOperator;
+using BinaryOperatorPtr = std::shared_ptr<BinaryOperator>;
+enum class BinOpType : uint8_t;
 
 class SymbolMap : public ILoggable {
 public:
@@ -48,8 +49,8 @@ public:
   FunctionTypeSymbolPtr getFunctionType(const TypeNodePtr &typeNode);
   FunctionTypeSymbolPtr getFunctionType(TypeSymbolPtr retType,
                                         std::vector<TypeSymbolPtr> &&params);
-
   // TODO: create function for getOperator to return OperatorMapPtr
+  BinaryOperatorPtr getOperator(BinOpType op);
 
   FunctionSymbolPtr createFunction(const std::vector<std::string> &name,
                                    TypeSymbolPtr retType,

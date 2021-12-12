@@ -3,9 +3,14 @@
 #include "codegen/values/BasicValue.hpp"
 
 namespace rgl {
+TypeSymbolPtr InvokeNode::getType() const {
+  // TODO: implement this
+  return nullptr; 
+}
+  
 ValuePtr InvokeNode::genCode() {
   auto callee = m_callee->genCode();
-  if (!callee) {
+  if (!callee->success()) {
     // TODO: write error message
     return ValueBase::BadValue();
   }

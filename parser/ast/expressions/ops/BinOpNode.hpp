@@ -68,7 +68,7 @@ public:
 
   virtual std::string toTreeStr(size_t spaces) const override {
     std::string spacesStr(spaces + 6, ' ');
-    return Formatter("BinOp<op:{},\n{}lhs:{},\n{}rhs:{}>", getOpString(),
+    return Formatter("BinOp<op:{},\n{}lhs:{},\n{}rhs:{}>", getOpString(m_op),
                      spacesStr, m_lhs->toTreeStr(spaces + 10), spacesStr,
                      m_rhs->toTreeStr(spaces + 10));
   }
@@ -82,7 +82,8 @@ private:
   Expression m_lhs;
   Expression m_rhs;
 
-  std::string getOpString() const {
+public:
+  static std::string getOpString(BinOpType op) {
     static std::unordered_map<BinOpType, std::string> binOpReprMap{
         {BinOpType::b_err, "b_err"},
 
@@ -125,7 +126,7 @@ private:
         {BinOpType::b_as, "b_as"},
     };
 
-    return binOpReprMap[m_op];
+    return binOpReprMap[op];
   }
 };
 }; // namespace rgl
